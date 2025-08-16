@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "243121732675",
+    "project_id": "homiq2025",
+    "storage_bucket": "homiq2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:243121732675:android:449dec816f6e43180268f6",
+        "android_client_info": {
+          "package_name": "com.homiq.acrocoder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "243121732675-9l7fvpdvq0ct74k6rmbcsv9qj2olontv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.homiq.acrocoder",
+            "certificate_hash": "3245d9db03462defd32c56ef10baed8065bddb9b"
+          }
+        },
+        {
+          "client_id": "243121732675-kvtbk19mv31l22sgi4af6dmg1sg48j9v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCby57THkIKc7EEA2Al3ZV-YWWSeazSs-c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "243121732675-kvtbk19mv31l22sgi4af6dmg1sg48j9v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "243121732675-k5thi6j5637j0qke0da8hqdk2me0misg.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.homiq.acrocoder"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
