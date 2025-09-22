@@ -211,31 +211,46 @@ class LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  bool _isGoogleLoading = false;
+  bool _isAppleLoading = false;
+
   Future<void> _onGoogleTap() async {
+    if (_isGoogleLoading) return;
+    
+    setState(() => _isGoogleLoading = true);
+    
     try {
-      // No loader is shown here to prevent app crashes
       await loginSystem.setActive('google');
       await loginSystem.login();
-    } on Exception catch (_) {
-      await HelperUtils.showSnackBarMessage(
-        context,
-        'googleLoginFailed'.translate(context),
-        type: MessageType.error,
-      );
+    } catch (e) {
+      if (e.toString() != 'google-terminated') {
+        await HelperUtils.showSnackBarMessage(
+          context,
+          'googleLoginFailed'.translate(context),
+          type: MessageType.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isGoogleLoading = false);
     }
   }
 
   Future<void> _onTapAppleLogin() async {
+    if (_isAppleLoading) return;
+    
+    setState(() => _isAppleLoading = true);
+    
     try {
-      // No loader is shown here to prevent app crashes
       await loginSystem.setActive('apple');
       await loginSystem.login();
-    } on Exception catch (_) {
+    } catch (e) {
       await HelperUtils.showSnackBarMessage(
         context,
         'appleLoginFailed'.translate(context),
         type: MessageType.error,
       );
+    } finally {
+      if (mounted) setState(() => _isAppleLoading = false);
     }
   }
 
@@ -638,6 +653,7 @@ class LoginScreenState extends State<LoginScreen> {
               text: 'signInWithApple'.translate(context),
               icon: AppIcons.apple,
               onTap: _onTapAppleLogin,
+              isLoading: _isAppleLoading,
             ),
             SizedBox(width: UIConstants.spacingM.rw(context)),
           ],
@@ -645,6 +661,7 @@ class LoginScreenState extends State<LoginScreen> {
             text: 'signInWithGoogle'.translate(context),
             icon: AppIcons.google,
             onTap: _onGoogleTap,
+            isLoading: _isGoogleLoading,
           ),
         ],
       );
@@ -691,6 +708,7 @@ class LoginScreenState extends State<LoginScreen> {
               text: 'signInWithApple'.translate(context),
               icon: AppIcons.apple,
               onTap: _onTapAppleLogin,
+              isLoading: _isAppleLoading,
             ),
             SizedBox(width: UIConstants.spacingM.rw(context)),
           ],
@@ -698,6 +716,7 @@ class LoginScreenState extends State<LoginScreen> {
             text: 'signInWithGoogle'.translate(context),
             icon: AppIcons.google,
             onTap: _onGoogleTap,
+            isLoading: _isGoogleLoading,
           ),
         ],
       );
@@ -709,9 +728,10 @@ class LoginScreenState extends State<LoginScreen> {
     required VoidCallback onTap,
     required String text,
     Color? iconColor,
+    bool isLoading = false,
   }) {
     return GestureDetector(
-      onTap: () {
+      onTap: isLoading ? null : () {
         HelperUtils.unfocus();
         onTap();
       },
@@ -721,26 +741,39 @@ class LoginScreenState extends State<LoginScreen> {
         height: 48.rh(context),
         width: double.infinity,
         decoration: BoxDecoration(
-          color: context.color.secondaryColor,
+          color: isLoading 
+              ? context.color.secondaryColor.withValues(alpha: 0.7)
+              : context.color.secondaryColor,
           borderRadius: BorderRadius.circular(4),
           border: Border.all(color: context.color.borderColor),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              alignment: Alignment.center,
-              child: CustomImage(
-                imageUrl: icon,
-                color: iconColor,
-                height: 24.rh(context),
-                width: 24.rw(context),
+        child: isLoading
+            ? SizedBox(
+                height: 20.rh(context),
+                width: 20.rw(context),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    context.color.tertiaryColor,
+                  ),
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    child: CustomImage(
+                      imageUrl: icon,
+                      color: iconColor,
+                      height: 24.rh(context),
+                      width: 24.rw(context),
+                    ),
+                  ),
+                  SizedBox(width: 8.rw(context)),
+                  CustomText(text),
+                ],
               ),
-            ),
-            SizedBox(width: 8.rw(context)),
-            CustomText(text),
-          ],
-        ),
       ),
     );
   }
@@ -1135,7 +1168,11 @@ class LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  bool _isPhoneVerificationInProgress = false;
+
   Future<void> sendPhoneVerificationCode() async {
+    if (_isPhoneVerificationInProgress) return;
+    
     if (!FormValidator.validatePhoneForm(
       _formKey,
       context,
@@ -1148,39 +1185,25 @@ class LoginScreenState extends State<LoginScreen> {
     if (form == null) return;
     form.save();
 
+    if (!form.validate()) return;
+    
+    setState(() => _isPhoneVerificationInProgress = true);
+
     try {
-      if (form.validate()) {
-        if (widget.isDeleteAccount ?? false) {
-          if (AppSettings.otpServiceProvider == 'twilio') {
-            await context.read<SendOtpCubit>().sendTwilioOTP(
-                  phoneNumber: mobileNumController.text,
-                  countryCode: countryCode!,
-                );
-          } else if (AppSettings.otpServiceProvider == 'firebase') {
-            await context.read<SendOtpCubit>().sendFirebaseOTP(
-                  phoneNumber: mobileNumController.text,
-                  countryCode: countryCode!,
-                );
-          }
-        } else if (AppSettings.otpServiceProvider == 'firebase') {
-          await context.read<SendOtpCubit>().sendFirebaseOTP(
-                phoneNumber: mobileNumController.text,
-                countryCode: countryCode!,
-              );
-        } else if (AppSettings.otpServiceProvider == 'twilio') {
-          await context.read<SendOtpCubit>().sendTwilioOTP(
-                phoneNumber: mobileNumController.text,
-                countryCode: countryCode!,
-              );
-        }
-      }
-    } on Exception catch (_) {
-      Widgets.hideLoder(context);
+      // Unified OTP sending - no need for complex conditionals
+      await context.read<SendOtpCubit>().sendOTP(
+        phoneNumber: mobileNumController.text,
+        countryCode: countryCode!,
+        provider: AppSettings.otpServiceProvider,
+      );
+    } catch (e) {
       await HelperUtils.showSnackBarMessage(
         context,
         'enterValidPhoneNumber'.translate(context),
         type: MessageType.error,
       );
+    } finally {
+      if (mounted) setState(() => _isPhoneVerificationInProgress = false);
     }
   }
 

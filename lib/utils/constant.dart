@@ -187,7 +187,7 @@ modM8h9DRzp9OaAJqxfP960q
 
   //Demo mode settings
   static bool isDemoModeOn = false;
-  static String demoEmail = 'wrteamdemo@gmail.com';
+  static String demoEmail = 'acrocoader@gmail.com';
   static String demoCountryCode = '91';
   static String demoMobileNumber = '1234567890';
   static String demoFirebaseID = '6a1Zdl2TxORQGbCazj4XDGfgBBG3';

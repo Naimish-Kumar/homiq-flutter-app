@@ -9,7 +9,6 @@ class AppSettings {
 
   ///API Setting
   static const String hostUrl = 'https://homiq.acrocoder.com/';
-  // homiq.wrteam.me
 
   static const int apiDataLoadLimit = 10;
   static const int maxCategoryShowLengthInHomeScreen = 5;
@@ -25,7 +24,6 @@ class AppSettings {
 
   ///Native deep link
   static const String shareNavigationWebUrl = 'com.homiq.acrocoder';
-  // ebrokerweb.wrteam.me
 
   ///Firebase authentication OTP timer.
   static const int otpResendSecond = 120;

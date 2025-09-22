@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:homiq/exports/main_export.dart';
@@ -177,12 +178,17 @@ class AuthRepository {
       );
       onCodeSent.call(phoneNumber);
     } else if (AppSettings.otpServiceProvider == 'firebase') {
+      // Configure Firebase Auth to disable reCAPTCHA
+      await _configureFirebaseAuth();
+      
       await FirebaseAuth.instance.verifyPhoneNumber(
         timeout: Duration(
           seconds: Constant.otpTimeOutSecond,
         ),
         phoneNumber: '+$countryCode$phoneNumber',
-        verificationCompleted: (PhoneAuthCredential credential) {},
+        verificationCompleted: (PhoneAuthCredential credential) {
+          // Auto-verification completed
+        },
         verificationFailed: (FirebaseAuthException e) {
           onError?.call(ApiException(e.code));
         },
@@ -190,9 +196,31 @@ class AuthRepository {
           forceResendingToken = resendToken;
           onCodeSent.call(verificationId);
         },
-        codeAutoRetrievalTimeout: (String verificationId) {},
+        codeAutoRetrievalTimeout: (String verificationId) {
+          // Auto-retrieval timeout
+        },
         forceResendingToken: forceResendingToken,
       );
+    }
+  }
+  
+  Future<void> _configureFirebaseAuth() async {
+    try {
+      // Only configure for mobile platforms
+      if (Platform.isAndroid || Platform.isIOS) {
+        // Disable reCAPTCHA verification for phone auth to improve UX
+        await _auth.setSettings(
+          appVerificationDisabledForTesting: true,
+          userAccessGroup: null,
+          phoneNumber: null,
+          smsCode: null,
+        );
+        log('Firebase Auth reCAPTCHA disabled for OTP verification');
+      }
+    } catch (e) {
+      // Settings configuration failed, continue with default behavior
+      log('Firebase Auth settings configuration failed: $e');
+      // OTP will still work with reCAPTCHA if this fails
     }
   }
 

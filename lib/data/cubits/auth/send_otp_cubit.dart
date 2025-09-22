@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'package:homiq/data/repositories/auth_repository.dart';
-
 import 'package:homiq/exports/main_export.dart';
 
 String verificationID = '';
@@ -28,37 +28,45 @@ class SendOtpCubit extends Cubit<SendOtpState> {
   SendOtpCubit() : super(SendOtpInitial());
 
   final AuthRepository _authRepository = AuthRepository();
+  static const Duration _otpTimeout = Duration(seconds: 30);
+  
+  // Unified OTP sending method to reduce code duplication
+  Future<void> sendOTP({
+    required String phoneNumber, 
+    required String countryCode,
+    String? provider,
+  }) async {
+    if (state is SendOtpInProgress) return; // Prevent multiple calls
+    
+    emit(SendOtpInProgress());
+    
+    try {
+      await _authRepository.sendOTP(
+        phoneNumber: phoneNumber,
+        countryCode: countryCode,
+        onCodeSent: (verificationId) {
+          verificationID = verificationId;
+          emit(SendOtpSuccess(verificationId: verificationId));
+        },
+        onError: (e) {
+          emit(SendOtpFailure(e.toString()));
+        },
+      ).timeout(_otpTimeout);
+    } on TimeoutException catch (_) {
+      emit(SendOtpFailure('OTP request timed out. Please try again.'));
+    } catch (e) {
+      emit(SendOtpFailure(e.toString()));
+    }
+  }
+
   Future<void> sendFirebaseOTP(
       {required String phoneNumber, required String countryCode}) async {
-    emit(SendOtpInProgress());
-    await _authRepository.sendOTP(
-      phoneNumber: phoneNumber,
-      countryCode: countryCode,
-      onCodeSent: (verificationId) {
-        verificationID = verificationId;
-        emit(SendOtpSuccess(verificationId: verificationId));
-      },
-      onError: (e) {
-        emit(SendOtpFailure(e.toString()));
-      },
-    );
+    await sendOTP(phoneNumber: phoneNumber, countryCode: countryCode, provider: 'firebase');
   }
 
   Future<void> sendTwilioOTP(
       {required String phoneNumber, required String countryCode}) async {
-    emit(SendOtpInProgress());
-
-    await _authRepository.sendOTP(
-      phoneNumber: phoneNumber,
-      countryCode: countryCode,
-      onCodeSent: (verificationId) {
-        verificationID = verificationId;
-        emit(SendOtpSuccess(verificationId: verificationId));
-      },
-      onError: (e) {
-        emit(SendOtpFailure(e.toString()));
-      },
-    );
+    await sendOTP(phoneNumber: phoneNumber, countryCode: countryCode, provider: 'twilio');
   }
 
   Future<void> sendForgotPasswordEmail({
