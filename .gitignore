@@ -1,3 +1,11 @@
 build/
 .vscode/
 .dart_tool
+.idea/
+android/.gradle/
+android/.kotlin/
+
+
+*.lock
+*.bin
+

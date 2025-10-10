@@ -168,54 +168,87 @@ class AuthRepository {
     required dynamic Function(String verificationId) onCodeSent,
     dynamic Function(dynamic e)? onError,
   }) async {
+    // Clean and validate phone number
+    final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+    final fullPhoneNumber = '+$countryCode$cleanPhoneNumber';
+
+    log('Attempting to send OTP to: $fullPhoneNumber using ${AppSettings.otpServiceProvider}');
+
     if (AppSettings.otpServiceProvider == 'twilio') {
-      await Api.get(
-        url: Api.apiGetOtp,
-        queryParameters: {
-          'number': phoneNumber,
-          'country_code': countryCode,
-        },
-      );
-      onCodeSent.call(phoneNumber);
-    } else if (AppSettings.otpServiceProvider == 'firebase') {
-      // Configure Firebase Auth to disable reCAPTCHA
-      await _configureFirebaseAuth();
-      
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        timeout: Duration(
-          seconds: Constant.otpTimeOutSecond,
-        ),
-        phoneNumber: '+$countryCode$phoneNumber',
-        verificationCompleted: (PhoneAuthCredential credential) {
-          // Auto-verification completed
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          onError?.call(ApiException(e.code));
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          forceResendingToken = resendToken;
-          onCodeSent.call(verificationId);
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          // Auto-retrieval timeout
-        },
-        forceResendingToken: forceResendingToken,
-      );
+      try {
+        await Api.get(
+          url: Api.apiGetOtp,
+          queryParameters: {
+            'number': cleanPhoneNumber,
+            'country_code': countryCode,
+          },
+        );
+        onCodeSent.call(cleanPhoneNumber);
+        log('OTP sent successfully via Twilio to $countryCode-$cleanPhoneNumber');
+      } catch (e) {
+        log('Twilio OTP failed: $e');
+        onError?.call(ApiException('Failed to send OTP via Twilio: $e'));
+      }
+    } else {
+      // Default to Firebase if provider is not set or is 'firebase'
+      try {
+        // Configure Firebase Auth
+        await _configureFirebaseAuth();
+
+        await FirebaseAuth.instance.verifyPhoneNumber(
+          timeout: Duration(seconds: Constant.otpTimeOutSecond),
+          phoneNumber: fullPhoneNumber,
+          verificationCompleted: (PhoneAuthCredential credential) {
+            log('Auto-verification completed for: $fullPhoneNumber');
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            log('Firebase OTP verification failed: ${e.code} - ${e.message}');
+            String errorMessage = 'Failed to send OTP';
+            switch (e.code) {
+              case 'invalid-phone-number':
+                errorMessage = 'Invalid phone number format';
+                break;
+              case 'too-many-requests':
+                errorMessage = 'Too many requests. Please try again later';
+                break;
+              case 'quota-exceeded':
+                errorMessage = 'SMS quota exceeded. Please try again later';
+                break;
+              default:
+                errorMessage = e.message ?? 'Failed to send OTP';
+            }
+            onError?.call(ApiException(errorMessage));
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            forceResendingToken = resendToken;
+            log('OTP sent successfully via Firebase to: $fullPhoneNumber');
+            onCodeSent.call(verificationId);
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {
+            log('Auto-retrieval timeout for: $fullPhoneNumber');
+          },
+          forceResendingToken: forceResendingToken,
+        );
+      } catch (e) {
+        log('Firebase OTP error: $e');
+        onError?.call(ApiException('Failed to send OTP: $e'));
+      }
     }
   }
-  
+
   Future<void> _configureFirebaseAuth() async {
     try {
       // Only configure for mobile platforms
       if (Platform.isAndroid || Platform.isIOS) {
         // Disable reCAPTCHA verification for phone auth to improve UX
         await _auth.setSettings(
-          appVerificationDisabledForTesting: true,
+          appVerificationDisabledForTesting:
+              false, // Changed to false for production
           userAccessGroup: null,
           phoneNumber: null,
           smsCode: null,
         );
-        log('Firebase Auth reCAPTCHA disabled for OTP verification');
+        log('Firebase Auth configured for OTP verification');
       }
     } catch (e) {
       // Settings configuration failed, continue with default behavior

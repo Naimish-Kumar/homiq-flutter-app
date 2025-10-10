@@ -1026,9 +1026,9 @@ class MainActivityState extends State<MainActivity>
                   imageUrl: currtab == index ? selectedSvgImage : svgImage,
                   height: 24.rh(context),
                   width: 24.rw(context),
-                  // color: currtab == index
-                  //     ? context.color.tertiaryColor
-                  //     : context.color.textColorDark.withValues(alpha: .5),
+                  color: currtab == index
+                      ? context.color.tertiaryColor
+                      : context.color.textColorDark.withValues(alpha: .5),
                 ),
               ),
             ),

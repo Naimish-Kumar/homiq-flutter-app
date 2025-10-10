@@ -5,7 +5,6 @@ import 'package:homiq/app/routes.dart';
 import 'package:homiq/data/cubits/system/fetch_system_settings_cubit.dart';
 import 'package:homiq/data/model/system_settings_model.dart';
 import 'package:homiq/utils/Extensions/extensions.dart';
-import 'package:homiq/utils/app_icons.dart';
 import 'package:homiq/utils/custom_image.dart';
 import 'package:homiq/utils/extensions/lib/custom_text.dart';
 import 'package:homiq/utils/hive_keys.dart';
@@ -24,8 +23,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   int currentPageIndex = 0;
   late PageController _pageController;
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
@@ -35,26 +32,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutBack,
-    ));
-    
+
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -69,63 +50,50 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         'img': 'assets/svg/on_1.svg',
         'title': UiUtils.translate(context, 'Welcome To Homiq'),
         'description': UiUtils.translate(context, 'onboarding_1_description'),
-        'gradient': [Colors.blue.shade400, Colors.purple.shade400],
       },
       {
         'img': 'assets/svg/on_2.svg',
         'title': UiUtils.translate(context, 'onboarding_2_title'),
         'description': UiUtils.translate(context, 'onboarding_2_description'),
-        'gradient': [Colors.green.shade400, Colors.teal.shade400],
       },
       {
         'img': 'assets/svg/on_3.svg',
         'title': UiUtils.translate(context, 'onboarding_3_title'),
         'description': UiUtils.translate(context, 'onboarding_3_description'),
-        'gradient': [Colors.orange.shade400, Colors.red.shade400],
       },
     ];
 
     return AnnotatedRegion(
       value: UiUtils.getSystemUiOverlayStyle(context: context),
       child: Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                context.color.tertiaryColor.withValues(alpha: 0.1),
-                context.color.backgroundColor,
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                _buildTopBar(context),
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        currentPageIndex = index;
-                      });
-                      _animationController.reset();
-                      _animationController.forward();
-                    },
-                    itemCount: slidersList.length,
-                    itemBuilder: (context, index) {
-                      return _buildOnboardingPage(
-                        context,
-                        slidersList[index],
-                        index,
-                      );
-                    },
-                  ),
+        backgroundColor: context.color.primaryColor,
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildTopBar(context),
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      currentPageIndex = index;
+                    });
+                    _animationController
+                      ..reset()
+                      ..forward();
+                  },
+                  itemCount: slidersList.length,
+                  itemBuilder: (context, index) {
+                    return _buildOnboardingPage(
+                      context,
+                      slidersList[index],
+                      index,
+                    );
+                  },
                 ),
-                _buildBottomSection(context, slidersList.length),
-              ],
-            ),
+              ),
+              _buildBottomSection(context, slidersList.length),
+            ],
           ),
         ),
       ),
@@ -159,9 +127,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: context.color.secondaryColor.withValues(alpha: 0.8),
+          color: context.color.primaryColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: context.color.borderColor.withValues(alpha: 0.3)),
+          border: Border.all(
+              color: context.color.borderColor.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -188,9 +157,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   );
                 } else {
                   return CustomText(
-                    value.data!.value!['code']
-                        .toString()
-                        .firstUpperCase(),
+                    value.data!.value!['code'].toString().firstUpperCase(),
                     color: context.color.textColorDark,
                     fontSize: context.font.sm,
                     fontWeight: FontWeight.w600,
@@ -231,57 +198,42 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  Widget _buildOnboardingPage(BuildContext context, Map<String, dynamic> data, int index) {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Hero(
-                tag: 'onboarding_image_$index',
-                child: Container(
-                  height: 300.rh(context),
-                  width: 300.rw(context),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: context.color.tertiaryColor.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: CustomImage(
-                    imageUrl: data['img'].toString(),
-                    fit: BoxFit.contain,
-                  ),
-                ),
+  Widget _buildOnboardingPage(
+      BuildContext context, Map<String, dynamic> data, int index) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Hero(
+            tag: 'onboarding_image_$index',
+            child: SizedBox(
+              height: 300.rh(context),
+              width: 300.rw(context),
+              child: CustomImage(
+                imageUrl: data['img'].toString(),
+                fit: BoxFit.contain,
               ),
-              SizedBox(height: 40.rh(context)),
-              CustomText(
-                data['title']?.toString() ?? '',
-                fontWeight: FontWeight.w700,
-                fontSize: context.font.xxl,
-                color: context.color.textColorDark,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 16.rh(context)),
-              CustomText(
-                data['description']?.toString() ?? '',
-                maxLines: 3,
-                textAlign: TextAlign.center,
-                fontSize: context.font.md,
-                color: context.color.textColorDark.withValues(alpha: 0.7),
-                fontWeight: FontWeight.w500,
-              ),
-            ],
+            ),
           ),
-        ),
+          SizedBox(height: 40.rh(context)),
+          CustomText(
+            data['title']?.toString() ?? '',
+            fontWeight: FontWeight.w700,
+            fontSize: context.font.xxl,
+            color: context.color.tertiaryColor,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 16.rh(context)),
+          CustomText(
+            data['description']?.toString() ?? '',
+            maxLines: 3,
+            textAlign: TextAlign.center,
+            fontSize: context.font.md,
+            color: context.color.textColorDark,
+            fontWeight: FontWeight.w500,
+          ),
+        ],
       ),
     );
   }
@@ -345,13 +297,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ],
           ),
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: context.color.tertiaryColor.withValues(alpha: 0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
         ),
         child: Icon(
           currentPageIndex < totalPages - 1

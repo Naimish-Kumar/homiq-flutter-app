@@ -22,6 +22,22 @@
           }
         },
         {
+          "client_id": "243121732675-arecurm2drhpu0cfbmvlk67hcc9gce4f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.homiq.acrocoder",
+            "certificate_hash": "ce1f34d9979637adac8a43ea619021eb9d05b464"
+          }
+        },
+        {
+          "client_id": "243121732675-ssme914166qcolcnam66n94i81g929pl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.homiq.acrocoder",
+            "certificate_hash": "e295ab5580298ac2b0c5d83bc4cda22382f4cd8c"
+          }
+        },
+        {
           "client_id": "243121732675-kvtbk19mv31l22sgi4af6dmg1sg48j9v.apps.googleusercontent.com",
           "client_type": 3
         }

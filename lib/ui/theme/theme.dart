@@ -3,10 +3,9 @@ import 'package:homiq/app/app.dart';
 import 'package:homiq/utils/Extensions/extensions.dart';
 
 ///Light Theme Colors
-///This color format is different, isn't it? .You can use hex colors here also but you have to remove '#' symbol and add 0xff instead.
 const Color primaryColor_ = Color(0xFFFAFAFA);
 const Color secondaryColor_ = Color(0xFFFFFFFF);
-const Color tertiaryColor_ = Color(0xFF087C7C);
+const Color tertiaryColor_ = Colors.red;
 const Color textColor = Color(0xFF4D5454);
 Color lightTextColor = Colors.black.withValues(alpha: .6);
 Color widgetsBorderColorLight = const Color(0xffEEEEEE).withValues(alpha: 0.6);
@@ -15,7 +14,7 @@ Color senderChatColor = const Color.fromARGB(255, 233, 233, 233).darken(22);
 ///Dark Theme Colors
 Color primaryColorDark = const Color(0xff0C0C0C);
 Color secondaryColorDark = const Color(0xff1C1C1C);
-const Color tertiaryColorDark = Color(0xff53ADAE);
+const Color tertiaryColorDark = Colors.red;
 const Color textColorDarkTheme = Color(0xffFDFDFD);
 Color lightTextColorDarkTheme = Colors.white.withValues(alpha: 0.6);
 Color widgetsBorderColorDark = const Color(0x1aFDFDFD);
@@ -24,8 +23,8 @@ Color darkSenderChatColor =
 
 ///Messages Color
 const Color errorMessageColor = Color.fromARGB(255, 166, 4, 4);
-const Color successMessageColor = Color.fromARGB(255, 12, 161, 161);
-const Color warningMessageColor = Color(0xFFC2AF6F);
+const Color successMessageColor = Colors.red;
+const Color warningMessageColor = Colors.amber;
 
 //Button text color
 const Color buttonTextColor = Colors.white;
@@ -117,9 +116,6 @@ extension TextThemeForFont on TextTheme {
   Font get font => Font();
 }
 
-/// i made this to access font easyly from theme like, Theme.of(context).textTheme.font.small
-/// So what is diffrence here?? in Theme.of(context).textTheme.small and Theme.of(context).textTheme.font.small
-/// We use saperate class because There will be an exention on BuildContext in [Utils/Extensions/lib] folder so further explaination is there. you can check
 class Font {
   ///11
   double get xxs => 11; // smaller

@@ -49,21 +49,20 @@ Future<void> initApp() async {
 
 Future<void> _configureFirebaseAuth() async {
   try {
-    // Disable reCAPTCHA verification for phone auth in development and production
-    // This improves user experience by removing the reCAPTCHA step
+    // Configure Firebase Auth for production use
     if (Platform.isAndroid || Platform.isIOS) {
       await FirebaseAuth.instance.setSettings(
-        appVerificationDisabledForTesting: true,
+        appVerificationDisabledForTesting: false, // Enable for production
         userAccessGroup: null,
         phoneNumber: null,
         smsCode: null,
       );
-      log('Firebase Auth reCAPTCHA disabled successfully for mobile platform');
+      log('Firebase Auth configured successfully for mobile platform');
     }
   } catch (e) {
     // Settings configuration failed, continue with default behavior
     log('Firebase Auth settings configuration failed: $e');
-    // App will continue to work with reCAPTCHA if configuration fails
+    // App will continue to work with default settings if configuration fails
   }
 }
 
