@@ -13,7 +13,7 @@ abstract class Constant {
   static String appstoreURLios = AppSettings.appstoreURLios;
   static List<LanguagesModel> languages = AppSettings.languages;
 
-  static ScrollPhysics scrollPhysics = const AlwaysScrollableScrollPhysics();
+  static const scrollPhysics = AlwaysScrollableScrollPhysics();
 
   //backend url
   static String baseUrl = AppSettings.baseUrl;

@@ -81,7 +81,7 @@ class AppSettings {
   static String stripeCurrency = '';
   static String stripePublishableKey = '';
   static String stripeSecrateKey = '';
-  static String otpServiceProvider = '';
+  static String otpServiceProvider = 'firebase'; // Set default to firebase
 
   ///Do not set here
   static String iOSAppId = '';

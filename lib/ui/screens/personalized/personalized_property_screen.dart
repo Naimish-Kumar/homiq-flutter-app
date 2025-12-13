@@ -15,9 +15,7 @@ enum PersonalizedVisitType { firstTime, normal }
 
 class PersonalizedPropertyScreen extends StatefulWidget {
   const PersonalizedPropertyScreen({required this.type, super.key});
-
   final PersonalizedVisitType type;
-
   static Route<dynamic> route(RouteSettings settings) {
     final args = settings.arguments as Map?;
     return CupertinoPageRoute(

@@ -37,11 +37,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
-    _fadeController.forward();
-  }
-
-  @override
-  void dispose() {
     _pageController.dispose();
     _fadeController.dispose();
     super.dispose();
@@ -114,9 +109,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     },
                   ),
                 ),
-                _buildBottomSection(context, slidersList.length),
-              ],
-            ),
+              ),
+              _buildBottomSection(context, slidersList.length),
+            ],
           ),
         ),
       ),
@@ -324,13 +319,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         decoration: BoxDecoration(
           color: context.color.tertiaryColor,
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: context.color.tertiaryColor.withValues(alpha: 0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
         ),
         child: Icon(
           currentPageIndex < totalPages - 1
