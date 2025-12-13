@@ -1190,16 +1190,26 @@ class LoginScreenState extends State<LoginScreen> {
     setState(() => _isPhoneVerificationInProgress = true);
 
     try {
-      // Unified OTP sending - no need for complex conditionals
+      // Add delay to prevent rapid requests
+      await Future.delayed(const Duration(milliseconds: 500));
+      
       await context.read<SendOtpCubit>().sendOTP(
         phoneNumber: mobileNumController.text,
         countryCode: countryCode!,
         provider: AppSettings.otpServiceProvider,
       );
     } catch (e) {
+      var errorMessage = 'enterValidPhoneNumber'.translate(context);
+      
+      if (e.toString().contains('too-many-requests')) {
+        errorMessage = 'tooManyRequests'.translate(context);
+      } else if (e.toString().contains('quota-exceeded')) {
+        errorMessage = 'quotaExceeded'.translate(context);
+      }
+      
       await HelperUtils.showSnackBarMessage(
         context,
-        'enterValidPhoneNumber'.translate(context),
+        errorMessage,
         type: MessageType.error,
       );
     } finally {

@@ -5,7 +5,7 @@ import 'package:homiq/app/routes.dart';
 import 'package:homiq/data/cubits/system/fetch_system_settings_cubit.dart';
 import 'package:homiq/data/model/system_settings_model.dart';
 import 'package:homiq/utils/Extensions/extensions.dart';
-import 'package:homiq/utils/app_icons.dart';
+import 'package:homiq/utils/app_icons.dart' show AppIcons;
 import 'package:homiq/utils/custom_image.dart';
 import 'package:homiq/utils/extensions/lib/custom_text.dart';
 import 'package:homiq/utils/hive_keys.dart';
@@ -23,42 +23,27 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     with TickerProviderStateMixin {
   int currentPageIndex = 0;
   late PageController _pageController;
-  late AnimationController _animationController;
+  late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
-    _animationController = AnimationController(
+    _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutBack,
-    ));
-    
-    _animationController.forward();
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+    _fadeController.forward();
   }
-  
+
   @override
   void dispose() {
     _pageController.dispose();
-    _animationController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -66,43 +51,49 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Widget build(BuildContext context) {
     final slidersList = [
       {
-        'img': 'assets/svg/on_1.svg',
-        'title': UiUtils.translate(context, 'Welcome To Homiq'),
-        'description': UiUtils.translate(context, 'onboarding_1_description'),
-        'gradient': [Colors.blue.shade400, Colors.purple.shade400],
+        'icon': Icons.home_rounded,
+        'title': 'Welcome to Homiq',
+        'subtitle': 'Smart Home Management',
+        'description': 'Transform your house into an intelligent home with seamless automation and complete control.',
+        'color': const Color(0xFF6366F1),
       },
       {
-        'img': 'assets/svg/on_2.svg',
-        'title': UiUtils.translate(context, 'onboarding_2_title'),
-        'description': UiUtils.translate(context, 'onboarding_2_description'),
-        'gradient': [Colors.green.shade400, Colors.teal.shade400],
+        'icon': Icons.touch_app_rounded,
+        'title': 'Easy Control',
+        'subtitle': 'Everything at Your Fingertips',
+        'description': 'Control lights, temperature, security, and appliances from anywhere with simple gestures.',
+        'color': const Color(0xFF06B6D4),
       },
       {
-        'img': 'assets/svg/on_3.svg',
-        'title': UiUtils.translate(context, 'onboarding_3_title'),
-        'description': UiUtils.translate(context, 'onboarding_3_description'),
-        'gradient': [Colors.orange.shade400, Colors.red.shade400],
+        'icon': Icons.auto_awesome_rounded,
+        'title': 'Smart Automation',
+        'subtitle': 'Intelligent Living',
+        'description': 'Create custom routines and schedules that adapt to your lifestyle automatically.',
+        'color': const Color(0xFF10B981),
       },
     ];
 
     return AnnotatedRegion(
       value: UiUtils.getSystemUiOverlayStyle(context: context),
       child: Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                context.color.tertiaryColor.withValues(alpha: 0.1),
-                context.color.backgroundColor,
-              ],
-            ),
-          ),
-          child: SafeArea(
+        backgroundColor: context.color.primaryColor,
+        body: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
             child: Column(
               children: [
                 _buildTopBar(context),
+                Hero(
+                  tag: 'splash_logo',
+                  child: Container(
+                    height: 80.rh(context),
+                    margin: EdgeInsets.symmetric(vertical: 20.rh(context)),
+                    child: CustomImage(
+                      imageUrl: AppIcons.splashLogo,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
                 Expanded(
                   child: PageView.builder(
                     controller: _pageController,
@@ -110,8 +101,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       setState(() {
                         currentPageIndex = index;
                       });
-                      _animationController.reset();
-                      _animationController.forward();
+                      _fadeController.reset();
+                      _fadeController.forward();
                     },
                     itemCount: slidersList.length,
                     itemBuilder: (context, index) {
@@ -134,7 +125,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   Widget _buildTopBar(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -157,10 +148,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: context.color.secondaryColor.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(20),
+          color: context.color.secondaryColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(25),
           border: Border.all(color: context.color.borderColor.withValues(alpha: 0.3)),
         ),
         child: Row(
@@ -188,9 +179,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   );
                 } else {
                   return CustomText(
-                    value.data!.value!['code']
-                        .toString()
-                        .firstUpperCase(),
+                    value.data!.value!['code'].toString().firstUpperCase(),
                     color: context.color.textColorDark,
                     fontSize: context.font.sm,
                     fontWeight: FontWeight.w600,
@@ -198,7 +187,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 }
               },
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 6),
             Icon(
               Icons.keyboard_arrow_down_rounded,
               color: context.color.textColorDark,
@@ -216,13 +205,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         Navigator.pushReplacementNamed(context, Routes.login);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
           color: context.color.tertiaryColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(25),
         ),
         child: CustomText(
-          'skip'.translate(context),
+          'Skip',
           color: context.color.tertiaryColor,
           fontSize: context.font.sm,
           fontWeight: FontWeight.w600,
@@ -231,64 +220,59 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  Widget _buildOnboardingPage(BuildContext context, Map<String, dynamic> data, int index) {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Hero(
-                tag: 'onboarding_image_$index',
-                child: Container(
-                  height: 300.rh(context),
-                  width: 300.rw(context),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: context.color.tertiaryColor.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: CustomImage(
-                    imageUrl: data['img'].toString(),
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-              SizedBox(height: 40.rh(context)),
-              CustomText(
-                data['title']?.toString() ?? '',
-                fontWeight: FontWeight.w700,
-                fontSize: context.font.xxl,
-                color: context.color.textColorDark,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 16.rh(context)),
-              CustomText(
-                data['description']?.toString() ?? '',
-                maxLines: 3,
-                textAlign: TextAlign.center,
-                fontSize: context.font.md,
-                color: context.color.textColorDark.withValues(alpha: 0.7),
-                fontWeight: FontWeight.w500,
-              ),
-            ],
+  Widget _buildOnboardingPage(
+      BuildContext context, Map<String, dynamic> data, int index) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 200.rh(context),
+            width: 200.rw(context),
+            decoration: BoxDecoration(
+              color: (data['color'] as Color).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Icon(
+              data['icon'] as IconData,
+              size: 80,
+              color: data['color'] as Color,
+            ),
           ),
-        ),
+          SizedBox(height: 40.rh(context)),
+          CustomText(
+            data['subtitle']?.toString() ?? '',
+            fontWeight: FontWeight.w500,
+            fontSize: context.font.md,
+            color: context.color.textColorDark.withValues(alpha: 0.7),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 12.rh(context)),
+          CustomText(
+            data['title']?.toString() ?? '',
+            fontWeight: FontWeight.w700,
+            fontSize: context.font.xxl,
+            color: context.color.textColorDark,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 16.rh(context)),
+          CustomText(
+            data['description']?.toString() ?? '',
+            maxLines: 3,
+            textAlign: TextAlign.center,
+            fontSize: context.font.md,
+            color: context.color.textColorDark.withValues(alpha: 0.6),
+            fontWeight: FontWeight.w400,
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildBottomSection(BuildContext context, int totalPages) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(32),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -306,15 +290,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   Widget _buildIndicator(BuildContext context, bool isActive) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      margin: const EdgeInsets.only(right: 8),
-      height: 8,
-      width: isActive ? 24 : 8,
+      duration: const Duration(milliseconds: 400),
+      margin: const EdgeInsets.only(right: 10),
+      height: 6,
+      width: isActive ? 32 : 6,
       decoration: BoxDecoration(
         color: isActive
             ? context.color.tertiaryColor
             : context.color.textColorDark.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(3),
       ),
     );
   }
@@ -324,8 +308,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       onTap: () {
         if (currentPageIndex < totalPages - 1) {
           _pageController.nextPage(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOutCubic,
           );
         } else {
           Navigator.of(context).pushNamedAndRemoveUntil(
@@ -338,12 +322,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              context.color.tertiaryColor,
-              context.color.tertiaryColor.withValues(alpha: 0.8),
-            ],
-          ),
+          color: context.color.tertiaryColor,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(

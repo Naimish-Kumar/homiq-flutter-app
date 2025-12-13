@@ -176,22 +176,79 @@ class SplashScreenState extends State<SplashScreen>
           }
         },
         child: AnnotatedRegion(
-          value: SystemUiOverlayStyle(
-            statusBarColor: context.color.backgroundColor,
-            systemNavigationBarColor: context.color.backgroundColor,
+          value: const SystemUiOverlayStyle(
+            statusBarColor: Colors.white,
+            systemNavigationBarColor: Colors.white,
           ),
           child: Scaffold(
-            backgroundColor: context.color.backgroundColor,
+            backgroundColor: Colors.white,
             extendBody: true,
-            body: Stack(
+            body: Column(
               children: [
-                Center(
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: CustomImage(
-                      imageUrl: AppIcons.splashLogo,
-                      height: 151.rs(context),
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Hero(
+                          tag: 'splash_logo',
+                          child: Container(
+                            height: 120.rh(context),
+                            padding: EdgeInsets.symmetric(horizontal: 20.rw(context)),
+                            child: CustomImage(
+                              imageUrl: AppIcons.splashLogo,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 24.rh(context)),
+                        CustomText(
+                          'Smart Home Management',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[700],
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 8.rh(context)),
+                        CustomText(
+                          'Control your home with intelligence',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.grey[500],
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 40.rh(context)),
+                  child: Column(
+                    children: [
+                      CustomText(
+                        'Designed & Developed by',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey[400],
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 4.rh(context)),
+                      CustomText(
+                        'AcroCoder Team',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey[700],
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 12.rh(context)),
+                      CustomText(
+                        'Version 1.0.0',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey[400],
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ),
               ],

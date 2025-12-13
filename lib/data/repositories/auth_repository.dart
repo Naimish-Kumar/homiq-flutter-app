@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:homiq/exports/main_export.dart';
@@ -162,67 +161,109 @@ class AuthRepository {
     }
   }
 
+  static final Map<String, DateTime> _phoneRequestTimes = {};
+  static const Duration _phoneRateLimit = Duration(minutes: 1);
+  static bool _isFirebaseBlocked = false;
+  
   Future<void> sendOTP({
     required String phoneNumber,
     required String countryCode,
     required dynamic Function(String verificationId) onCodeSent,
     dynamic Function(dynamic e)? onError,
   }) async {
-    if (AppSettings.otpServiceProvider == 'twilio') {
-      await Api.get(
-        url: Api.apiGetOtp,
-        queryParameters: {
-          'number': phoneNumber,
-          'country_code': countryCode,
-        },
-      );
-      onCodeSent.call(phoneNumber);
-    } else if (AppSettings.otpServiceProvider == 'firebase') {
-      // Configure Firebase Auth to disable reCAPTCHA
-      await _configureFirebaseAuth();
-      
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        timeout: Duration(
-          seconds: Constant.otpTimeOutSecond,
-        ),
-        phoneNumber: '+$countryCode$phoneNumber',
-        verificationCompleted: (PhoneAuthCredential credential) {
-          // Auto-verification completed
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          onError?.call(ApiException(e.code));
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          forceResendingToken = resendToken;
-          onCodeSent.call(verificationId);
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          // Auto-retrieval timeout
-        },
-        forceResendingToken: forceResendingToken,
-      );
+    final fullNumber = '+$countryCode$phoneNumber';
+    final now = DateTime.now();
+    
+    // Check rate limit
+    if (_phoneRequestTimes.containsKey(fullNumber)) {
+      final lastRequest = _phoneRequestTimes[fullNumber]!;
+      final timeDiff = now.difference(lastRequest);
+      if (timeDiff < _phoneRateLimit) {
+        final waitTime = _phoneRateLimit - timeDiff;
+        onError?.call(ApiException('Please wait ${waitTime.inSeconds} seconds before requesting another OTP.'));
+        return;
+      }
+    }
+    
+    _phoneRequestTimes[fullNumber] = now;
+    
+    // Use Twilio if Firebase is blocked or configured
+    if (AppSettings.otpServiceProvider == 'twilio' || _isFirebaseBlocked) {
+      try {
+        await Api.get(
+          url: Api.apiGetOtp,
+          queryParameters: {
+            'number': phoneNumber,
+            'country_code': countryCode,
+          },
+        );
+        onCodeSent.call(phoneNumber);
+      } catch (e) {
+        onError?.call(ApiException('Failed to send OTP. Please try again.'));
+      }
+    } else {
+      // Try Firebase first
+      try {
+        await _sendFirebaseOTP(
+          phoneNumber: phoneNumber,
+          countryCode: countryCode,
+          onCodeSent: onCodeSent,
+          onError: (e) async {
+            // If Firebase fails with blocking, fallback to Twilio
+            if (e.toString().contains('unusual activity') || 
+                e.toString().contains('17010') ||
+                e.toString().contains('blocked')) {
+              _isFirebaseBlocked = true;
+              log('Firebase blocked, falling back to Twilio');
+              
+              try {
+                await Api.get(
+                  url: Api.apiGetOtp,
+                  queryParameters: {
+                    'number': phoneNumber,
+                    'country_code': countryCode,
+                  },
+                );
+                onCodeSent.call(phoneNumber);
+              } catch (twilioError) {
+                onError?.call(ApiException('OTP service temporarily unavailable. Please try again later.'));
+              }
+            } else {
+              onError?.call(e);
+            }
+          },
+        );
+      } catch (e) {
+        onError?.call(ApiException(e.toString()));
+      }
     }
   }
   
-  Future<void> _configureFirebaseAuth() async {
-    try {
-      // Only configure for mobile platforms
-      if (Platform.isAndroid || Platform.isIOS) {
-        // Disable reCAPTCHA verification for phone auth to improve UX
-        await _auth.setSettings(
-          appVerificationDisabledForTesting: true,
-          userAccessGroup: null,
-          phoneNumber: null,
-          smsCode: null,
-        );
-        log('Firebase Auth reCAPTCHA disabled for OTP verification');
-      }
-    } catch (e) {
-      // Settings configuration failed, continue with default behavior
-      log('Firebase Auth settings configuration failed: $e');
-      // OTP will still work with reCAPTCHA if this fails
-    }
+  Future<void> _sendFirebaseOTP({
+    required String phoneNumber,
+    required String countryCode,
+    required dynamic Function(String verificationId) onCodeSent,
+    required dynamic Function(dynamic e) onError,
+  }) async {
+    final fullNumber = '+$countryCode$phoneNumber';
+    
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      timeout: Duration(seconds: Constant.otpTimeOutSecond),
+      phoneNumber: fullNumber,
+      verificationCompleted: (PhoneAuthCredential credential) {},
+      verificationFailed: (FirebaseAuthException e) {
+        log('Firebase verification failed: ${e.code} - ${e.message}');
+        onError.call(ApiException(e.code));
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        forceResendingToken = resendToken;
+        onCodeSent.call(verificationId);
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {},
+      forceResendingToken: forceResendingToken,
+    );
   }
+  
 
   Future<UserCredential> verifyFirebaseOTP({
     required String otpVerificationId,

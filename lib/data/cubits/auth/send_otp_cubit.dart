@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:homiq/data/repositories/auth_repository.dart';
 import 'package:homiq/exports/main_export.dart';
 
@@ -29,6 +28,9 @@ class SendOtpCubit extends Cubit<SendOtpState> {
 
   final AuthRepository _authRepository = AuthRepository();
   static const Duration _otpTimeout = Duration(seconds: 30);
+  static const Duration _cooldownPeriod = Duration(minutes: 1);
+  static DateTime? _lastRequestTime;
+  static String? _lastPhoneNumber;
   
   // Unified OTP sending method to reduce code duplication
   Future<void> sendOTP({
@@ -36,11 +38,27 @@ class SendOtpCubit extends Cubit<SendOtpState> {
     required String countryCode,
     String? provider,
   }) async {
-    if (state is SendOtpInProgress) return; // Prevent multiple calls
+    if (state is SendOtpInProgress) return;
+    
+    // Check cooldown period
+    final now = DateTime.now();
+    final fullPhoneNumber = '+$countryCode$phoneNumber';
+    
+    if (_lastRequestTime != null && _lastPhoneNumber == fullPhoneNumber) {
+      final timeSinceLastRequest = now.difference(_lastRequestTime!);
+      if (timeSinceLastRequest < _cooldownPeriod) {
+        final remainingTime = _cooldownPeriod - timeSinceLastRequest;
+        emit(SendOtpFailure('Please wait ${remainingTime.inSeconds} seconds before requesting another OTP.'));
+        return;
+      }
+    }
     
     emit(SendOtpInProgress());
     
     try {
+      _lastRequestTime = now;
+      _lastPhoneNumber = fullPhoneNumber;
+      
       await _authRepository.sendOTP(
         phoneNumber: phoneNumber,
         countryCode: countryCode,

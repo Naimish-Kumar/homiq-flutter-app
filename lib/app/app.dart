@@ -54,9 +54,6 @@ Future<void> _configureFirebaseAuth() async {
     if (Platform.isAndroid || Platform.isIOS) {
       await FirebaseAuth.instance.setSettings(
         appVerificationDisabledForTesting: true,
-        userAccessGroup: null,
-        phoneNumber: null,
-        smsCode: null,
       );
       log('Firebase Auth reCAPTCHA disabled successfully for mobile platform');
     }

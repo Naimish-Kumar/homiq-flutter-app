@@ -1,9 +1,24 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:homiq/app/register_cubits.dart';
 import 'package:homiq/exports/main_export.dart';
 import 'package:homiq/ui/screens/chat/helpers/registerar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase before app initialization
+  try {
+    await Firebase.initializeApp();
+    // Configure Firebase Auth settings
+    if (Platform.isAndroid) {
+      await FirebaseAuth.instance.setSettings(
+        
+      );
+    }
+  } catch (e) {
+    print('Firebase initialization error: $e');
+  }
+  
   await initApp();
 }
 

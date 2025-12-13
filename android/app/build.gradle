@@ -63,6 +63,11 @@ android {
         multiDexEnabled true
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        
+        // Firebase Auth configuration
+        manifestPlaceholders = [
+            'appAuthRedirectScheme': 'com.homiq.acrocoder'
+        ]
     }
 
     signingConfigs {

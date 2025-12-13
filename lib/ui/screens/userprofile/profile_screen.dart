@@ -111,97 +111,111 @@ class _ProfileScreenState extends State<ProfileScreen>
                     physics: Constant.scrollPhysics,
                     controller: profileScreenController,
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(12),
                       child: Column(
                         children: <Widget>[
-                          // Profile Image and Name
+                          // Profile Header Card
                           Container(
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: context.color.borderColor),
-                              // color: context.color.secondaryColor,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Row(
+                            borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                              color:
+                                  context.color.tertiaryColor.withOpacity(0.3),
+                            )),
+                            child: Column(
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(4),
-                                    child: profileImgWidget(),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      CustomText(
-                                        username,
-                                        color: context.color.inverseSurface,
-                                        fontSize: context.font.md,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                      CustomText(
-                                        email,
-                                        color: context.color.textColorDark,
-                                        fontSize: context.font.xs,
-                                        maxLines: 1,
-                                      ),
-                                      if (isGuest == false) ...[
-                                        const SizedBox(height: 8),
-                                        _buildVerificationUI(
-                                          context,
-                                          verificationStatus,
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: context.color.tertiaryColor
+                                              .withOpacity(0.3),
+                                          width: 2,
                                         ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                                if (isGuest == true)
-                                  Container(
-                                    margin: EdgeInsetsDirectional.only(
-                                      end: 16.rw(context),
-                                    ),
-                                    child: UiUtils.buildButton(
-                                      context,
-                                      height: 32.rh(context),
-                                      fontSize: context.font.xs,
-                                      showElevation: false,
-                                      buttonTitle: 'login'.translate(context),
-                                      buttonColor: context.color.secondaryColor,
-                                      textColor: context.color.textLightColor,
-                                      autoWidth: true,
-                                      border: BorderSide(
-                                        color: context.color.borderColor,
                                       ),
-                                      onPressed: () {
-                                        Navigator.pushReplacementNamed(
-                                          context,
-                                          Routes.login,
-                                          arguments: {'popToCurrent': false},
-                                        );
-                                      },
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(40),
+                                        child: SizedBox(
+                                          width: 80,
+                                          height: 80,
+                                          child: profileImgWidget(),
+                                        ),
+                                      ),
                                     ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          CustomText(
+                                            username,
+                                            color: context.color.inverseSurface,
+                                            fontSize: context.font.lg,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          CustomText(
+                                            email,
+                                            color: context.color.textColorDark
+                                                .withOpacity(0.7),
+                                            fontSize: context.font.sm,
+                                            maxLines: 1,
+                                          ),
+                                          if (isGuest == false) ...[
+                                            const SizedBox(height: 4),
+                                            _buildVerificationUI(
+                                              context,
+                                              verificationStatus,
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if (isGuest == true) ...[
+                                  const SizedBox(height: 12),
+                                  UiUtils.buildButton(
+                                    context,
+                                    height: 44.rh(context),
+                                    fontSize: context.font.sm,
+                                    showElevation: false,
+                                    buttonTitle: 'login'.translate(context),
+                                    buttonColor: context.color.tertiaryColor,
+                                    textColor: Colors.white,
+                                    radius: 12,
+                                    onPressed: () {
+                                      Navigator.pushReplacementNamed(
+                                        context,
+                                        Routes.login,
+                                        arguments: {'popToCurrent': false},
+                                      );
+                                    },
                                   ),
+                                ],
                               ],
                             ),
                           ),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          // Profile Settings
+                          const SizedBox(height: 16),
+                          // Menu Items
                           Container(
-                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              border: Border.all(
-                                color: context.color.borderColor,
-                              ),
-                              // color: context.color.secondaryColor,
-                              borderRadius: BorderRadius.circular(4),
+                              color: context.color.secondaryColor,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 if (isGuest == false)
                                   customTile(
@@ -617,28 +631,30 @@ class _ProfileScreenState extends State<ProfileScreen>
                             height: 24,
                           ),
                           if (isGuest == false) ...[
-                            UiUtils.buildButton(
-                              context,
-                              onPressed: logOutConfirmWidget,
-                              height: 52.rh(context),
-                              prefixWidget: Padding(
-                                padding:
-                                    const EdgeInsetsDirectional.only(end: 16),
-                                child: FittedBox(
-                                  fit: BoxFit.none,
-                                  child: CustomImage(
-                                    imageUrl: AppIcons.logout,
-                                    width: 24.rw(context),
-                                    height: 24.rh(context),
-                                    color: context.color.buttonColor,
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                              child: UiUtils.buildButton(
+                                context,
+                                onPressed: logOutConfirmWidget,
+                                height: 52.rh(context),
+                                radius: 12,
+                                buttonColor: Colors.red.shade50,
+                                textColor: Colors.red.shade700,
+                                border: BorderSide(color: Colors.red.shade200),
+                                prefixWidget: Padding(
+                                  padding:
+                                      const EdgeInsetsDirectional.only(end: 8),
+                                  child: Icon(
+                                    Icons.logout_rounded,
+                                    size: 20,
+                                    color: Colors.red.shade700,
                                   ),
                                 ),
+                                buttonTitle:
+                                    UiUtils.translate(context, 'logout'),
                               ),
-                              buttonTitle: UiUtils.translate(context, 'logout'),
                             ),
-                            const SizedBox(
-                              height: 18,
-                            ),
+                            const SizedBox(height: 16),
                           ],
                         ],
                       ),
@@ -674,13 +690,11 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Padding dividerWithSpacing() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Container(
-        height: 1,
-        color: context.color.borderColor,
-      ),
+  Widget dividerWithSpacing() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      height: 1,
+      color: context.color.borderColor.withOpacity(0.3),
     );
   }
 
@@ -778,93 +792,76 @@ class _ProfileScreenState extends State<ProfileScreen>
     required VoidCallback onTap,
     bool? isSwitchBox,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AbsorbPointer(
-        absorbing: !(isSwitchBox ?? false),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  color: context.color.textColorDark.withValues(alpha: 0.1),
-                  shape: BoxShape.circle),
-              child: FittedBox(
-                fit: BoxFit.none,
-                child: CustomImage(
-                  imageUrl: svgImagePath,
-                  height: 24.rh(context),
-                  width: 24.rw(context),
-                  color: context.color.textColorDark,
-                ),
-              ),
-            ),
-            SizedBox(
-              width: 8.rw(context),
-            ),
-            Expanded(
-              flex: 3,
-              child: CustomText(
-                title,
-                fontSize: context.font.md,
-                fontWeight: FontWeight.w700,
-                color: context.color.textColorDark,
-              ),
-            ),
-            const Spacer(),
-            if (isSwitchBox != true)
-              Container(
-                width: 24.rw(context),
-                height: 24.rh(context),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: context.color.borderColor,
-                  ),
-                  color: context.color.secondaryColor
-                      .withValues(alpha: 0.10000000149011612),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: FittedBox(
-                  fit: BoxFit.none,
-                  child: SizedBox(
-                    child: CustomImage(
-                      imageUrl: AppIcons.arrowRight,
-                      matchTextDirection: true,
-                      color: context.color.textColorDark,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        context.color.tertiaryColor.withOpacity(0.15),
+                        context.color.tertiaryColor.withOpacity(0.08),
+                      ],
                     ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: CustomImage(
+                    imageUrl: svgImagePath,
+                    height: 20,
+                    width: 20,
+                    color: context.color.tertiaryColor,
                   ),
                 ),
-              ),
-            if (isSwitchBox ?? false) ...[
-              const Spacer(),
-              BlocBuilder<AppThemeCubit, ThemeMode>(
-                builder: (context, themeMode) {
-                  final isDark = context.read<AppThemeCubit>().isDarkMode;
-                  return AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 500),
-                    child: Switch(
-                      thumbColor: const WidgetStatePropertyAll(Colors.white),
-                      trackOutlineColor:
-                          const WidgetStatePropertyAll(Colors.transparent),
-                      thumbIcon: const WidgetStatePropertyAll(
-                        Icon(Icons.circle, color: Colors.white),
-                      ),
-                      inactiveThumbColor: Colors.white,
-                      inactiveTrackColor: Colors.grey,
-                      activeTrackColor: context.color.tertiaryColor,
-                      value: isDark,
-                      onChanged: (val) {
-                        // Toggle between light and dark, keeping system theme as a separate option
-                        final newTheme =
-                            isDark ? ThemeMode.light : ThemeMode.dark;
-                        context.read<AppThemeCubit>().changeTheme(newTheme);
-                      },
+                const SizedBox(width: 12),
+                Expanded(
+                  child: CustomText(
+                    title,
+                    fontSize: context.font.md,
+                    fontWeight: FontWeight.w600,
+                    color: context.color.textColorDark,
+                  ),
+                ),
+                if (isSwitchBox != true)
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: context.color.borderColor.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  );
-                },
-              )
-            ],
-          ],
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 14,
+                      color: context.color.textColorDark.withOpacity(0.6),
+                    ),
+                  ),
+                if (isSwitchBox ?? false)
+                  BlocBuilder<AppThemeCubit, ThemeMode>(
+                    builder: (context, themeMode) {
+                      final isDark = context.read<AppThemeCubit>().isDarkMode;
+                      return Switch(
+                        value: isDark,
+                        onChanged: (val) {
+                          final newTheme =
+                              isDark ? ThemeMode.light : ThemeMode.dark;
+                          context.read<AppThemeCubit>().changeTheme(newTheme);
+                        },
+                        activeColor: context.color.tertiaryColor,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      );
+                    },
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );

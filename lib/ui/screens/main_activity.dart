@@ -159,16 +159,16 @@ class MainActivityState extends State<MainActivity>
 
     if (Constant.isDemoModeOn) {
       HiveUtils.setLocation(
-        city: 'Bhuj',
-        state: 'Gujrat',
+        city: 'Noida',
+        state: 'Uttar Pradesh',
         country: 'India',
         latitude: AppSettings.latitude,
         longitude: AppSettings.longitude,
         placeId: 'ChIJF28LAAniUDkRpnQHr1jzd3A',
       );
       HiveUtils.setHomeLocation(
-        city: 'Bhuj',
-        state: 'Gujrat',
+        city: 'Noida',
+        state: 'Uttar Pradesh',
         country: 'India',
         latitude: AppSettings.latitude,
         longitude: AppSettings.longitude,
@@ -177,10 +177,6 @@ class MainActivityState extends State<MainActivity>
       );
     }
 
-    ///this will check if your profile is complete or not if it is incomplete it will redirect you to the edit profile page
-    // completeProfileCheck();
-
-    ///This will check for update
     versionCheck(settings);
 
     ///This will check if location is set or not , If it is not set it will show popup dialoge so you can set for better result
@@ -894,14 +890,12 @@ class MainActivityState extends State<MainActivity>
           children: <Widget>[
             buildBottomNavigationbarItem(
               0,
-              AppIcons.home,
-              AppIcons.homeActive,
+              'assets/app_icons/home.png',
               UiUtils.translate(context, 'homeTab'),
             ),
             buildBottomNavigationbarItem(
               1,
-              AppIcons.chat,
-              AppIcons.chatActive,
+              'assets/app_icons/chat.png',
               UiUtils.translate(context, 'chat'),
             ),
             GestureDetector(
@@ -988,14 +982,12 @@ class MainActivityState extends State<MainActivity>
             ),
             buildBottomNavigationbarItem(
               3,
-              AppIcons.properties,
-              AppIcons.propertiesActive,
+              'assets/app_icons/properties.png',
               UiUtils.translate(context, 'properties'),
             ),
             buildBottomNavigationbarItem(
               4,
-              AppIcons.profileOutlined,
-              AppIcons.profileActive,
+              'assets/app_icons/profile.png',
               UiUtils.translate(context, 'profileTab'),
             ),
           ],
@@ -1006,8 +998,7 @@ class MainActivityState extends State<MainActivity>
 
   Widget buildBottomNavigationbarItem(
     int index,
-    String svgImage,
-    String selectedSvgImage,
+    String icon,
     String title,
   ) {
     return Expanded(
@@ -1022,13 +1013,13 @@ class MainActivityState extends State<MainActivity>
               duration: const Duration(milliseconds: 200),
               child: Container(
                 alignment: Alignment.center,
-                child: CustomImage(
-                  imageUrl: currtab == index ? selectedSvgImage : svgImage,
+                child: Image.asset(
+                  icon,
                   height: 24.rh(context),
                   width: 24.rw(context),
-                  // color: currtab == index
-                  //     ? context.color.tertiaryColor
-                  //     : context.color.textColorDark.withValues(alpha: .5),
+                  color: currtab == index
+                      ? context.color.tertiaryColor
+                      : context.color.textColorDark.withValues(alpha: .5),
                 ),
               ),
             ),

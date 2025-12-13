@@ -1,11 +1,11 @@
-name: homiq # DO NOT CHANGE THIS
+name: homiq
 description: Welcome to Homiq.
 
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+9
 
 environment:
-  sdk: ">=3.4.3 <4.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -35,8 +35,8 @@ dependencies:
   cached_network_image: ^3.4.1
   flick_video_player: ^0.9.0
   flutter_image_compress: ^2.3.0
-  image_cropper: ^9.1.0
-  image_picker: ^1.1.2
+  image_cropper: ^10.0.0+1
+  image_picker: ^1.2.0
   panorama_viewer: ^2.0.4
   video_player: ^2.9.2
   youtube_explode_dart: any
@@ -139,12 +139,12 @@ flutter:
   fonts:
     - family: PrimaryFont 
       fonts:
-        - asset: assets/fonts/RedHatDisplay-Regular.ttf
-        - asset: assets/fonts/RedHatDisplay-Medium.ttf
+        - asset: assets/fonts/Railway-Regular.ttf
+        - asset: assets/fonts/Railway-Medium.ttf
           weight: 500
-        - asset: assets/fonts/RedHatDisplay-SemiBold.ttf
+        - asset: assets/fonts/Railway-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/RedHatDisplay-Bold.ttf
+        - asset: assets/fonts/Railway-Bold.ttf
           weight: 700
-        - asset: assets/fonts/RedHatDisplay-ExtraBold.ttf
+        - asset: assets/fonts/Railway-ExtraBold.ttf
           weight: 800
