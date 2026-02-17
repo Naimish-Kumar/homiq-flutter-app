@@ -160,9 +160,9 @@ class _MyAdvertisementScreenState extends State<MyAdvertisementScreen>
             return UiUtils.buildHorizontalShimmer(context);
           }
           if (state is FetchMyPromotedPropertysFailure) {
-            return SingleChildScrollView(
+            return const SingleChildScrollView(
               physics: Constant.scrollPhysics,
-              child: const SomethingWentWrong(),
+              child: SomethingWentWrong(),
             );
           }
           if (state is FetchMyPromotedPropertysSuccess) {
@@ -223,9 +223,9 @@ class _MyAdvertisementScreenState extends State<MyAdvertisementScreen>
             return UiUtils.buildHorizontalShimmer(context);
           }
           if (state is FetchMyPromotedProjectsFailure) {
-            return SingleChildScrollView(
+            return const SingleChildScrollView(
               physics: Constant.scrollPhysics,
-              child: const SomethingWentWrong(),
+              child: SomethingWentWrong(),
             );
           }
           if (state is FetchMyPromotedProjectsSuccess) {

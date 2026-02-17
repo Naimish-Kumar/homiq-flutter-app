@@ -37,6 +37,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
+    _fadeController.forward();
+  }
+
+  @override
+  void dispose() {
     _pageController.dispose();
     _fadeController.dispose();
     super.dispose();
@@ -49,21 +54,24 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         'icon': Icons.home_rounded,
         'title': 'Welcome to Homiq',
         'subtitle': 'Smart Home Management',
-        'description': 'Transform your house into an intelligent home with seamless automation and complete control.',
+        'description':
+            'Transform your house into an intelligent home with seamless automation and complete control.',
         'color': const Color(0xFF6366F1),
       },
       {
         'icon': Icons.touch_app_rounded,
         'title': 'Easy Control',
         'subtitle': 'Everything at Your Fingertips',
-        'description': 'Control lights, temperature, security, and appliances from anywhere with simple gestures.',
+        'description':
+            'Control lights, temperature, security, and appliances from anywhere with simple gestures.',
         'color': const Color(0xFF06B6D4),
       },
       {
         'icon': Icons.auto_awesome_rounded,
         'title': 'Smart Automation',
         'subtitle': 'Intelligent Living',
-        'description': 'Create custom routines and schedules that adapt to your lifestyle automatically.',
+        'description':
+            'Create custom routines and schedules that adapt to your lifestyle automatically.',
         'color': const Color(0xFF10B981),
       },
     ];
@@ -96,8 +104,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       setState(() {
                         currentPageIndex = index;
                       });
-                      _fadeController.reset();
-                      _fadeController.forward();
                     },
                     itemCount: slidersList.length,
                     itemBuilder: (context, index) {
@@ -109,9 +115,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     },
                   ),
                 ),
-              ),
-              _buildBottomSection(context, slidersList.length),
-            ],
+                _buildBottomSection(context, slidersList.length),
+              ],
+            ),
           ),
         ),
       ),
@@ -147,7 +153,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         decoration: BoxDecoration(
           color: context.color.secondaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: context.color.borderColor.withValues(alpha: 0.3)),
+          border: Border.all(
+              color: context.color.borderColor.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

@@ -854,7 +854,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark ? ThemeMode.light : ThemeMode.dark;
                           context.read<AppThemeCubit>().changeTheme(newTheme);
                         },
-                        activeColor: context.color.tertiaryColor,
+                        activeThumbColor: context.color.tertiaryColor,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       );
                     },

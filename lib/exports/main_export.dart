@@ -153,6 +153,6 @@ export '../utils/app_icons.dart';
 export '../utils/constant.dart';
 export '../utils/deeplink_manager.dart';
 export '../utils/hive_utils.dart';
-export '../utils/notification/notification_service.dart';
+export '../utils/payment/notification_service.dart';
 // export '../../../utils/notification/chat_message_handler.dart';
 export '../utils/responsive_size.dart';

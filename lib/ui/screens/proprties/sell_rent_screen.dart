@@ -103,9 +103,9 @@ class _SellRentScreenState extends State<SellRentScreen>
                   },
                 );
               }
-              return SingleChildScrollView(
+              return const SingleChildScrollView(
                 physics: Constant.scrollPhysics,
-                child: const SomethingWentWrong(),
+                child: SomethingWentWrong(),
               );
             }
 

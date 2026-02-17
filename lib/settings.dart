@@ -8,7 +8,7 @@ class AppSettings {
   static const String androidPackageName = 'com.homiq.acrocoder';
 
   ///API Setting
-  static const String hostUrl = 'https://homiq.acrocoder.com/';
+  static const String hostUrl = 'https://spacebliz.com/';
 
   static const int apiDataLoadLimit = 10;
   static const int maxCategoryShowLengthInHomeScreen = 5;

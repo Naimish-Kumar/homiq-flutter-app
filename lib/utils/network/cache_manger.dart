@@ -1,11 +1,9 @@
 import 'dart:ui';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
-
 import 'package:homiq/settings.dart';
 
 class CacheData {
-  final Connectivity _connectivity = Connectivity();
+  final  _connectivity = Connectivity();
 
   Future<void> getData<T>({
     required bool forceRefresh,
