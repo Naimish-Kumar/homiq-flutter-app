@@ -1,5 +1,7 @@
 import 'package:homiq/utils/extensions/lib/list.dart';
 
+enum PersonalizedVisitType { firstTime, normal }
+
 class PersonalizedInterestSettings {
   PersonalizedInterestSettings({
     required this.userId,

@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:homiq/exports/main_export.dart';
+import 'package:homiq/utils/error_filter.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/login/lib/login_status.dart';
 import 'package:homiq/utils/login/lib/login_system.dart';
 
@@ -11,9 +15,7 @@ class GoogleLogin extends LoginSystem {
 
   @override
   Future<void> init() async {
-    _googleSignIn = GoogleSignIn(
-      scopes: ['profile', 'email'],
-    );
+    _googleSignIn = GoogleSignIn.instance;
   }
 
   @override
@@ -22,8 +24,8 @@ class GoogleLogin extends LoginSystem {
       emit(MProgress());
       
       // Add timeout to prevent hanging
-      final googleSignIn = await _googleSignIn?.signIn()
-          .timeout(_timeoutDuration, onTimeout: () => null);
+      final googleSignIn = await _googleSignIn?.authenticate()
+          .timeout(_timeoutDuration);
 
       if (googleSignIn == null) {
         emit(MFail('google-terminated'));
@@ -31,11 +33,10 @@ class GoogleLogin extends LoginSystem {
       }
       
       // Get authentication with timeout
-      final googleAuth = await googleSignIn.authentication
-          .timeout(_timeoutDuration);
+      final googleAuth = googleSignIn.authentication;
 
       final AuthCredential authCredential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
+        accessToken: googleAuth.idToken,
         idToken: googleAuth.idToken,
       );
 

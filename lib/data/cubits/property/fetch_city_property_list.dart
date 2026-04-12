@@ -69,6 +69,7 @@ class FetchCityPropertyList extends Cubit<FetchCityPropertyListState>
   @override
   Future<void> fetch({
     bool? forceRefresh,
+    bool? loadWithoutDelay,
     String? cityName,
   }) async {
     if (forceRefresh != true) {

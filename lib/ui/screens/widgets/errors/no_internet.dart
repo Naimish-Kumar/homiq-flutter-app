@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/app_icons.dart';
 import 'package:homiq/utils/custom_image.dart';
 import 'package:homiq/utils/extensions/lib/custom_text.dart';
@@ -50,7 +50,7 @@ class NoInternet extends StatelessWidget {
                 onPressed: onRetry,
                 style: ButtonStyle(
                   overlayColor: WidgetStateProperty.all(
-                    context.color.tertiaryColor.withValues(alpha: 0.2),
+                    context.color.tertiaryColor.withOpacity(0.2),
                   ),
                 ),
                 child: CustomText(

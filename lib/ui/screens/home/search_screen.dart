@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:homiq/data/helper/filter.dart';
 import 'package:homiq/exports/main_export.dart';
+import 'package:homiq/data/cubits/property/search_property_cubit.dart';
 import 'package:homiq/utils/admob/banner_ad_load_widget.dart';
 
 class SearchScreen extends StatefulWidget {

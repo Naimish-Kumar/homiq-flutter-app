@@ -71,6 +71,7 @@ class FetchPremiumPropertiesCubit extends Cubit<FetchPremiumPropertiesState>
   Future<void> fetch({
     bool? forceRefresh,
     bool? loadWithoutDelay,
+    String? cityName,
   }) async {
     try {
       await CacheData().getData(

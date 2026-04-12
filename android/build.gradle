@@ -3,33 +3,31 @@ allprojects {
         google()
         mavenCentral()
     }
+    
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions {
             jvmTarget = JavaVersion.VERSION_17.toString()
+            freeCompilerArgs += ["-Xskip-metadata-version-check"]
         }
     }
-    tasks.withType(JavaCompile) {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    
-    // Add this section to force all projects to use a compatible Kotlin version
-    plugins.withId('org.jetbrains.kotlin.android') {
-        project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-            kotlinOptions {
-                // Force the Kotlin compiler to use a compatible JVM target
-                jvmTarget = JavaVersion.VERSION_17.toString()
+}
+
+// THE BUILDSCRIPT INTERCEPTOR: Modernizing legacy plugins to the 2.1.10 fixed base
+subprojects {
+    buildscript {
+        configurations.all {
+            resolutionStrategy.eachDependency { details ->
+                if (details.requested.group == 'org.jetbrains.kotlin' && 
+                    details.requested.name == 'kotlin-gradle-plugin') {
+                    // Forcing all sub-plugins to 2.1.10 to satisfy AGP 8.9.1
+                    details.useVersion '2.1.10'
+                }
             }
         }
     }
 }
 
 subprojects {
-    beforeEvaluate { project ->
-        if (project.name == "flutter_html_to_pdf") {
-            project.buildscript.dependencies.classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0"
-        }
-    }
     afterEvaluate { project ->
         if (project.plugins.hasPlugin("com.android.application") ||
                 project.plugins.hasPlugin("com.android.library")) {

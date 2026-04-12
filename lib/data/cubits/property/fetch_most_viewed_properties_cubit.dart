@@ -74,6 +74,7 @@ class FetchMostViewedPropertiesCubit
   Future<void> fetch({
     bool? forceRefresh,
     bool? loadWithoutDelay,
+    String? cityName,
   }) async {
     // if (state is FetchMostViewedPropertiesSuccess) {
     //   return;

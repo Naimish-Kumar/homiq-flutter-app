@@ -1,6 +1,5 @@
 import 'package:homiq/app/register_cubits.dart';
 import 'package:homiq/exports/main_export.dart';
-import 'package:homiq/ui/screens/chat/helpers/registerar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,17 +14,11 @@ class EntryPoint extends StatefulWidget {
 
 class EntryPointState extends State<EntryPoint> {
   @override
-  void initState() {
-    super.initState();
-    ChatMessageHandler.handle();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [...RegisterCubits().register()],
       child: Builder(
-        builder: (BuildContext context) {
+        builder: (context) {
           return const App();
         },
       ),

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homiq/data/cubits/utility/google_place_autocomplate_cubit.dart';
 import 'package:homiq/data/repositories/location_repository.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/extensions/lib/custom_text.dart';
 import 'package:homiq/utils/ui_utils.dart';
 
@@ -98,7 +98,7 @@ class ChooseLocatonBottomSheetState extends State<ChooseLocatonBottomSheet> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: context.color.tertiaryColor),
                 ),
-                fillColor: context.color.tertiaryColor.withValues(alpha: 0.01),
+                fillColor: context.color.tertiaryColor.withOpacity(0.01),
                 filled: true,
                 prefixIcon: Icon(
                   Icons.search,

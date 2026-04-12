@@ -48,8 +48,7 @@ class FetchSystemSettingsCubit extends Cubit<FetchSystemSettingsState> {
         onOfflineData: () {
           return (state as FetchSystemSettingsSuccess).settings;
         },
-        onSuccess: (Map<dynamic, dynamic>? data) {
-          if (data == null) return;
+        onSuccess: (data) {
           final response = data['data'] as Map<dynamic, dynamic>;
           Constant.currencySymbol =
               _getSetting(data, SystemSetting.currencySymbol)?.toString() ?? '';

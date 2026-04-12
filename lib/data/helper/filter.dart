@@ -1,4 +1,4 @@
-import 'package:homiq/utils/Extensions/lib/map.dart';
+import 'package:homiq/utils/extensions/lib/map.dart';
 
 sealed class Filter {
   Map<String, dynamic> filter();

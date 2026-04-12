@@ -313,7 +313,7 @@ abstract class BaseAdvertisementHorizontalCard extends StatelessWidget {
             alignment: Alignment.center,
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: context.color.error.withValues(alpha: 0.1),
+              color: context.color.error.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: (state is DeleteAdvertismentInProgress)

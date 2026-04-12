@@ -7,7 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:homiq/app/app.dart';
 import 'package:homiq/app/routes.dart';
 import 'package:homiq/settings.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/app_icons.dart';
 import 'package:homiq/utils/custom_image.dart';
 import 'package:homiq/utils/extensions/lib/custom_text.dart';

@@ -218,41 +218,46 @@ class SubscriptionPackageListScreenState
                     if (state is FetchSubscriptionPackagesSuccess) {
                       return Column(
                         children: [
-                          Container(
-                            margin: EdgeInsets.only(
-                              top: 20.rh(context),
-                              left: 16.rh(context),
-                              right: 16.rh(context),
-                              bottom: 16.rh(context),
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: CustomText(
+                              'ELEVATE YOUR DESIGN EXPERIENCE',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 2,
+                              color: context.color.tertiaryColor,
                             ),
-                            height: 48.rh(context),
-                            padding: const EdgeInsets.all(4),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.all(20),
+                            height: 54,
+                            padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: context.color.secondaryColor,
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: context.color.borderColor,
-                              ),
+                              color: context.color.secondaryColor.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(16),
                             ),
                             child: TabBar(
                               controller: _tabController,
-                              indicatorColor: context.color.tertiaryColor,
-                              labelColor: context.color.buttonColor,
+                              indicatorColor: Colors.transparent,
+                              labelColor: Colors.white,
+                              unselectedLabelColor: context.color.textLightColor,
                               dividerColor: Colors.transparent,
                               splashFactory: NoSplash.splashFactory,
-                              indicatorSize: TabBarIndicatorSize.tab,
                               indicator: BoxDecoration(
                                 color: context.color.tertiaryColor,
-                                borderRadius: BorderRadius.circular(4),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: context.color.tertiaryColor.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              unselectedLabelColor: context.color.textColorDark,
-                              tabs: [
-                                Tab(
-                                  text: UiUtils.translate(context, 'myPlans'),
-                                ),
-                                Tab(
-                                  text: UiUtils.translate(context, 'allPlans'),
-                                ),
+                              tabs: const [
+                                Tab(text: 'MY PORTFOLIO'),
+                                Tab(text: 'ALL PASSES'),
                               ],
                             ),
                           ),
@@ -352,7 +357,7 @@ class SubscriptionPackageListScreenState
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             child: MySeparator(
-              color: context.color.tertiaryColor.withValues(alpha: 0.7),
+              color: context.color.tertiaryColor.withOpacity(0.7),
               isShimmer: true,
             ),
           ),
@@ -362,7 +367,7 @@ class SubscriptionPackageListScreenState
               bottom: 16,
             ),
             decoration: BoxDecoration(
-              color: context.color.tertiaryColor.withValues(alpha: 0.1),
+              color: context.color.tertiaryColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: CustomShimmer(

@@ -188,7 +188,7 @@ class AgentProjectCardBig extends StatelessWidget {
                   Container(
                     height: 1,
                     width: double.infinity,
-                    color: context.color.textLightColor.withValues(alpha: .1),
+                    color: context.color.textLightColor.withOpacity(.1),
                   ),
                   const SizedBox(
                     height: 8,

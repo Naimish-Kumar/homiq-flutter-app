@@ -7,7 +7,7 @@ import 'package:homiq/app/routes.dart';
 import 'package:homiq/data/model/user_model.dart';
 import 'package:homiq/data/repositories/auth_repository.dart';
 import 'package:homiq/settings.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/hive_keys.dart';
 
 class HiveUtils {

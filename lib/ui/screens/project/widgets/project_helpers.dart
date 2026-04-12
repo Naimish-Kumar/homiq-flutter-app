@@ -171,7 +171,7 @@ class _DownloadableDocumentState extends State<DownloadableDocument> {
       minTileHeight: 48.rh(context),
       title: CustomText(
         name,
-        color: context.color.textColorDark.withValues(alpha: 0.9),
+        color: context.color.textColorDark.withOpacity(0.9),
         fontSize: context.font.sm,
       ),
       trailing: ValueListenableBuilder(
@@ -200,7 +200,7 @@ class _DownloadableDocumentState extends State<DownloadableDocument> {
                 height: 24.rh(context),
                 width: 24.rw(context),
                 decoration: BoxDecoration(
-                  color: context.color.textColorDark.withValues(alpha: 0.1),
+                  color: context.color.textColorDark.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
                     color: context.color.borderColor,
@@ -215,7 +215,7 @@ class _DownloadableDocumentState extends State<DownloadableDocument> {
           }
           return Container(
             decoration: BoxDecoration(
-              color: context.color.textColorDark.withValues(alpha: 0.1),
+              color: context.color.textColorDark.withOpacity(0.1),
               borderRadius: BorderRadius.circular(4),
             ),
             child: GestureDetector(
@@ -302,7 +302,7 @@ class _CustomFloorPlanTileState extends State<CustomFloorPlanTile> {
           width: 24.rw(context),
           height: 24.rh(context),
           decoration: BoxDecoration(
-            color: context.color.textColorDark.withValues(alpha: 0.1),
+            color: context.color.textColorDark.withOpacity(0.1),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Center(

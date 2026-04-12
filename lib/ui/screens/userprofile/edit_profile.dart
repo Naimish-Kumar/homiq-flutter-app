@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:homiq/data/cubits/auth/get_user_data_cubit.dart';
 import 'package:homiq/data/model/user_model.dart';
 import 'package:homiq/data/repositories/auth_repository.dart';
@@ -271,7 +272,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                             fontWeight: FontWeight.w300,
                             fontSize: context.font.xs,
                             color: context.color.textColorDark
-                                .withValues(alpha: 0.8),
+                                .withOpacity(0.8),
                           ),
                           buildTextField(
                             context,
@@ -427,7 +428,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           color: context.color.borderColor,
         ),
         borderRadius: BorderRadius.circular(10),
-        color: context.color.textLightColor.withValues(alpha: 00.01),
+        color: context.color.textLightColor.withOpacity(00.01),
       ),
       height: 55.rh(context),
       width: double.infinity,
@@ -578,7 +579,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
             alignment: Alignment.center,
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              color: context.color.tertiaryColor.withValues(alpha: 0.2),
+              color: context.color.tertiaryColor.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             width: 106.rw(context),

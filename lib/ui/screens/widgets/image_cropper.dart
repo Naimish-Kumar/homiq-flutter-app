@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 //This will open image crop SDK

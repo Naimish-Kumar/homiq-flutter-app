@@ -1,15 +1,11 @@
 import 'dart:developer';
 
 import 'package:homiq/exports/main_export.dart';
-import 'package:homiq/ui/screens/advertisement/my_advertisment_screen.dart';
-import 'package:homiq/ui/screens/agents/agent_details_screen.dart';
-import 'package:homiq/ui/screens/agents/agent_list_screen.dart';
-import 'package:homiq/ui/screens/agents/agent_verification_form.dart';
+// import 'package:homiq/ui/screens/advertisement/my_advertisment_screen.dart';
 import 'package:homiq/ui/screens/auth/email_registration_form.dart';
 import 'package:homiq/ui/screens/auth/otp_screen.dart';
 import 'package:homiq/ui/screens/home/home_screen.dart';
-import 'package:homiq/ui/screens/home/widgets/city_list_screen.dart';
-import 'package:homiq/ui/screens/proprties/widgets/compare_property_screen.dart';
+// import 'package:homiq/ui/screens/proprties/widgets/compare_property_screen.dart';
 import 'package:homiq/ui/screens/settings/faqs_screen.dart';
 
 class Routes {
@@ -64,6 +60,9 @@ class Routes {
   static const personalizedPropertyScreen = '/personalizedPropertyScreen';
   static const allProjectsScreen = '/allProjectsScreen';
   static const faqsScreen = '/faqsScreen';
+  static const designStudio = '/designStudio';
+  static const designResult = '/designResult';
+  static const historyTab = '/historyTab';
 
   ///Project section routes
   static const String addProjectDetails = '/addProjectDetails';
@@ -123,97 +122,31 @@ class Routes {
         return EmailRegistrationForm.route(routeSettings);
       case editProfile:
         return EditProfileScreen.route(routeSettings);
-      // case addProperty:
-      //   return AddEditProperty.route(routeSettings);
-      //return AddProperty.route(routeSettings);
-
-      case categories:
-        return CategoryList.route(routeSettings);
-      case cityListScreen:
-        return CityListScreen.route(routeSettings);
       case maintenanceMode:
         return MaintenanceMode.route(routeSettings);
       case languageListScreenRoute:
         return LanguagesListScreen.route(routeSettings);
-      case propertiesList:
-        return PropertiesList.route(routeSettings);
-      case propertyDetails:
-        return PropertyDetails.route(routeSettings);
       case contactUs:
         return ContactUs.route(routeSettings);
       case profileSettings:
         return ProfileSettings.route(routeSettings);
-      case filterScreen:
-        return FilterScreen.route(routeSettings);
       case notificationPage:
         return Notifications.route(routeSettings);
       case notificationDetailPage:
         return NotificationDetail.route(routeSettings);
-      case chooseLocaitonMap:
-        return ChooseLocationMap.route(routeSettings);
-      case articlesScreenRoute:
-        return ArticlesScreen.route(routeSettings);
-      case areaConvertorScreen:
-        return AreaCalculator.route(routeSettings);
-      case articleDetailsScreenRoute:
-        return ArticleDetails.route(routeSettings);
-      case subscriptionPackageListRoute:
-        return SubscriptionPackageListScreen.route(routeSettings);
       case favoritesScreen:
         return FavoritesScreen.route(routeSettings);
-      case selectPropertyTypeScreen:
-        return SelectPropertyType.route(routeSettings);
-
-      case transactionHistory:
-        return TransactionHistory.route(routeSettings);
-      case myAdvertisment:
-        return MyAdvertisementScreen.route(routeSettings);
-      case personalizedPropertyScreen:
-        return PersonalizedPropertyScreen.route(routeSettings);
-      case addPropertyDetailsScreen:
-        return AddPropertyDetails.route(routeSettings);
-      case setPropertyParametersScreen:
-        return SetProeprtyParametersScreen.route(routeSettings);
       case searchScreenRoute:
         return SearchScreen.route(routeSettings);
-
-      case propertyMapScreen:
-        return PropertyMapScreen.route(routeSettings);
-      // case nearbyAllProperties:
-      //   return NearbyAllPropertiesScreen.route(routeSettings);
-      case selectOutdoorFacility:
-        return SelectOutdoorFacility.route(routeSettings);
-
-      case addProjectDetails:
-        return AddProjectDetails.route(routeSettings);
-
-      case projectMetaDataScreens:
-        return ProjectMetaDetails.route(routeSettings);
-
-      case projectDetailsScreen:
-        return ProjectDetailsScreen.route(routeSettings);
-
-      case manageFloorPlansScreen:
-        return ManageFloorPlansScreen.route(routeSettings);
-      case myProjects:
-        return MyProjects.route(routeSettings);
-      case allProjectsScreen:
-        return AllProjectsScreen.route(routeSettings);
-      case agentListScreen:
-        return AgentListScreen.route(routeSettings);
-
-      case agentDetailsScreen:
-        return AgentDetailsScreen.route(routeSettings);
-      case agentVerificationForm:
-        return AgentVerificationForm.route(routeSettings);
       case faqsScreen:
         return FaqsScreen.route(routeSettings);
-      case comparePropertiesScreen:
-        return ComparePropertyScreen.route(routeSettings);
-      //sandBox//Playground
-      // case playground:
-      //   return PlayGround.route(routeSettings);
-
+      case designStudio:
+        return StudioScreen.route(routeSettings);
+      case designResult:
+        return DesignResultScreen.route(routeSettings);
+      case historyTab:
+        // For now, redirect to main and we can handle tab switching logic if needed
+        return MainActivity.route(routeSettings);
       default:
         return null;
     }

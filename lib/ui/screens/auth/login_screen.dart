@@ -1,62 +1,11 @@
-import 'package:country_picker/country_picker.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:homiq/data/model/system_settings_model.dart';
 import 'package:homiq/data/repositories/auth_repository.dart';
 import 'package:homiq/exports/main_export.dart';
-import 'package:homiq/ui/screens/auth/country_picker.dart';
-import 'package:homiq/ui/screens/home/home_screen.dart';
 import 'package:homiq/utils/login/apple_login/apple_login.dart';
 import 'package:homiq/utils/login/google_login/google_login.dart';
 import 'package:homiq/utils/login/lib/login_status.dart';
 import 'package:homiq/utils/login/lib/login_system.dart';
-import 'package:sms_autofill/sms_autofill.dart';
-
-// UI Constants
-class UIConstants {
-  static const double spacingXS = 4;
-  static const double spacingS = 8;
-  static const double spacingM = 10;
-  static const double spacingL = 14;
-  static const double spacingXL = 20;
-}
-
-// Form validator to encapsulate form validation logic
-class FormValidator {
-  static bool validateEmailForm(
-    GlobalKey<FormState> formKey,
-    BuildContext context,
-  ) {
-    if (!formKey.currentState!.validate()) {
-      HelperUtils.showSnackBarMessage(
-        context,
-        'enterValidEmailPassword'.translate(context),
-        messageDuration: 1,
-        type: MessageType.error,
-        isFloating: true,
-      );
-      return false;
-    }
-    return true;
-  }
-
-  static bool validatePhoneForm(
-    GlobalKey<FormState> formKey,
-    BuildContext context,
-    String phoneNumber,
-  ) {
-    if (!formKey.currentState!.validate() || phoneNumber.isEmpty) {
-      HelperUtils.showSnackBarMessage(
-        context,
-        'enterValidNumber'.translate(context),
-        messageDuration: 1,
-        type: MessageType.error,
-        isFloating: true,
-      );
-      return false;
-    }
-    return true;
-  }
-}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, this.isDeleteAccount, this.popToCurrent});
@@ -85,34 +34,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class LoginScreenState extends State<LoginScreen> {
-  final TextEditingController mobileNumController = TextEditingController(
-    text: Constant.isDemoModeOn ? Constant.demoMobileNumber : '',
-  );
-
-  final TextEditingController emailAddressController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
-  List<Widget> list = [];
-  String otpVerificationId = '';
   final _formKey = GlobalKey<FormState>();
-  bool isOtpSent = false; //to swap between login & OTP screen
-  String? otp;
-  String? countryCode;
-  String? countryName;
-  String? flagEmoji;
-  late bool isTablet = MediaQuery.sizeOf(context).width > 600;
-
-  int backPressedTimes = 0;
-  late Size size;
-
-  TextEditingController otpController = TextEditingController();
-  bool isLoginButtonDisabled = false;
-  String otpIs = '';
-  bool isPhoneLoginEnabled = false;
-  bool isSocialLoginEnabled = false;
-  bool isEmailSelected = false;
-  bool isResendOtpButtonVisible = false;
-  bool isForgotPasswordVisible = false;
   bool isPasswordVisible = false;
 
   MMultiAuthentication loginSystem = MMultiAuthentication({
@@ -120,1151 +44,322 @@ class LoginScreenState extends State<LoginScreen> {
     'apple': AppleLogin(),
   });
 
-  // Text change listener
-
   @override
   void initState() {
     super.initState();
-
     loginSystem
       ..init()
       ..setContext(context)
       ..listen((MLoginState state) {
-        if (state is MProgress) {
-          unawaited(Widgets.showLoader(context));
-        }
-
+        if (state is MProgress) unawaited(Widgets.showLoader(context));
         if (state is MSuccess) {
           Widgets.hideLoder(context);
-          if (widget.isDeleteAccount ?? false) {
-            context.read<DeleteAccountCubit>().deleteUserAccount(
-                  context,
-                );
-          } else {
-            context.read<LoginCubit>().login(
-                  type: LoginType.values
-                      .firstWhere((element) => element.name == state.type),
-                  name: state.credentials.user?.displayName ??
-                      state.credentials.user?.providerData.first.displayName,
-                  email: state.credentials.user?.providerData.first.email,
-                  phoneNumber:
-                      state.credentials.user?.providerData.first.phoneNumber ??
-                          '',
-                  uniqueId: state.credentials.user!.uid,
-                  countryCode: countryCode ?? '',
-                );
-          }
+          _handleSocialLoginSuccess(state);
         }
-
         if (state is MFail) {
           Widgets.hideLoder(context);
-          if (state.error.toString() != 'google-terminated') {
-            HelperUtils.showSnackBarMessage(
-              context,
-              state.error.toString(),
-              type: MessageType.error,
-            );
-            Widgets.hideLoder(context);
-          }
+          _handleLoginFailure(state.error.toString());
         }
       });
-    context.read<FetchSystemSettingsCubit>();
-    isPhoneLoginEnabled = context
-            .read<FetchSystemSettingsCubit>()
-            .getSetting(SystemSetting.numberWithOtpLogin)
-            ?.toString() ==
-        '1';
-    isSocialLoginEnabled = context
-            .read<FetchSystemSettingsCubit>()
-            .getSetting(SystemSetting.socialLogin)
-            ?.toString() ==
-        '1';
-    mobileNumController.addListener(
-      () {
-        if (mobileNumController.text.isEmpty &&
-            Constant.isDemoModeOn == true &&
-            Constant.demoMobileNumber.isNotEmpty) {
-          isLoginButtonDisabled = true;
-          setState(() {});
-        } else {
-          isLoginButtonDisabled = false;
-          setState(() {});
-        }
-      },
-    );
-
-    HelperUtils.getSimCountry().then((value) {
-      countryCode = value.phoneCode;
-      flagEmoji = value.flagEmoji;
-      setState(() {});
-    });
   }
 
-  @override
-  void dispose() {
-    isResendOtpButtonVisible = false;
-
-    mobileNumController.dispose();
-    if (isOtpSent) {
-      SmsAutoFill().unregisterListener();
-    }
-    super.dispose();
-  }
-
-  bool _isGoogleLoading = false;
-  bool _isAppleLoading = false;
-
-  Future<void> _onGoogleTap() async {
-    if (_isGoogleLoading) return;
-    
-    setState(() => _isGoogleLoading = true);
-    
-    try {
-      await loginSystem.setActive('google');
-      await loginSystem.login();
-    } catch (e) {
-      if (e.toString() != 'google-terminated') {
-        await HelperUtils.showSnackBarMessage(
-          context,
-          'googleLoginFailed'.translate(context),
-          type: MessageType.error,
+  void _handleSocialLoginSuccess(MSuccess state) {
+    context.read<LoginCubit>().login(
+          type: LoginType.values
+              .firstWhere((element) => element.name == state.type),
+          name: state.credentials.user?.displayName,
+          email: state.credentials.user?.email,
+          uniqueId: state.credentials.user!.uid,
+          phoneNumber: '',
+          countryCode: '',
         );
-      }
-    } finally {
-      if (mounted) setState(() => _isGoogleLoading = false);
-    }
   }
 
-  Future<void> _onTapAppleLogin() async {
-    if (_isAppleLoading) return;
-    
-    setState(() => _isAppleLoading = true);
-    
-    try {
-      await loginSystem.setActive('apple');
-      await loginSystem.login();
-    } catch (e) {
-      await HelperUtils.showSnackBarMessage(
-        context,
-        'appleLoginFailed'.translate(context),
-        type: MessageType.error,
-      );
-    } finally {
-      if (mounted) setState(() => _isAppleLoading = false);
+  void _handleLoginFailure(String error) {
+    if (error != 'google-terminated') {
+      HelperUtils.showSnackBarMessage(context, error, type: MessageType.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    size = MediaQuery.of(context).size;
-    if (context.watch<FetchSystemSettingsCubit>().state
-        is FetchSystemSettingsSuccess) {
-      Constant.isDemoModeOn = context
-              .watch<FetchSystemSettingsCubit>()
-              .getSetting(SystemSetting.demoMode) as bool? ??
-          false;
-    }
-
     return AnnotatedRegion(
       value: UiUtils.getSystemUiOverlayStyle(context: context),
-      child: _buildMainContent(),
-    );
-  }
-
-  Widget _buildMainContent() {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: _handleBackPress,
-        child: Scaffold(
-          extendBodyBehindAppBar: true,
-          backgroundColor: context.color.backgroundColor,
-          appBar: _buildAppBar(),
-          body: buildLoginFields(context),
-        ),
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return CustomAppBar(
-      isTransparent: true,
-      showBackButton: false,
-      actions: [_buildSkipButton()],
-    );
-  }
-
-  Widget _buildSkipButton() {
-    return MaterialButton(
-      color: context.color.secondaryColor.withValues(alpha: 0.7),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
-        side: BorderSide(
-          color: context.color.borderColor,
-        ),
-      ),
-      elevation: 0,
-      onPressed: () {
-        GuestChecker.set('login_screen', isGuest: true);
-        HiveUtils.setIsGuest();
-        APICallTrigger.trigger();
-        HiveUtils.setUserIsNotNew();
-        HiveUtils.setUserIsNotAuthenticated();
-        Navigator.pushReplacementNamed(
-          context,
-          Routes.main,
-          arguments: {
-            'from': 'login',
-            'isSkipped': true,
-          },
-        );
-      },
-      child: CustomText('skip'.translate(context)),
-    );
-  }
-
-  Future<bool> _handleBackPress(bool didPop, _) async {
-    if (didPop) return false;
-    if (widget.isDeleteAccount ?? false) {
-      Navigator.pop(context);
-    } else if (isOtpSent == true) {
-      setState(() {
-        isOtpSent = false;
-      });
-    } else {
-      Future.delayed(Duration.zero, () {
-        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-      });
-    }
-    return Future.value(false);
-  }
-
-  Widget buildLoginFields(BuildContext context) {
-    return BlocConsumer<DeleteAccountCubit, DeleteAccountState>(
-      listener: _handleDeleteAccountState,
-      builder: (context, state) {
-        return BlocListener<LoginCubit, LoginState>(
-          listener: _handleLoginState,
-          child: BlocListener<DeleteAccountCubit, DeleteAccountState>(
-            listener: _handleDeleteAccountProgress,
-            child: BlocListener<SendOtpCubit, SendOtpState>(
-              listener: _handleSendOtpState,
-              child: Form(
-                key: _formKey,
-                onChanged: () {
-                  setState(() {});
-                },
-                child: buildLoginScreen(context),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _handleDeleteAccountState(
-    BuildContext context,
-    DeleteAccountState state,
-  ) {
-    if (state is AccountDeleted) {
-      context.read<UserDetailsCubit>().clear();
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pushReplacementNamed(context, Routes.login);
-      });
-    }
-  }
-
-  Future<void> _handleLoginState(BuildContext context, LoginState state) async {
-    if (state is LoginInProgress) {
-      unawaited(Widgets.showLoader(context));
-    } else {
-      if (widget.isDeleteAccount ?? false) {
-      } else {
-        Widgets.hideLoder(context);
-      }
-    }
-    if (state is LoginFailure) {
-      await HelperUtils.showSnackBarMessage(
-        context,
-        state.errorMessage,
-        type: MessageType.error,
-      );
-    }
-    if (state is LoginSuccess) {
-      await _handleLoginSuccess(context, state);
-    }
-  }
-
-  Future<void> _handleLoginSuccess(
-    BuildContext context,
-    LoginSuccess state,
-  ) async {
-    try {
-      unawaited(Widgets.showLoader(context));
-      GuestChecker.set('login_screen', isGuest: false);
-      HiveUtils.setIsNotGuest();
-      await LoadAppSettings().load(initBox: true);
-      context.read<UserDetailsCubit>().fill(HiveUtils.getUserDetails());
-
-      APICallTrigger.trigger();
-
-      await context.read<FetchSystemSettingsCubit>().fetchSettings(
-            isAnonymous: false,
-            forceRefresh: true,
-          );
-      final settings = context.read<FetchSystemSettingsCubit>();
-
-      if (!const bool.fromEnvironment(
-        'force-disable-demo-mode',
-      )) {
-        Constant.isDemoModeOn =
-            settings.getSetting(SystemSetting.demoMode) as bool? ?? false;
-      }
-      if (state.isProfileCompleted) {
-        await _handleCompletedProfile(context);
-      }
-    } on Exception catch (_) {
-      Widgets.hideLoder(context);
-      await HelperUtils.showSnackBarMessage(
-        context,
-        'somethingWentWrong'.translate(context),
-        type: MessageType.error,
-      );
-    }
-  }
-
-  Future<void> _handleCompletedProfile(BuildContext context) async {
-    HiveUtils.setUserIsAuthenticated();
-    await HiveUtils.setUserIsNotNew();
-
-    await Navigator.pushReplacementNamed(
-      context,
-      Routes.main,
-      arguments: {'from': 'login'},
-    );
-    Widgets.hideLoder(context);
-  }
-
-  void _handleDeleteAccountProgress(
-    BuildContext context,
-    DeleteAccountState state,
-  ) {
-    if (state is DeleteAccountProgress) {
-      Widgets.hideLoder(context);
-      Widgets.showLoader(context);
-    }
-    if (state is AccountDeleted) {
-      Widgets.hideLoder(context);
-    }
-  }
-
-  void _handleSendOtpState(BuildContext context, SendOtpState state) {
-    {
-      if (widget.isDeleteAccount ?? false) {
-        // Skip hiding loader for delete account flow
-      } else {
-        Widgets.hideLoder(context);
-      }
-    }
-    if (state is SendOtpInProgress) {
-      unawaited(Widgets.showLoader(context));
-    }
-
-    if (state is SendOtpSuccess) {
-      Widgets.hideLoder(context);
-      _handleSendOtpSuccess(context, state);
-    }
-    if (state is SendOtpFailure) {
-      Widgets.hideLoder(context);
-      HelperUtils.showSnackBarMessage(
-        context,
-        state.errorMessage,
-        type: MessageType.error,
-      );
-    }
-  }
-
-  void _handleSendOtpSuccess(BuildContext context, SendOtpSuccess state) {
-    isOtpSent = true;
-    if (isForgotPasswordVisible) {
-      HelperUtils.showSnackBarMessage(
-        context,
-        state.message ?? 'forgotPasswordSuccess'.translate(context),
-        type: MessageType.success,
-      );
-    } else {
-      HelperUtils.showSnackBarMessage(
-        context,
-        UiUtils.translate(
-          context,
-          'optsentsuccessflly',
-        ),
-        type: MessageType.success,
-      );
-    }
-    otpVerificationId = state.verificationId ?? '';
-    setState(() {});
-
-    if (!isForgotPasswordVisible) {
-      Navigator.pushNamed(
-        context,
-        Routes.otpScreen,
-        arguments: {
-          'isDeleteAccount': widget.isDeleteAccount ?? false,
-          'phoneNumber': mobileNumController.text,
-          'email': emailAddressController.text,
-          'otpVerificationId': otpVerificationId,
-          'countryCode': countryCode ?? '',
-          'otpIs': otpIs,
-          'isEmailSelected': isEmailSelected,
-        },
-      );
-    }
-  }
-
-  String demoOTP() {
-    if (Constant.isDemoModeOn &&
-        Constant.demoMobileNumber == mobileNumController.text) {
-      return Constant.demoModeOTP; // If true, return the demo mode OTP.
-    } else {
-      return ''; // If false, return an empty string.
-    }
-  }
-
-  Widget buildLoginScreen(BuildContext context) {
-    return BlocConsumer<FetchSystemSettingsCubit, FetchSystemSettingsState>(
-      listener: (context, state) {
-        if (state is FetchSystemSettingsInProgress) {
-          unawaited(Widgets.showLoader(context));
-        }
-        if (state is FetchSystemSettingsSuccess) {
-          Widgets.hideLoder(context);
-        }
-      },
-      builder: (context, state) {
-        if (state is FetchSystemSettingsSuccess) {
-          return Stack(
-            children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: _buildLoginImageContainer(),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: _buildLoginContent(),
-              ),
-            ],
-          );
-        } else if (state is FetchSystemSettingsFailure) {
-          return const Center(child: SomethingWentWrong());
-        } else {
-          return const SizedBox.shrink();
-        }
-      },
-    );
-  }
-
-  Widget _buildLoginImageContainer() {
-    return Stack(
-      children: [
-        Positioned(
-          top: 0,
-          child: CustomImage(
-            imageUrl: 'assets/login_background.png',
-            height: isTablet ? context.screenHeight : 485,
-            width: MediaQuery.of(context).size.width,
-            fit: BoxFit.fill,
-            color: context.color.tertiaryColor.withValues(alpha: 0.3),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLoginContent() {
-    final height = isEmailSelected ? 595 : 437;
-    return SafeArea(
-      child: AnimatedContainer(
-        curve: Curves.easeOutBack,
-        duration: const Duration(milliseconds: 300),
-        alignment: Alignment.center,
-        width: isTablet ? context.screenWidth * 0.7 : context.screenWidth,
-        decoration: BoxDecoration(
-          color: context.color.secondaryColor,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16.rw(context)),
-            topRight: Radius.circular(16.rw(context)),
-          ),
-        ),
-        height: height.rh(context),
-        padding: EdgeInsets.symmetric(horizontal: sidePadding.rw(context)),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              _buildTitle(),
-              if (!isSocialLoginEnabled) ...[
-                buildMobileEmailField(),
-              ],
-              if (isSocialLoginEnabled) _buildSocialLoginSection(),
-              const SizedBox(height: 16),
-              buildTermsAndPrivacyWidget(
-                context: context,
-                isTablet: isTablet,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTitle() => Center(
-        child: Column(
+      child: Scaffold(
+        backgroundColor: context.color.tertiaryColor,
+        body: Stack(
           children: [
-            CustomText(
-              UiUtils.translate(context, 'loginNow'),
-              fontWeight: FontWeight.w700,
-              fontSize: context.font.xxl,
-              color: context.color.textColorDark,
-            ),
-            SizedBox(height: 8.rh(context)),
-            CustomText(
-              UiUtils.translate(context, 'loginToYourAccount'),
-              fontWeight: FontWeight.w500,
-              fontSize: context.font.sm,
-              color: context.color.textColorDark,
-            ),
-            SizedBox(height: 20.rh(context)),
-          ],
-        ),
-      );
-
-  Widget _buildSocialLoginSection() {
-    if (!isPhoneLoginEnabled) {
-      return Column(
-        children: [
-          buildEmailOnly(),
-          if (Platform.isIOS) ...[
-            _buildSocialButton(
-              text: 'signInWithApple'.translate(context),
-              icon: AppIcons.apple,
-              onTap: _onTapAppleLogin,
-              isLoading: _isAppleLoading,
-            ),
-            SizedBox(width: UIConstants.spacingM.rw(context)),
-          ],
-          _buildSocialButton(
-            text: 'signInWithGoogle'.translate(context),
-            icon: AppIcons.google,
-            onTap: _onGoogleTap,
-            isLoading: _isGoogleLoading,
-          ),
-        ],
-      );
-    } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          buildMobileEmailField(),
-          SizedBox(height: UIConstants.spacingS.rh(context)),
-          Row(
-            children: [
-              Expanded(
-                child: UiUtils.getDivider(context),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: UIConstants.spacingM,
+            // Abstract Background Decoration
+            Positioned(
+              top: -100,
+              right: -100,
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.05),
                 ),
-                child: CustomText('or'.translate(context)),
               ),
-              Expanded(
-                child: UiUtils.getDivider(context),
-              ),
-            ],
-          ),
-          SizedBox(height: UIConstants.spacingM.rh(context)),
-          _buildSocialButton(
-            text: isEmailSelected
-                ? 'signInWithPhone'.translate(context)
-                : 'signInWithEmail'.translate(context),
-            icon: isEmailSelected ? AppIcons.phone : AppIcons.email,
-            iconColor: context.color.textColorDark,
-            onTap: () {
-              setState(() {
-                isEmailSelected = !isEmailSelected;
-                isForgotPasswordVisible = false;
-                isResendOtpButtonVisible = false;
-              });
-            },
-          ),
-          SizedBox(width: UIConstants.spacingM.rw(context)),
-          if (Platform.isIOS) ...[
-            _buildSocialButton(
-              text: 'signInWithApple'.translate(context),
-              icon: AppIcons.apple,
-              onTap: _onTapAppleLogin,
-              isLoading: _isAppleLoading,
             ),
-            SizedBox(width: UIConstants.spacingM.rw(context)),
-          ],
-          _buildSocialButton(
-            text: 'signInWithGoogle'.translate(context),
-            icon: AppIcons.google,
-            onTap: _onGoogleTap,
-            isLoading: _isGoogleLoading,
-          ),
-        ],
-      );
-    }
-  }
-
-  Widget _buildSocialButton({
-    required String icon,
-    required VoidCallback onTap,
-    required String text,
-    Color? iconColor,
-    bool isLoading = false,
-  }) {
-    return GestureDetector(
-      onTap: isLoading ? null : () {
-        HelperUtils.unfocus();
-        onTap();
-      },
-      child: Container(
-        alignment: Alignment.center,
-        margin: EdgeInsets.only(bottom: 12.rh(context)),
-        height: 48.rh(context),
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: isLoading 
-              ? context.color.secondaryColor.withValues(alpha: 0.7)
-              : context.color.secondaryColor,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: context.color.borderColor),
-        ),
-        child: isLoading
-            ? SizedBox(
-                height: 20.rh(context),
-                width: 20.rw(context),
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    context.color.tertiaryColor,
-                  ),
+            Positioned(
+              bottom: -50,
+              left: -50,
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.05),
                 ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    child: CustomImage(
-                      imageUrl: icon,
-                      color: iconColor,
-                      height: 24.rh(context),
-                      width: 24.rw(context),
+              ),
+            ),
+
+            SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 60),
+                    Hero(
+                      tag: 'splash_logo',
+                      child: Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                        child: Image.asset(
+                          AppIcons.splashLogo,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
+                    const SizedBox(height: 16),
+                    CustomText(
+                      'HOMIQ AI',
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: context.color.primaryColor,
+                      letterSpacing: 2,
+                    ),
+                    CustomText(
+                      'Luxury Interior Redesigned',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w300,
+                      color: context.color.primaryColor.withOpacity(0.7),
+                    ),
+                    const SizedBox(height: 60),
+
+                    // Login Card
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.2),
+                            ),
+                          ),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              children: [
+                                _buildTextField(
+                                  controller: emailController,
+                                  hint: 'Email Address',
+                                  icon: Icons.email_outlined,
+                                ),
+                                const SizedBox(height: 16),
+                                _buildTextField(
+                                  controller: passwordController,
+                                  hint: 'Password',
+                                  icon: Icons.lock_outline,
+                                  isPassword: true,
+                                  obscure: !isPasswordVisible,
+                                  onSuffixTap: () => setState(() =>
+                                      isPasswordVisible = !isPasswordVisible),
+                                ),
+                                const SizedBox(height: 32),
+                                _buildLoginButton(),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 40),
+                    _buildSocialLoginSection(),
+                    const SizedBox(height: 40),
+
+                    // Footer
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CustomText(
+                          "Don't have an account? ",
+                          color: context.color.primaryColor.withOpacity(0.7),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                              context, Routes.emailRegistrationForm),
+                          child: CustomText(
+                            "Sign Up",
+                            color: context.color.primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    bool isPassword = false,
+    bool obscure = false,
+    VoidCallback? onSuffixTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscure,
+        style: const TextStyle(color: Colors.white),
+        validator: (value) {
+          if (value == null || value.isEmpty) return 'Please enter $hint';
+          return null;
+        },
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+          prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    obscure ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.white.withOpacity(0.7),
                   ),
-                  SizedBox(width: 8.rw(context)),
-                  CustomText(text),
-                ],
-              ),
+                  onPressed: onSuffixTap,
+                )
+              : null,
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        ),
       ),
     );
   }
 
-// Optimized version with shared components
-
-// Shared email field widget
-  Widget _buildEmailField() {
-    return CustomTextFormField(
-      dense: true,
-      controller: emailAddressController,
-      validator: CustomTextFieldValidator.email,
-      hintText: 'email'.translate(context),
-      textDirection: TextDirection.ltr,
-      keyboard: TextInputType.emailAddress,
-      formaters: [FilteringTextInputFormatter.singleLineFormatter],
-      prefix: Padding(
-        padding: EdgeInsetsDirectional.only(
-          start: 12.rw(context),
-          end: 4.rw(context),
-          top: 12.rh(context),
-          bottom: 12.rh(context),
-        ),
-        child: CustomImage(
-          imageUrl: AppIcons.email,
-          color: context.color.textColorDark.withValues(alpha: 0.5),
-          fit: BoxFit.none,
-        ),
-      ),
-      onChange: (value) {
-        setState(() {});
-        isResendOtpButtonVisible = false;
+  Widget _buildLoginButton() {
+    return BlocConsumer<LoginCubit, LoginState>(
+      listener: (context, state) async {
+        if (state is LoginSuccess) {
+          await Navigator.pushReplacementNamed(context, Routes.main,
+              arguments: {'from': 'login'});
+        }
+        if (state is LoginFailure) {
+          await HelperUtils.showSnackBarMessage(context, state.errorMessage,
+              type: MessageType.error);
+        }
       },
-    );
-  }
-
-// Shared password field widget
-  Widget _buildPasswordField() {
-    return CustomTextFormField(
-      dense: true,
-      controller: passwordController,
-      validator: CustomTextFieldValidator.nullCheck,
-      hintText: 'password'.translate(context),
-      isPassword: !isPasswordVisible,
-      textDirection: TextDirection.ltr,
-      keyboard: TextInputType.visiblePassword,
-      formaters: [FilteringTextInputFormatter.singleLineFormatter],
-      prefix: Padding(
-        padding: EdgeInsetsDirectional.only(
-          start: 12.rw(context),
-          end: 4.rw(context),
-          top: 12.rh(context),
-          bottom: 12.rh(context),
-        ),
-        child: CustomImage(
-          imageUrl: AppIcons.lock,
-          color: context.color.textColorDark.withValues(alpha: 0.5),
-          fit: BoxFit.none,
-        ),
-      ),
-      suffix: Padding(
-        padding: EdgeInsetsDirectional.only(end: 12.rw(context)),
-        child: GestureDetector(
-          onTap: () {
-            setState(() {
-              isPasswordVisible = !isPasswordVisible;
-            });
-          },
-          child: CustomImage(
-            imageUrl: isPasswordVisible ? AppIcons.eyeSlash : AppIcons.eye,
-            color: context.color.textColorDark.withValues(alpha: 0.5),
-            fit: BoxFit.none,
-          ),
-        ),
-      ),
-      onChange: (value) {
-        setState(() {});
-      },
-    );
-  }
-
-// Shared mobile field widget
-  Widget _buildMobileField() {
-    return CustomTextFormField(
-      dense: true,
-      borderColor: context.color.tertiaryColor,
-      controller: mobileNumController,
-      validator: CustomTextFieldValidator.phoneNumber,
-      maxLine: 1,
-      hintText: ' +${countryCode ?? ''} 0000000000',
-      keyboard: TextInputType.phone,
-      formaters: [FilteringTextInputFormatter.digitsOnly],
-      prefix: CountryPickerWidget(
-        flagEmoji: flagEmoji,
-        onTap: showCountryCode,
-      ),
-      suffix: GestureDetector(
-        onTap: sendPhoneVerificationCode,
-        child: Container(
-          margin: EdgeInsetsDirectional.only(
-            end: 12.rw(context),
-            top: 8.rh(context),
-            bottom: 8.rh(context),
-          ),
-          height: 40.rh(context),
-          width: 40.rw(context),
-          decoration: BoxDecoration(
-            color: context.color.tertiaryColor,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Icon(
-            Icons.arrow_forward,
-            color: context.color.buttonColor,
-          ),
-        ),
-      ),
-      onChange: (value) {},
-    );
-  }
-
-// Shared forgot password toggle widget
-  Widget _buildForgotPasswordToggle() {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          isForgotPasswordVisible = !isForgotPasswordVisible;
-        });
-      },
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8.rh(context)),
-        alignment: AlignmentDirectional.centerEnd,
-        child: CustomText(
-          isForgotPasswordVisible
-              ? 'goBackToLogin'.translate(context)
-              : 'forgotPassword'.translate(context), // Assuming this exists
-          fontSize: context.font.sm,
-          color: context.color.tertiaryColor,
-        ),
-      ),
-    );
-  }
-
-// Shared sign up section widget
-  Widget _buildSignUpSection() {
-    return Wrap(
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      runAlignment: WrapAlignment.center,
-      children: [
-        CustomText(
-          'registerWith'.translate(context),
-          fontSize: context.font.sm,
-        ),
-        SizedBox(width: 4.rw(context)),
-        CustomText(
-          'Homiq',
-          fontSize: context.font.sm,
-        ),
-        SizedBox(width: 4.rw(context)),
-        GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(
-              context,
-              Routes.emailRegistrationForm,
-              arguments: {
-                'email': emailAddressController.text,
-              },
-            );
-          },
-          child: CustomText(
-            'signUp'.translate(context),
-            fontWeight: FontWeight.w600,
-            fontSize: context.font.sm,
-            color: context.color.tertiaryColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-// Shared action button widget
-  Widget _buildActionButton() {
-    if (isForgotPasswordVisible) {
-      return buildSubmitButton();
-    } else if (isResendOtpButtonVisible) {
-      return buildResendOtpButton();
-    } else {
-      return buildNextButton();
-    }
-  }
-
-// Optimized buildMobileEmailField
-  Widget buildMobileEmailField() {
-    return Column(
-      children: [
-        // Input fields section
-        if (isEmailSelected)
-          Column(
-            children: [
-              _buildEmailField(),
-              if (!isForgotPasswordVisible) ...[
-                const SizedBox(height: 8),
-                _buildPasswordField(),
-              ],
-            ],
-          )
-        else
-          _buildMobileField(),
-
-        // Forgot password section
-        if (isEmailSelected) _buildForgotPasswordToggle(),
-
-        // Action button
-        _buildActionButton(),
-
-        SizedBox(height: 8.rh(context)),
-
-        // Sign up section (only for email)
-        if (isEmailSelected) _buildSignUpSection(),
-      ],
-    );
-  }
-
-// Optimized buildEmailOnly
-  Widget buildEmailOnly() {
-    return Column(
-      children: [
-        // Input fields section
-        Column(
-          children: [
-            _buildEmailField(),
-            if (!isForgotPasswordVisible) ...[
-              SizedBox(height: 8.rh(context)),
-              _buildPasswordField(),
-            ],
-          ],
-        ),
-
-        SizedBox(height: 8.rh(context)),
-
-        // Forgot password section
-        _buildForgotPasswordToggle(),
-
-        SizedBox(height: 8.rh(context)),
-
-        // Action button
-        _buildActionButton(),
-
-        SizedBox(height: 8.rh(context)),
-
-        // Sign up section
-        _buildSignUpSection(),
-
-        SizedBox(height: 8.rh(context)),
-        Row(
-          children: [
-            Expanded(
-              child: UiUtils.getDivider(context),
+      builder: (context, state) {
+        return SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: ElevatedButton(
+            onPressed: state is LoginInProgress ? null : _handleLogin,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.color.accentColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: UIConstants.spacingM,
-              ),
-              child: CustomText('or'.translate(context)),
-            ),
-            Expanded(
-              child: UiUtils.getDivider(context),
-            ),
-          ],
-        ),
-        SizedBox(height: 8.rh(context)),
-      ],
-    );
-  }
-
-  void showCountryCode() {
-    showCountryPicker(
-      context: context,
-      showPhoneCode: true,
-      countryListTheme: CountryListThemeData(
-        borderRadius: BorderRadius.circular(8),
-        backgroundColor: context.color.backgroundColor,
-        textStyle: TextStyle(color: context.color.textColorDark),
-        inputDecoration: InputDecoration(
-          hintStyle: TextStyle(color: context.color.textColorDark),
-          helperStyle: TextStyle(color: context.color.textColorDark),
-          prefixIcon: const Icon(Icons.search),
-          iconColor: context.color.tertiaryColor,
-          prefixIconColor: context.color.tertiaryColor,
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: context.color.tertiaryColor),
+            child: state is LoginInProgress
+                ? SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                        color: context.color.tertiaryColor, strokeWidth: 2))
+                : const Text('Login',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
-          floatingLabelStyle: TextStyle(color: context.color.tertiaryColor),
-          labelText: 'search'.translate(context),
-          border: const OutlineInputBorder(),
-          labelStyle: TextStyle(color: context.color.textColorDark),
-        ),
-      ),
-      onSelect: (Country value) {
-        flagEmoji = value.flagEmoji;
-        countryCode = value.phoneCode;
-        setState(() {});
+        );
       },
     );
   }
 
-  Widget buildForgotPasswordText() {
-    return GestureDetector(
-      onTap: () {
-        isForgotPasswordVisible = true;
-        setState(() {});
-      },
-      child: Container(
-        alignment: AlignmentDirectional.centerEnd,
-        padding: const EdgeInsetsDirectional.only(end: sidePadding, bottom: 10),
-        child: CustomText(
-          'forgotPassword'.translate(context),
-          fontSize: context.font.sm,
-          color: context.color.tertiaryColor,
-        ),
-      ),
-    );
-  }
-
-  Widget buildSubmitButton() {
-    return UiUtils.buildButton(
-      context,
-      onPressed: () async {
-        await context.read<SendOtpCubit>().sendForgotPasswordEmail(
-              email: emailAddressController.text.trim(),
-            );
-      },
-      disabled: emailAddressController.text.trim().isEmpty,
-      disabledColor: Colors.grey,
-      height: 50,
-      radius: 10,
-      border: BorderSide(
-        color: context.color.borderColor,
-      ),
-      buttonTitle: 'submit'.translate(context),
-    );
-  }
-
-  Widget buildResendOtpButton() {
-    return UiUtils.buildButton(
-      context,
-      onPressed: () async {
-        await context.read<SendOtpCubit>().resendEmailOTP(
-              email: emailAddressController.text.trim(),
-              password: passwordController.text.trim(),
-            );
-      },
-      buttonTitle: UiUtils.translate(context, 'resendOtpBtnLbl'),
-    );
-  }
-
-  Widget buildNextButton() {
-    if (!isEmailSelected && isPhoneLoginEnabled) return const SizedBox.shrink();
-    return UiUtils.buildButton(
-      context,
-      disabled: emailAddressController.text.isEmpty,
-      disabledColor: Colors.grey,
-      height: 48.rh(context),
-      onPressed: sendEmailVerificationCode,
-      buttonTitle: 'continue'.translate(context),
-      border: BorderSide(
-        color: context.color.borderColor,
-      ),
-      radius: 4,
-    );
-  }
-
-  Future<void> sendEmailVerificationCode() async {
-    if (FormValidator.validateEmailForm(_formKey, context)) {
-      unawaited(Widgets.showLoader(context));
-      await context.read<LoginCubit>().loginWithEmail(
-            email: emailAddressController.text.trim(),
-            password: passwordController.text.trim(),
+  void _handleLogin() {
+    if (_formKey.currentState!.validate()) {
+      context.read<LoginCubit>().loginWithEmail(
+            email: emailController.text,
+            password: passwordController.text,
             type: LoginType.email,
           );
-
-      final state = context.read<LoginCubit>().state;
-      if (state is LoginFailure && state.key == 'emailNotVerified') {
-        Widgets.hideLoder(context);
-        isResendOtpButtonVisible = true;
-        setState(() {});
-      } else if (state is LoginSuccess) {
-        Widgets.hideLoder(context);
-      } else {
-        Widgets.hideLoder(context);
-      }
     }
   }
 
-  bool _isPhoneVerificationInProgress = false;
-
-  Future<void> sendPhoneVerificationCode() async {
-    if (_isPhoneVerificationInProgress) return;
-    
-    if (!FormValidator.validatePhoneForm(
-      _formKey,
-      context,
-      mobileNumController.text,
-    )) {
-      return;
-    }
-
-    final form = _formKey.currentState;
-    if (form == null) return;
-    form.save();
-
-    if (!form.validate()) return;
-    
-    setState(() => _isPhoneVerificationInProgress = true);
-
-    try {
-      // Add delay to prevent rapid requests
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      await context.read<SendOtpCubit>().sendOTP(
-        phoneNumber: mobileNumController.text,
-        countryCode: countryCode!,
-        provider: AppSettings.otpServiceProvider,
-      );
-    } catch (e) {
-      var errorMessage = 'enterValidPhoneNumber'.translate(context);
-      
-      if (e.toString().contains('too-many-requests')) {
-        errorMessage = 'tooManyRequests'.translate(context);
-      } else if (e.toString().contains('quota-exceeded')) {
-        errorMessage = 'quotaExceeded'.translate(context);
-      }
-      
-      await HelperUtils.showSnackBarMessage(
-        context,
-        errorMessage,
-        type: MessageType.error,
-      );
-    } finally {
-      if (mounted) setState(() => _isPhoneVerificationInProgress = false);
-    }
-  }
-
-// This function builds the UI but requires the parent to manage recognizers.
-  Widget buildTermsAndPrivacyWidget({
-    required BuildContext context,
-    required bool isTablet, // Pass `isTablet` as a parameter
-  }) {
-    // Define styles once to avoid repetition and improve readability.
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final baseStyle = textTheme.bodyLarge?.copyWith(
-      color: colorScheme.textColorDark,
-    );
-    final linkStyle = baseStyle?.copyWith(
-      color: colorScheme.tertiaryColor,
-      decoration: TextDecoration.underline,
-      fontWeight: FontWeight.w600,
-    );
-
-    // Using Text.rich, a concise way to create RichText.
-    // The redundant wrapping Row has been removed.
-    return Container(
-      width: isTablet ? context.screenWidth * 0.7 : context.screenWidth,
-      color: context.color.secondaryColor,
-      padding:
-          const EdgeInsets.symmetric(vertical: 8), // Added for better spacing
-      margin: EdgeInsets.only(bottom: 8.rh(context)),
-      child: Text.rich(
-        TextSpan(
-          style: baseStyle, // Base style applied to all children
-          children: <TextSpan>[
-            TextSpan(
-              text:
-                  "${UiUtils.translate(context, "policyAggreementStatement")}\n",
+  Widget _buildSocialLoginSection() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: CustomText('OR CONTINUE WITH',
+                  fontSize: 10, color: Colors.white.withOpacity(0.5)),
             ),
-            TextSpan(
-              text: UiUtils.translate(context, 'termsConditions'),
-              style: linkStyle,
-            ),
-            TextSpan(
-              text: " ${UiUtils.translate(context, "and")} ",
-            ),
-            TextSpan(
-              text: UiUtils.translate(context, 'privacyPolicy'),
-              style: linkStyle,
-            ),
+            Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
           ],
         ),
-        textAlign: TextAlign.center,
+        const SizedBox(height: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _socialIcon(AppIcons.google, () => loginSystem.login()),
+            if (Theme.of(context).platform == TargetPlatform.iOS) ...[
+              const SizedBox(width: 24),
+              _socialIcon(AppIcons.apple, () => loginSystem.login()),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _socialIcon(String iconPath, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.2)),
+        ),
+        child: CustomImage(imageUrl: iconPath, width: 24, height: 24),
       ),
     );
   }

@@ -140,7 +140,7 @@ class AppIcons {
   static final String myProjects = _asset('${_svgPath}my_projects.svg');
 
   // Company branding
-  static final String splashLogo = _asset('${_appIconPath}splash_logo.png');
+  static const String splashLogo = 'assets/logo.png';
   static final String companyLogo = _asset('${_appIconPath}company_logo.svg');
   static final String defaultPersonLogo =
       _asset('${_svgPath}defaultProfileIcon.svg');
@@ -169,9 +169,9 @@ class AppIcons {
   static final String fallbackHomeLogo = _asset('${_fallbackPath}homeLogo.svg');
 
   // Onboarding
-  static final String onBoardingOne = _asset('${_svgPath}onbo_a.svg');
-  static final String onBoardingTwo = _asset('${_svgPath}onbo_b.svg');
-  static final String onBoardingThree = _asset('${_svgPath}onbo_c.svg');
+  static const String onBoardingOne = 'assets/onboarding/transform.png';
+  static const String onBoardingTwo = 'assets/onboarding/styles.png';
+  static const String onBoardingThree = 'assets/onboarding/result.png';
 
   // Social media
   static final String facebook = _asset('${_socialMediaPath}Facebook.svg');

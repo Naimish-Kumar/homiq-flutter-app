@@ -259,7 +259,7 @@ class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
                 )
               : null,
           formaters: formaters,
-          fillColor: context.color.textLightColor.withValues(alpha: 00.01),
+          fillColor: context.color.textLightColor.withOpacity(00.01),
         ),
       ],
     );
@@ -319,14 +319,14 @@ class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
                 child: CustomImage(
                   imageUrl:
                       isPasswordVisible ? AppIcons.eye : AppIcons.eyeSlash,
-                  color: context.color.textColorDark.withValues(alpha: 0.5),
+                  color: context.color.textColorDark.withOpacity(0.5),
                   width: 24.rw(context),
                   height: 24.rh(context),
                 ),
               ),
             ),
             hintStyle: TextStyle(
-              color: context.color.textColorDark.withValues(alpha: 0.7),
+              color: context.color.textColorDark.withOpacity(0.7),
               fontSize: context.font.md,
             ),
             filled: true,

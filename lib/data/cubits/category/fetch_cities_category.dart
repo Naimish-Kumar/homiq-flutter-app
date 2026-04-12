@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homiq/data/model/city_model.dart';
 import 'package:homiq/data/repositories/cities_repository.dart';
-import 'package:homiq/utils/Extensions/lib/list.dart';
+import 'package:homiq/utils/extensions/lib/list.dart';
 import 'package:homiq/utils/api.dart';
 import 'package:homiq/utils/network/network_availability.dart';
 

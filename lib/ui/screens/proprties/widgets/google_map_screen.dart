@@ -1,87 +1,45 @@
 import 'dart:async';
-
-import 'package:flutter/foundation.dart' as f;
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:homiq/utils/ui_utils.dart';
 
 class GoogleMapScreen extends StatefulWidget {
+
   const GoogleMapScreen({
-    required this.latitude,
-    required this.longitude,
-    required CameraPosition kInitialPlace,
-    required Completer<GoogleMapController> controller,
-    super.key,
-  })  : _kInitialPlace = kInitialPlace,
-        _controller = controller;
+    required this.latitude, required this.longitude, required this.kInitialPlace, required this.controller, super.key,
+  });
   final double latitude;
   final double longitude;
-
-  final CameraPosition _kInitialPlace;
-  final Completer<GoogleMapController> _controller;
+  final CameraPosition kInitialPlace;
+  final Completer<GoogleMapController> controller;
 
   @override
   State<GoogleMapScreen> createState() => _GoogleMapScreenState();
 }
 
 class _GoogleMapScreenState extends State<GoogleMapScreen> {
-  bool isGoogleMapVisible = false;
+  final Set<Marker> _markers = {};
 
   @override
   void initState() {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      isGoogleMapVisible = true;
-      setState(() {});
-    });
-
     super.initState();
+    _markers.add(
+      Marker(
+        markerId: const MarkerId('location'),
+        position: LatLng(widget.latitude, widget.longitude),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) async {
-        if (didPop) return;
-        isGoogleMapVisible = false;
-        setState(() {});
-        await Future<void>.delayed(const Duration(milliseconds: 500));
-        Future.delayed(
-          Duration.zero,
-          () {
-            Navigator.pop(context);
-          },
-        );
-        return Future.value(false);
+    return GoogleMap(
+      initialCameraPosition: widget.kInitialPlace,
+      markers: _markers,
+      onMapCreated: (GoogleMapController controller) {
+        if (!widget.controller.isCompleted) {
+          widget.controller.complete(controller);
+        }
       },
-      child: Builder(
-        builder: (context) {
-          if (!isGoogleMapVisible) {
-            return Center(child: UiUtils.progress());
-          }
-          return GoogleMap(
-            myLocationButtonEnabled: false,
-            gestureRecognizers: const <f.Factory<OneSequenceGestureRecognizer>>{
-              f.Factory<OneSequenceGestureRecognizer>(
-                EagerGestureRecognizer.new,
-              ),
-            },
-            markers: {
-              Marker(
-                markerId: const MarkerId('1'),
-                position: LatLng(widget.latitude, widget.longitude),
-              ),
-            },
-            initialCameraPosition: widget._kInitialPlace,
-            onMapCreated: (GoogleMapController controller) {
-              if (!widget._controller.isCompleted) {
-                widget._controller.complete(controller);
-              }
-            },
-          );
-        },
-      ),
     );
   }
 }

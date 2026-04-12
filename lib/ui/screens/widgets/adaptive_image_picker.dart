@@ -2,8 +2,7 @@ import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:homiq/ui/screens/proprties/add_propery_screens/add_property_details.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/custom_validator.dart';
 import 'package:homiq/utils/extensions/lib/custom_text.dart';
 import 'package:homiq/utils/responsive_size.dart';
@@ -383,6 +382,44 @@ class _AdaptiveImagePickerWidgetState extends State<AdaptiveImagePickerWidget> {
           ],
         );
       },
+    );
+  }
+
+  Widget closeButton(BuildContext context, VoidCallback onTap) {
+    return PositionedDirectional(
+      top: -5,
+      end: -5,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: context.color.error,
+            shape: BoxShape.circle,
+          ),
+          padding: const EdgeInsets.all(4),
+          child: const Icon(
+            Icons.close,
+            size: 16,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget uploadPhotoCard(BuildContext context, {required VoidCallback onTap}) {
+    return Container(
+      width: 100.rw(context),
+      height: 100.rh(context),
+      decoration: BoxDecoration(
+        color: context.color.secondaryColor,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: context.color.borderColor),
+      ),
+      child: GestureDetector(onTap: onTap, child: Icon(
+        Icons.add_a_photo,
+        color: context.color.tertiaryColor,
+      )),
     );
   }
 }

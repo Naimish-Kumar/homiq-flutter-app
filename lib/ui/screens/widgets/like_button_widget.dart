@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homiq/data/cubits/favorite/add_to_favorite_cubit.dart';
 import 'package:homiq/data/cubits/favorite/fetch_favorites_cubit.dart';
 import 'package:homiq/data/cubits/utility/like_properties.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/app_icons.dart';
 import 'package:homiq/utils/custom_image.dart';
 import 'package:homiq/utils/guest_checker.dart';
@@ -96,7 +96,7 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Colors.black.withOpacity(0.1),
                     offset: const Offset(0, 1),
                     blurRadius: 12,
                   ),

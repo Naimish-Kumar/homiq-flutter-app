@@ -7,20 +7,33 @@ import 'package:homiq/data/cubits/agents/fetch_projects_cubit.dart';
 import 'package:homiq/data/cubits/agents/fetch_property_by_agent_cubit.dart';
 import 'package:homiq/data/cubits/agents/fetch_property_cubit.dart';
 import 'package:homiq/data/cubits/auth/get_user_data_cubit.dart';
+import 'package:homiq/data/cubits/enquiry/store_enqury_id.dart';
+import 'package:homiq/data/cubits/fetch_articles_cubit.dart';
 import 'package:homiq/data/cubits/fetch_faqs_cubit.dart';
 import 'package:homiq/data/cubits/fetch_home_page_data_cubit.dart';
 import 'package:homiq/data/cubits/fetch_single_article_cubit.dart';
+import 'package:homiq/data/cubits/outdoorfacility/fetch_outdoor_facility_list.dart';
 import 'package:homiq/data/cubits/personalized/add_update_personalized_interest.dart';
 import 'package:homiq/data/cubits/project/change_project_status_cubit.dart';
 import 'package:homiq/data/cubits/project/fetch_my_promoted_projects.dart';
 import 'package:homiq/data/cubits/property/change_property_status_cubit.dart';
 import 'package:homiq/data/cubits/property/create_advertisement_cubit.dart';
+import 'package:homiq/data/cubits/property/create_property_cubit.dart';
+import 'package:homiq/data/cubits/property/favorite_id_properties.dart';
 import 'package:homiq/data/cubits/property/fetch_city_property_list.dart';
 import 'package:homiq/data/cubits/property/fetch_compare_properties_cubit.dart';
+import 'package:homiq/data/cubits/property/fetch_most_liked_properties.dart';
+import 'package:homiq/data/cubits/property/fetch_most_viewed_properties_cubit.dart';
 import 'package:homiq/data/cubits/property/fetch_my_promoted_propertys_cubit.dart';
+import 'package:homiq/data/cubits/property/fetch_my_properties_cubit.dart';
+import 'package:homiq/data/cubits/property/fetch_nearby_property_cubit.dart';
 import 'package:homiq/data/cubits/property/fetch_premium_properties_cubit.dart';
+import 'package:homiq/data/cubits/property/fetch_promoted_properties_cubit.dart';
+import 'package:homiq/data/cubits/property/fetch_property_from_category_cubit.dart';
 import 'package:homiq/data/cubits/property/fetch_similar_properties_cubit.dart';
 import 'package:homiq/data/cubits/property/home_infinityscroll_cubit.dart';
+import 'package:homiq/data/cubits/property/search_property_cubit.dart';
+import 'package:homiq/data/cubits/report/fetch_property_report_reason_list.dart';
 import 'package:homiq/data/cubits/subscription/flutterwave_cubit.dart';
 import 'package:homiq/data/cubits/utility/fetch_facilities_cubit.dart';
 import 'package:homiq/data/cubits/utility/mortgage_calculator_cubit.dart';
@@ -99,6 +112,9 @@ class RegisterCubits {
       BlocProvider(create: (context) => FetchPersonalizedPropertyList()),
       BlocProvider(create: (context) => AddUpdatePersonalizedInterest()),
       BlocProvider(create: (context) => GetSubsctiptionPackageLimitsCubit()),
+      BlocProvider(create: (context) => FetchStylesCubit(DesignRepository())),
+      BlocProvider(create: (context) => DesignGenerationCubit(DesignRepository())),
+      BlocProvider(create: (context) => FetchMyDesignsCubit(DesignRepository())),
     ];
   }
 }

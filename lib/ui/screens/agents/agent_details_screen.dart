@@ -476,7 +476,7 @@ class _AgentDetailsScreenState extends State<AgentDetailsScreen>
                   padding: const EdgeInsets.all(8),
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: context.color.textColorDark.withValues(alpha: .1),
+                    color: context.color.textColorDark.withOpacity(.1),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -499,7 +499,7 @@ class _AgentDetailsScreenState extends State<AgentDetailsScreen>
                           height: 8,
                           width: 1,
                           color: context.color.textLightColor
-                              .withValues(alpha: 0.2),
+                              .withOpacity(0.2),
                         ),
                       if (agent.propertiesRentedCount != '0')
                         CustomText(
@@ -627,7 +627,7 @@ class _AgentDetailsScreenState extends State<AgentDetailsScreen>
         alignment: Alignment.center,
         margin: const EdgeInsetsDirectional.only(end: 8),
         decoration: BoxDecoration(
-          color: context.color.textLightColor.withValues(alpha: .1),
+          color: context.color.textLightColor.withOpacity(.1),
           shape: BoxShape.circle,
         ),
         child: CustomImage(
@@ -814,7 +814,7 @@ class _AgentDetailsScreenState extends State<AgentDetailsScreen>
               height: 28.rh(context),
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: context.color.textLightColor.withValues(alpha: .1),
+                color: context.color.textLightColor.withOpacity(.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: CustomImage(

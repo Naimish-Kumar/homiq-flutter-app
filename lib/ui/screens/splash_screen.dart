@@ -176,80 +176,151 @@ class SplashScreenState extends State<SplashScreen>
           }
         },
         child: AnnotatedRegion(
-          value: const SystemUiOverlayStyle(
-            statusBarColor: Colors.white,
-            systemNavigationBarColor: Colors.white,
+          value: SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            systemNavigationBarColor: context.color.primaryColor,
           ),
           child: Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: context.color.primaryColor,
             extendBody: true,
-            body: Column(
+            body: Stack(
               children: [
-                Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Hero(
-                          tag: 'splash_logo',
-                          child: Container(
-                            height: 120.rh(context),
-                            padding: EdgeInsets.symmetric(horizontal: 20.rw(context)),
-                            child: CustomImage(
-                              imageUrl: AppIcons.splashLogo,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 24.rh(context)),
-                        CustomText(
-                          'Smart Home Management',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: 8.rh(context)),
-                        CustomText(
-                          'Control your home with intelligence',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.grey[500],
-                          textAlign: TextAlign.center,
-                        ),
+                // Deep Immersive Gradient Background
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF0F172A), // Deep Navy
+                        const Color(0xFF1E293B), // Navy Slate
+                        context.color.tertiaryColor.withValues(alpha: 0.2),
                       ],
+                      stops: const [0.0, 0.6, 1.0],
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 40.rh(context)),
-                  child: Column(
-                    children: [
-                      CustomText(
-                        'Designed & Developed by',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.grey[400],
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 4.rh(context)),
-                      CustomText(
-                        'AcroCoder Team',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.grey[700],
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 12.rh(context)),
-                      CustomText(
-                        'Version 1.0.0',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.grey[400],
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                // Premium Mesh Glow Effect
+                Positioned(
+                  top: -100,
+                  right: -100,
+                  child: Container(
+                    width: 300,
+                    height: 300,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: context.color.tertiaryColor.withValues(alpha: 0.1),
+                    ),
                   ),
+                ),
+                Column(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Hero(
+                              tag: 'splash_logo',
+                              child: Container(
+                                height: 180.rh(context),
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: context.color.tertiaryColor
+                                          .withValues(alpha: 0.2),
+                                      blurRadius: 60,
+                                      spreadRadius: 10,
+                                    ),
+                                  ],
+                                ),
+                                child: Image.asset(
+                                  AppIcons.splashLogo,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 32.rh(context)),
+                            CustomText(
+                              'HOMIQ AI',
+                              fontSize: 36,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 8,
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 8.rh(context)),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: context.color.tertiaryColor
+                                    .withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: context.color.tertiaryColor
+                                      .withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: CustomText(
+                                'AI INTERIOR DESIGNER',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: context.color.tertiaryColor,
+                                letterSpacing: 2,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            SizedBox(height: 64.rh(context)),
+                            SizedBox(
+                              width: 140.rw(context),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(2),
+                                child: LinearProgressIndicator(
+                                  backgroundColor:
+                                      Colors.white.withValues(alpha: 0.1),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    context.color.tertiaryColor,
+                                  ),
+                                  minHeight: 2,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 48.rh(context)),
+                      child: Column(
+                        children: [
+                          CustomText(
+                            'POWERED BY ADVANCED AI',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white.withValues(alpha: 0.4),
+                            letterSpacing: 3,
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 12.rh(context)),
+                          Container(
+                            height: 4,
+                            width: 20,
+                            decoration: BoxDecoration(
+                              color: context.color.accentColor,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

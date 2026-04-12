@@ -180,8 +180,8 @@ class CustomImageGrid extends StatelessWidget {
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Colors.black.withValues(alpha: 0.68),
-                      Colors.black.withValues(alpha: 0),
+                      Colors.black.withOpacity(0.68),
+                      Colors.black.withOpacity(0),
                     ],
                   ),
                 ),

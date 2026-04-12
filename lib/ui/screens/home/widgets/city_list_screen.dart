@@ -3,7 +3,6 @@ import 'package:homiq/data/cubits/property/fetch_city_property_list.dart';
 import 'package:homiq/data/model/city_model.dart';
 import 'package:homiq/exports/main_export.dart';
 import 'package:homiq/ui/screens/home/city_properties_screen.dart';
-import 'package:homiq/ui/screens/home/home_screen.dart';
 import 'package:homiq/utils/sliver_grid_delegate_with_fixed_cross_axis_count_and_fixed_height.dart';
 
 class CityListScreen extends StatefulWidget {
@@ -28,6 +27,7 @@ class CityListScreen extends StatefulWidget {
 
 class _CityListScreenState extends State<CityListScreen>
     with TickerProviderStateMixin {
+  final ScrollController cityScreenController = ScrollController();
   @override
   void initState() {
     context.read<FetchCityCategoryCubit>().fetchCityCategory(

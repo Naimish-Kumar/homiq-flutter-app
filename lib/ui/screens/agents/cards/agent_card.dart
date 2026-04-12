@@ -109,7 +109,7 @@ class AgentCard extends StatelessWidget {
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color:
-                          context.color.textLightColor.withValues(alpha: 0.1),
+                          context.color.textLightColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Column(

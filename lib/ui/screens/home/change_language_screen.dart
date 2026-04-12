@@ -3,6 +3,8 @@ import 'package:homiq/data/cubits/fetch_home_page_data_cubit.dart';
 import 'package:homiq/data/cubits/property/home_infinityscroll_cubit.dart';
 import 'package:homiq/data/model/system_settings_model.dart';
 import 'package:homiq/exports/main_export.dart';
+import 'package:homiq/data/cubits/outdoorfacility/fetch_outdoor_facility_list.dart';
+import 'package:homiq/data/cubits/property/fetch_my_properties_cubit.dart';
 
 class LanguagesListScreen extends StatefulWidget {
   const LanguagesListScreen({super.key});
@@ -107,7 +109,7 @@ class _LanguagesListScreenState extends State<LanguagesListScreen> {
                                 .languageCode ==
                             setting[index]['code']
                         ? context.color.tertiaryColor
-                        : context.color.textLightColor.withValues(alpha: 0.03);
+                        : context.color.textLightColor.withOpacity(0.03);
 
                     return GestureDetector(
                       onTap: () {

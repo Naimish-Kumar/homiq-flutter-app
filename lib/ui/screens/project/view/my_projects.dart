@@ -114,7 +114,7 @@ class _MyProjectsState extends State<MyProjects> {
                           statusButton: StatusButton(
                             lable: statusText(requestStatus),
                             color: statusColor(requestStatus)
-                                .withValues(alpha: 0.2),
+                                .withOpacity(0.2),
                             textColor: statusColor(requestStatus),
                           ),
                         );

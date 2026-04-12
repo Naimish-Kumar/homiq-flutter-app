@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:homiq/exports/main_export.dart';
-import 'package:homiq/utils/Extensions/lib/map.dart';
+import 'package:homiq/utils/extensions/lib/map.dart';
 
 enum PersonalizedFeedAction { add, edit, get }
 

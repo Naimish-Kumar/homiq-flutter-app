@@ -71,6 +71,7 @@ class FetchNearbyPropertiesCubit extends Cubit<FetchNearbyPropertiesState>
   Future<void> fetch({
     bool? forceRefresh,
     bool? loadWithoutDelay,
+    String? cityName,
   }) async {
     try {
       if (forceRefresh ?? false) {

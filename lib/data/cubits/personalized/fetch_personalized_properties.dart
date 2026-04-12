@@ -99,6 +99,7 @@ class FetchPersonalizedPropertyList
   Future<void> fetch({
     bool? forceRefresh,
     bool? loadWithoutDelay,
+    String? cityName,
   }) async {
     if (forceRefresh != true) {
       if (state is FetchPersonalizedPropertySuccess) {

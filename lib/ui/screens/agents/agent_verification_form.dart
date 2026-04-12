@@ -11,7 +11,6 @@ import 'package:homiq/data/cubits/agents/fetch_agent_verification_form_values.da
 import 'package:homiq/data/cubits/system/fetch_system_settings_cubit.dart';
 import 'package:homiq/data/model/agent/agent_verification_form_fields_model.dart';
 import 'package:homiq/data/model/agent/agent_verification_form_values_model.dart';
-import 'package:homiq/ui/screens/proprties/widgets/download_doc.dart';
 import 'package:homiq/ui/screens/widgets/custom_text_form_field.dart';
 import 'package:homiq/ui/screens/widgets/errors/no_data_found.dart';
 import 'package:homiq/ui/screens/widgets/errors/something_went_wrong.dart';
@@ -659,7 +658,7 @@ class _AgentVerificationFormState extends State<AgentVerificationForm> {
     dynamic Function(AgentDocuments?) onDocumentSelected,
   ) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
       );
@@ -779,7 +778,7 @@ class DocumentPickerWidgetState extends State<DocumentPickerWidget> {
         buildDocumentsPicker(context),
         if (selectedDocument != null) ...[
           const SizedBox(height: 8),
-          DownloadableDocuments(url: widget.initialDocument?.name ?? ''),
+          // DownloadableDocuments(url: widget.initialDocument?.name ?? ''),
         ]
       ],
     );
@@ -829,7 +828,7 @@ class DocumentPickerWidgetState extends State<DocumentPickerWidget> {
 
   Future<void> _pickDocument(BuildContext context) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
       );

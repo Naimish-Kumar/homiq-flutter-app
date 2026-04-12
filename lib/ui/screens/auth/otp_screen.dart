@@ -198,12 +198,12 @@ class _OtpScreenState extends State<OtpScreen> {
         CustomText(
           UiUtils.translate(context, messageKey),
           fontSize: context.font.md,
-          color: context.color.textColorDark.withValues(alpha: 0.8),
+          color: context.color.textColorDark.withOpacity(0.8),
         ),
         CustomText(
           contactInfo,
           fontSize: context.font.md,
-          color: context.color.textColorDark.withValues(alpha: 0.8),
+          color: context.color.textColorDark.withOpacity(0.8),
         ),
       ],
     );
@@ -232,7 +232,7 @@ class _OtpScreenState extends State<OtpScreen> {
       controller: controller,
       decoration: UnderlineDecoration(
         textStyle: TextStyle(
-          color: context.color.textColorDark.withValues(alpha: 0.8),
+          color: context.color.textColorDark.withOpacity(0.8),
           fontSize: context.font.xl,
         ),
         lineHeight: 1.5,

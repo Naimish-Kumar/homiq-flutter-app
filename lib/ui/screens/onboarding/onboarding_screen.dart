@@ -4,7 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:homiq/app/routes.dart';
 import 'package:homiq/data/cubits/system/fetch_system_settings_cubit.dart';
 import 'package:homiq/data/model/system_settings_model.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/app_icons.dart' show AppIcons;
 import 'package:homiq/utils/custom_image.dart';
 import 'package:homiq/utils/extensions/lib/custom_text.dart';
@@ -51,28 +51,28 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Widget build(BuildContext context) {
     final slidersList = [
       {
-        'icon': Icons.home_rounded,
-        'title': 'Welcome to Homiq',
-        'subtitle': 'Smart Home Management',
+        'image': AppIcons.onBoardingOne,
+        'title': 'AI Transformation',
+        'subtitle': 'REIMAGINE YOUR SPACE',
         'description':
-            'Transform your house into an intelligent home with seamless automation and complete control.',
-        'color': const Color(0xFF6366F1),
+            'Experience the future of interior design. Our advanced AI analyzes your room and generates photorealistic concepts in seconds.',
+        'color': context.color.tertiaryColor,
       },
       {
-        'icon': Icons.touch_app_rounded,
-        'title': 'Easy Control',
-        'subtitle': 'Everything at Your Fingertips',
+        'image': AppIcons.onBoardingTwo,
+        'title': 'Tailored Styles',
+        'subtitle': 'CURATE YOUR AESTHETIC',
         'description':
-            'Control lights, temperature, security, and appliances from anywhere with simple gestures.',
-        'color': const Color(0xFF06B6D4),
+            'From Scandinavian Minimalism to Modern Industrial. Discover the perfect style that resonates with your unique personality.',
+        'color': context.color.accentColor,
       },
       {
-        'icon': Icons.auto_awesome_rounded,
-        'title': 'Smart Automation',
-        'subtitle': 'Intelligent Living',
+        'image': AppIcons.onBoardingThree,
+        'title': 'Instant High fidelity',
+        'subtitle': 'PROFESSIONAL RESULTS',
         'description':
-            'Create custom routines and schedules that adapt to your lifestyle automatically.',
-        'color': const Color(0xFF10B981),
+            'Get professional-grade renderings instantly. Visualize furniture, lighting, and colors with unparalleled clarity and detail.',
+        'color': context.color.tertiaryColor,
       },
     ];
 
@@ -151,10 +151,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: context.color.secondaryColor.withValues(alpha: 0.1),
+          color: context.color.secondaryColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-              color: context.color.borderColor.withValues(alpha: 0.3)),
+              color: context.color.borderColor.withOpacity(0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -209,7 +209,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: context.color.tertiaryColor.withValues(alpha: 0.1),
+          color: context.color.tertiaryColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(25),
         ),
         child: CustomText(
@@ -230,16 +230,26 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            height: 200.rh(context),
-            width: 200.rw(context),
+            height: 420.rh(context),
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
-              color: (data['color'] as Color).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(100),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: context.color.textColorDark.withValues(alpha: 0.05),
+                  blurRadius: 40,
+                  spreadRadius: 5,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
-            child: Icon(
-              data['icon'] as IconData,
-              size: 80,
-              color: data['color'] as Color,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Image.asset(
+                data['image'] as String,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           SizedBox(height: 40.rh(context)),
@@ -247,7 +257,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             data['subtitle']?.toString() ?? '',
             fontWeight: FontWeight.w500,
             fontSize: context.font.md,
-            color: context.color.textColorDark.withValues(alpha: 0.7),
+            color: context.color.textColorDark.withOpacity(0.7),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 12.rh(context)),
@@ -264,7 +274,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             maxLines: 3,
             textAlign: TextAlign.center,
             fontSize: context.font.md,
-            color: context.color.textColorDark.withValues(alpha: 0.6),
+            color: context.color.textColorDark.withOpacity(0.6),
             fontWeight: FontWeight.w400,
           ),
         ],
@@ -299,7 +309,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       decoration: BoxDecoration(
         color: isActive
             ? context.color.tertiaryColor
-            : context.color.textColorDark.withValues(alpha: 0.3),
+            : context.color.textColorDark.withOpacity(0.3),
         borderRadius: BorderRadius.circular(3),
       ),
     );

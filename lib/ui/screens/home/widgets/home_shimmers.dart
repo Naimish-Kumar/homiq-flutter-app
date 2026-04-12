@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:homiq/ui/screens/home/home_screen.dart';
 import 'package:homiq/ui/screens/widgets/custom_shimmer.dart';
 import 'package:homiq/utils/constant.dart';
 import 'package:homiq/utils/extensions/extensions.dart';

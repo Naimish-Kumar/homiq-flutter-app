@@ -1,5 +1,5 @@
 import 'package:dotted_border/dotted_border.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/file_picker.dart' as fp;
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:homiq/utils/app_icons.dart';
@@ -94,7 +94,7 @@ class DocumentUploadState extends State<DocumentUpload> {
             children: [
               CustomImage(
                 imageUrl: AppIcons.plusButtonIcon,
-                color: context.color.textColorDark.withValues(alpha: 0.8),
+                color: context.color.textColorDark.withOpacity(0.8),
               ),
               const SizedBox(width: 10),
               CustomText('uploadBankReceipt'.translate(context)),
@@ -107,8 +107,8 @@ class DocumentUploadState extends State<DocumentUpload> {
 
   Future<void> _pickDocument(BuildContext context) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
+      final result = await fp.FilePicker.pickFiles(
+        type: fp.FileType.custom,
         allowedExtensions: ['jpeg', 'png', 'jpg', 'pdf', 'doc', 'docx'],
       );
       if (result != null && result.files.isNotEmpty) {

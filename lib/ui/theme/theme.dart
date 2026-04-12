@@ -1,30 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:homiq/app/app.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
 
 ///Light Theme Colors
-const Color primaryColor_ = Color(0xFFFAFAFA);
-const Color secondaryColor_ = Color(0xFFFFFFFF);
-const Color tertiaryColor_ = Colors.red;
-const Color textColor = Color(0xFF4D5454);
-Color lightTextColor = Colors.black.withValues(alpha: .6);
-Color widgetsBorderColorLight = const Color(0xffEEEEEE).withValues(alpha: 0.6);
-Color senderChatColor = const Color.fromARGB(255, 233, 233, 233).darken(22);
+const Color primaryColor_ = Color(0xFFF8FAFC); // Soft Mist White
+const Color secondaryColor_ = Color(0xFFFFFFFF); // White
+const Color tertiaryColor_ = Color(0xFF49A9B4); // Brand Teal
+const Color accentColor_ = Color(0xFFFF7F64); // Brand Coral
+const Color textColor = Color(0xFF0F172A); // Dark Slate
+Color lightTextColor = const Color(0xFF64748B); // Muted Slate
+Color widgetsBorderColorLight = const Color(0xFFE2E8F0);
+Color senderChatColor = const Color(0xFFEDF8F9); // Very Light Teal Tint
 
 ///Dark Theme Colors
-Color primaryColorDark = const Color(0xff0C0C0C);
-Color secondaryColorDark = const Color(0xff1C1C1C);
-const Color tertiaryColorDark = Colors.red;
-const Color textColorDarkTheme = Color(0xffFDFDFD);
-Color lightTextColorDarkTheme = Colors.white.withValues(alpha: 0.6);
-Color widgetsBorderColorDark = const Color(0x1aFDFDFD);
-Color darkSenderChatColor =
-    const Color.fromARGB(255, 233, 233, 233).darken(100);
+Color primaryColorDark = const Color(0xFF0F172A); // Deep Navy Slate
+Color secondaryColorDark = const Color(0xFF1E293B); // Muted Dark Navy
+const Color tertiaryColorDark = Color(0xFF49A9B4); // Brand Teal
+const Color textColorDarkTheme = Color(0xFFF8FAFC);
+Color lightTextColorDarkTheme = const Color(0xFF94A3B8).withValues(alpha: 0.8);
+Color widgetsBorderColorDark = const Color(0xFF334155);
+Color darkSenderChatColor = const Color(0xFF134E4A); // Deep Teal
 
 ///Messages Color
-const Color errorMessageColor = Color.fromARGB(255, 166, 4, 4);
-const Color successMessageColor = Colors.red;
-const Color warningMessageColor = Colors.amber;
+const Color errorMessageColor = Color(0xFFD32F2F);
+const Color successMessageColor = Color(0xFF388E3C);
+const Color warningMessageColor = Color(0xFFFBC02D);
 
 //Button text color
 const Color buttonTextColor = Colors.white;
@@ -48,6 +47,12 @@ extension ColorPrefs on ColorScheme {
         brightness,
         lightColor: appSettings.lightTertiary,
         darkColor: appSettings.darkTertiary,
+      );
+ 
+  Color get accentColor => _getColor(
+        brightness,
+        lightColor: accentColor_,
+        darkColor: accentColor_,
       );
 
   Color get backgroundColor => _getColor(
@@ -103,8 +108,8 @@ extension ColorPrefs on ColorScheme {
       : Colors.grey.shade300;
 
   Color get shimmerContentColor => brightness == Brightness.light
-      ? Colors.white.withValues(alpha: 0.85)
-      : Colors.white.withValues(alpha: 0.7);
+      ? Colors.white.withOpacity(0.85)
+      : Colors.white.withOpacity(0.7);
 }
 
 // 11pt: Smaller

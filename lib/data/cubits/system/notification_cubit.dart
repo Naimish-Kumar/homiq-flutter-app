@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homiq/data/helper/custom_exception.dart';
 import 'package:homiq/data/model/notification_data.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/api.dart';
 import 'package:homiq/utils/helper_utils.dart';
 

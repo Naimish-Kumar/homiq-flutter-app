@@ -26,6 +26,8 @@ class AgentListScreen extends StatefulWidget {
 }
 
 class _AgentListScreenState extends State<AgentListScreen> {
+  final ScrollController agentsListScreenController = ScrollController();
+
   @override
   void initState() {
     context.read<FetchAgentsCubit>().fetchAgents(
@@ -39,12 +41,12 @@ class _AgentListScreenState extends State<AgentListScreen> {
     agentsListScreenController.addListener(pageScrollListener);
   }
 
-  void pageScrollListener() {
+  Future<void> pageScrollListener() async {
     ///This will load data on page end
     if (agentsListScreenController.isEndReached()) {
       if (mounted) {
         if (context.read<FetchAgentsCubit>().hasMoreData()) {
-          context.read<FetchAgentsCubit>().fetchMore();
+          await context.read<FetchAgentsCubit>().fetchMore();
         }
       }
     }

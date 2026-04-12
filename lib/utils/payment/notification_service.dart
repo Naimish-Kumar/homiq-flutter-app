@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:homiq/exports/main_export.dart';
-import 'package:homiq/ui/screens/chat/chat_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationService {
@@ -16,30 +15,27 @@ class NotificationService {
 
   // Track active chat to prevent notifications when already in chat
   static String? _activeChatUserId;
-  static String? _activeChatPropertyId;
+  // static String? _activeChatPropertyId; // Removed for Homiq AI
 
   // Method to set active chat
-  static void setActiveChat(String userId, String propertyId) {
+  static void setActiveChat(String userId) {
     _activeChatUserId = userId;
-    _activeChatPropertyId = propertyId;
   }
 
   // Method to clear active chat
   static void clearActiveChat() {
     _activeChatUserId = null;
-    _activeChatPropertyId = null;
   }
 
   // Check if a message is for the active chat
   static bool isForActiveChat(Map<String, dynamic> messageData) {
-    if (_activeChatUserId == null || _activeChatPropertyId == null) {
+    if (_activeChatUserId == null) {
       return false;
     }
 
     final senderId = messageData['sender_id']?.toString() ?? '';
-    final propertyId = messageData['property_id']?.toString() ?? '';
 
-    return senderId == _activeChatUserId && propertyId == _activeChatPropertyId;
+    return senderId == _activeChatUserId;
   }
 
   // Stream getter for chat messages
@@ -205,8 +201,7 @@ class NotificationService {
 
   // Create chat notification
   static Future<void> _createChatNotification(RemoteMessage message) async {
-    final chatId = int.parse(message.data['sender_id']?.toString() ?? '0') +
-        int.parse(message.data['property_id']?.toString() ?? '0');
+    final chatId = int.tryParse(message.data['sender_id']?.toString() ?? '') ?? Random().nextInt(5000);
 
     await _awesomeNotifications.createNotification(
       content: NotificationContent(
@@ -250,27 +245,13 @@ class NotificationService {
   // Navigate to chat screen
   static void _navigateToChatScreen(Map<String, dynamic>? payload) {
     if (payload == null) return;
-
-    Navigator.push(
+    
+    // Redirecting to AI Help tab for now as the specialized Chat screen is not implemented in Homiq AI
+    Navigator.pushNamedAndRemoveUntil(
       Constant.navigatorKey.currentContext!,
-      CupertinoPageRoute<dynamic>(
-        builder: (context) => MultiBlocProvider(
-          providers: [
-            BlocProvider(create: (context) => LoadChatMessagesCubit()),
-            BlocProvider(create: (context) => DeleteMessageCubit()),
-          ],
-          child: ChatScreenNew(
-            profilePicture: payload['user_profile']?.toString() ?? '',
-            userName: payload['username']?.toString() ?? '',
-            propertyImage: payload['property_title_image']?.toString() ?? '',
-            proeprtyTitle: payload['title']?.toString() ?? '',
-            userId: payload['sender_id']?.toString() ?? '',
-            propertyId: payload['property_id']?.toString() ?? '',
-            isBlockedByMe: payload['is_blocked_by_me'] == 'true',
-            isBlockedByUser: payload['is_blocked_by_user'] == 'true',
-          ),
-        ),
-      ),
+      Routes.main,
+      (route) => false,
+      arguments: {'from': 'notification', 'tab': 3},
     );
   }
 

@@ -267,7 +267,7 @@ class _BankTransferState extends State<BankTransfer> {
                     isCopied ? Icons.check : Icons.copy,
                     color: isCopied
                         ? Colors.green
-                        : context.color.textColorDark.withValues(alpha: 0.5),
+                        : context.color.textColorDark.withOpacity(0.5),
                     size: 24,
                   );
                 },

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:homiq/ui/screens/home/home_screen.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/constant.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/extensions/lib/custom_text.dart';
 import 'package:homiq/utils/ui_utils.dart';
 

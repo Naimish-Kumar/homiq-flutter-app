@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:homiq/data/cubits/property/fetch_nearby_property_cubit.dart';
 import 'package:homiq/data/repositories/favourites_repository.dart';
 import 'package:homiq/exports/main_export.dart';
 import 'package:homiq/firebase_options.dart';

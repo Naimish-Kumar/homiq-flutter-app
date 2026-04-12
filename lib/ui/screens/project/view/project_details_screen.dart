@@ -22,7 +22,7 @@ import 'package:homiq/ui/screens/proprties/widgets/property_gallery.dart';
 import 'package:homiq/ui/screens/widgets/blurred_dialoge_box.dart';
 import 'package:homiq/ui/screens/widgets/promoted_widget.dart';
 import 'package:homiq/ui/screens/widgets/read_more_text.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/app_icons.dart';
 import 'package:homiq/utils/cloud_state/cloud_state.dart';
 import 'package:homiq/utils/constant.dart';
@@ -223,7 +223,7 @@ class _ProjectDetailsScreenState extends CloudState<ProjectDetailsScreen> {
                 trackColor: WidgetStateProperty.resolveWith<Color>(
                   (Set<WidgetState> states) {
                     if (states.contains(WidgetState.disabled)) {
-                      return context.color.textColorDark.withValues(alpha: 0.1);
+                      return context.color.textColorDark.withOpacity(0.1);
                     }
                     if (states.contains(WidgetState.selected)) {
                       return context.color.tertiaryColor;
@@ -256,7 +256,7 @@ class _ProjectDetailsScreenState extends CloudState<ProjectDetailsScreen> {
               height: 36.rh(context),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               decoration: BoxDecoration(
-                color: context.color.textColorDark.withValues(alpha: 0.1),
+                color: context.color.textColorDark.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(48),
               ),
               child: CustomText(
@@ -439,7 +439,7 @@ class _ProjectDetailsScreenState extends CloudState<ProjectDetailsScreen> {
       '${'addressLbl'.translate(context)}: $address',
       fontWeight: FontWeight.w500,
       fontSize: context.font.sm,
-      color: context.color.textColorDark.withValues(alpha: 0.89),
+      color: context.color.textColorDark.withOpacity(0.89),
     );
   }
 
@@ -620,7 +620,7 @@ class _ProjectDetailsScreenState extends CloudState<ProjectDetailsScreen> {
       padding: EdgeInsets.zero,
       color: Colors.transparent,
       elevation: 0,
-      shadowColor: context.color.textColorDark.withValues(alpha: 0.3),
+      shadowColor: context.color.textColorDark.withOpacity(0.3),
       height: 72.rh(context),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -628,7 +628,7 @@ class _ProjectDetailsScreenState extends CloudState<ProjectDetailsScreen> {
           color: context.color.secondaryColor,
           boxShadow: [
             BoxShadow(
-              color: context.color.textColorDark.withValues(alpha: 0.3),
+              color: context.color.textColorDark.withOpacity(0.3),
               offset: const Offset(0, -1),
               blurRadius: 5,
             ),

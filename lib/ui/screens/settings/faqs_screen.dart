@@ -21,6 +21,7 @@ class FaqsScreen extends StatefulWidget {
 }
 
 class _FaqsScreenState extends State<FaqsScreen> {
+  final ScrollController faqsListScreenController = ScrollController();
   @override
   void initState() {
     context.read<FetchFaqsCubit>().fetchFaqs(

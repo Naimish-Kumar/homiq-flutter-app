@@ -145,13 +145,13 @@ class CurrentPackageTileCard extends StatelessWidget {
             height: 16,
             width: 1,
             margin: const EdgeInsets.symmetric(horizontal: 8),
-            color: context.color.buttonColor.withValues(alpha: 0.5),
+            color: context.color.buttonColor.withOpacity(0.5),
           ),
           CustomText(
             '${getDuration(duration: package.duration, context: context)} ${'days'.translate(context)}',
             fontSize: context.font.sm,
             fontWeight: FontWeight.w400,
-            color: context.color.buttonColor.withValues(alpha: 0.9),
+            color: context.color.buttonColor.withOpacity(0.9),
           ),
         ],
       ),
@@ -296,7 +296,7 @@ class CurrentPackageTileCard extends StatelessWidget {
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   height: 8,
                   decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.2),
+                    color: Colors.grey.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: FractionallySizedBox(
@@ -339,7 +339,7 @@ class CurrentPackageTileCard extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: context.color.tertiaryColor
-            .withValues(alpha: 0.1), // Light gray background
+            .withOpacity(0.1), // Light gray background
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -353,7 +353,7 @@ class CurrentPackageTileCard extends StatelessWidget {
                   CustomText(
                     'startedOn'.translate(context),
                     fontSize: context.font.xs,
-                    color: context.color.inverseSurface.withValues(alpha: 0.7),
+                    color: context.color.inverseSurface.withOpacity(0.7),
                   ),
                   const SizedBox(height: 4),
                   CustomText(
@@ -370,7 +370,7 @@ class CurrentPackageTileCard extends StatelessWidget {
                   CustomText(
                     'willEndOn'.translate(context),
                     fontSize: context.font.xs,
-                    color: context.color.inverseSurface.withValues(alpha: 0.7),
+                    color: context.color.inverseSurface.withOpacity(0.7),
                   ),
                   const SizedBox(height: 4),
                   CustomText(

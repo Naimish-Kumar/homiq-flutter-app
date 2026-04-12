@@ -1,172 +1,90 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:homiq/app/routes.dart';
-import 'package:homiq/data/cubits/agents/fetch_property_cubit.dart';
-import 'package:homiq/utils/app_icons.dart';
 import 'package:homiq/utils/custom_image.dart';
 import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/extensions/lib/custom_text.dart';
 import 'package:homiq/utils/responsive_size.dart';
 
-class AgentProfileWidget extends StatefulWidget {
-  const AgentProfileWidget({
-    required this.addedBy,
-    required this.profileImage,
-    required this.name,
-    required this.isVerified,
-    required this.email,
-    required this.propertiesCount,
-    required this.projectsCount,
-    super.key,
-  });
+class AgentProfileWidget extends StatelessWidget {
   final String addedBy;
-  final String profileImage;
   final String name;
-  final bool isVerified;
   final String email;
+  final String profileImage;
+  final bool isVerified;
   final String propertiesCount;
   final String projectsCount;
 
-  @override
-  State<AgentProfileWidget> createState() => _AgentProfileWidgetState();
-}
-
-class _AgentProfileWidgetState extends State<AgentProfileWidget> {
-  bool? isAdmin;
-
-  @override
-  void initState() {
-    super.initState();
-    isAdmin = widget.addedBy == '0';
-  }
+  const AgentProfileWidget({
+    super.key,
+    required this.addedBy,
+    required this.name,
+    required this.email,
+    required this.profileImage,
+    required this.isVerified,
+    required this.propertiesCount,
+    required this.projectsCount,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FetchAgentsPropertyCubit, FetchAgentsPropertyState>(
-      builder: (context, state) {
-        return SizedBox(
-          width: double.infinity,
-          child: GestureDetector(
-            onTap: () async {
-              try {
-                await Navigator.pushNamed(
-                  context,
-                  Routes.agentDetailsScreen,
-                  arguments: {
-                    'agentID': widget.addedBy,
-                    'isAdmin': isAdmin,
-                  },
-                );
-              } on Exception catch (_) {}
-            },
-            child: Row(
-              children: [
-                Container(
-                  width: 40.rw(context),
-                  height: 40.rh(context),
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: CustomImage(
-                    imageUrl: widget.profileImage,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: CustomImage(
+                imageUrl: profileImage,
+                width: 40.rw(context),
+                height: 40.rh(context),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CustomText(
-                            widget.name,
-                            fontWeight: FontWeight.w500,
-                            fontSize: context.font.sm,
-                          ),
-                          if (widget.isVerified)
-                            Container(
-                              margin:
-                                  const EdgeInsetsDirectional.only(start: 4),
-                              alignment: Alignment.center,
-                              child: CustomImage(
-                                imageUrl: AppIcons.verified,
-                                height: 18.rh(context),
-                                width: 18.rw(context),
-                                color: Colors.blueAccent,
-                              ),
-                            ),
-                        ],
-                      ),
                       CustomText(
-                        widget.email,
-                        fontSize: context.font.xs,
-                        color: context.color.textColorDark,
-                        maxLines: 1,
-                        fontWeight: FontWeight.w400,
+                        name,
+                        fontWeight: FontWeight.w600,
+                        fontSize: context.font.md,
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        margin: const EdgeInsets.only(top: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: context.color.textColorDark
-                              .withValues(alpha: 0.1),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (widget.propertiesCount != '0' ||
-                                widget.propertiesCount.isNotEmpty) ...[
-                              Expanded(
-                                child: CustomText(
-                                  '${'properties'.translate(context)}: ${widget.propertiesCount}',
-                                  fontSize: context.font.xs,
-                                  color: context.color.textColorDark,
-                                  maxLines: 1,
-                                  textAlign: TextAlign.center,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              if (widget.projectsCount != '0' ||
-                                  widget.projectsCount.isNotEmpty) ...[
-                                Container(
-                                  height: 12,
-                                  width: 1,
-                                  color: context.color.textLightColor
-                                      .withValues(alpha: 0.5),
-                                ),
-                              ],
-                            ],
-                            if (widget.projectsCount != '0' ||
-                                widget.projectsCount.isNotEmpty) ...[
-                              Expanded(
-                                child: CustomText(
-                                  '${'projects'.translate(context)}: ${widget.projectsCount}',
-                                  fontSize: context.font.xs,
-                                  color: context.color.textColorDark,
-                                  maxLines: 1,
-                                  textAlign: TextAlign.center,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
+                      if (isVerified) ...[
+                        const SizedBox(width: 4),
+                        const Icon(Icons.verified, size: 16, color: Colors.blue),
+                      ],
                     ],
                   ),
-                ),
-              ],
+                  CustomText(
+                    email,
+                    fontSize: context.font.sm,
+                    color: context.color.textColorDark.withOpacity(0.6),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _buildStat(context, propertiesCount, 'Properties'),
+            const SizedBox(width: 24),
+            _buildStat(context, projectsCount, 'Projects'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStat(BuildContext context, String count, String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CustomText(count, fontWeight: FontWeight.bold, fontSize: context.font.md),
+        CustomText(label, fontSize: context.font.xs, color: context.color.textColorDark.withOpacity(0.6)),
+      ],
     );
   }
 }

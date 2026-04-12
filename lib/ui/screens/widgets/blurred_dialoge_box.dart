@@ -71,7 +71,7 @@ abstract class _BaseBlurredDialog extends StatelessWidget
         }
       },
       child: Container(
-        color: Colors.black.withValues(alpha: 0.14),
+        color: Colors.black.withOpacity(0.14),
       ),
     );
   }
@@ -112,7 +112,7 @@ abstract class _BaseBlurredDialog extends StatelessWidget
         if (svgImagePath != null) ...[
           CircleAvatar(
             radius: 93, // 186 / 2
-            backgroundColor: context.color.tertiaryColor.withValues(alpha: 0.1),
+            backgroundColor: context.color.tertiaryColor.withOpacity(0.1),
             child: CustomImage(
               imageUrl: svgImagePath!,
               color: svgImageColor,
@@ -255,7 +255,7 @@ class BlurredDialogBox extends _BaseBlurredDialog {
         }
       },
       child: Container(
-        color: Colors.black.withValues(alpha: 0.14),
+        color: Colors.black.withOpacity(0.14),
       ),
     );
   }
@@ -414,7 +414,7 @@ class BlurredDialogBuilderBox extends _BaseBlurredDialog {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(color: Colors.black.withValues(alpha: 0.14)),
+        Container(color: Colors.black.withOpacity(0.14)),
         PopScope(
           canPop: false,
           onPopInvokedWithResult: (didPop, _) async {
@@ -454,7 +454,7 @@ class BlurredDialogBuilderBox extends _BaseBlurredDialog {
         if (svgImagePath != null) ...[
           CircleAvatar(
             radius: 49.rs(context),
-            backgroundColor: context.color.tertiaryColor.withValues(alpha: 0.1),
+            backgroundColor: context.color.tertiaryColor.withOpacity(0.1),
             child: SizedBox(
               width: 48.rw(context),
               height: 48.rh(context),
@@ -491,7 +491,7 @@ class BlurredDialogBuilderBox extends _BaseBlurredDialog {
             context,
             constraints: constraints,
             buttonColor: cancelButtonColor ??
-                context.color.tertiaryColor.withValues(alpha: .1),
+                context.color.tertiaryColor.withOpacity(.1),
             buttonName:
                 cancelButtonName ?? UiUtils.translate(context, 'cancelBtnLbl'),
             textColor: cancelTextColor ?? context.color.textColorDark,
@@ -669,7 +669,7 @@ class BlurredSubscriptionDialogBox extends StatelessWidget
         Flexible(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.amber.withValues(alpha: 0.3),
+              color: Colors.amber.withOpacity(0.3),
               borderRadius: BorderRadius.circular(8),
             ),
             padding: const EdgeInsets.all(8),
@@ -692,7 +692,7 @@ class BlurredSubscriptionDialogBox extends StatelessWidget
               CustomText(
                 packageType.description.translate(context),
                 fontSize: context.font.xs,
-                color: context.color.textColorDark.withValues(alpha: 0.5),
+                color: context.color.textColorDark.withOpacity(0.5),
                 maxLines: 3,
               ),
             ],
@@ -761,7 +761,7 @@ class EmptyDialogBox extends StatelessWidget with BlurDialoge {
               if (barrierDismisable ?? true) Navigator.pop(context);
             },
             child: Container(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: Colors.black.withOpacity(0.3),
             ),
           ),
           Center(child: child),

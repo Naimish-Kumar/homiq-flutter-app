@@ -6,6 +6,8 @@ import 'package:homiq/data/model/languages_model.dart';
 import 'package:homiq/data/model/project_model.dart';
 import 'package:homiq/data/model/translation_model.dart';
 import 'package:homiq/exports/main_export.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
 
 class AddProjectDetails extends StatefulWidget {
   const AddProjectDetails({super.key, this.editData});
@@ -524,7 +526,7 @@ class _AddProjectDetailsState extends CloudState<AddProjectDetails>
                           MaterialButton(
                             elevation: 0,
                             color: context.color.tertiaryColor
-                                .withValues(alpha: 0.1),
+                                .withOpacity(0.1),
                             onPressed: () async {
                               final data = await Navigator.pushNamed(
                                 context,
@@ -571,7 +573,7 @@ class _AddProjectDetailsState extends CloudState<AddProjectDetails>
           width: MediaQuery.of(context).size.width * 0.9,
           inputDecorationTheme: InputDecorationTheme(
             hintStyle: TextStyle(
-              color: context.color.textColorDark.withValues(alpha: 0.7),
+              color: context.color.textColorDark.withOpacity(0.7),
               fontSize: context.font.md,
             ),
             filled: true,
@@ -682,10 +684,10 @@ class _AddProjectDetailsState extends CloudState<AddProjectDetails>
           // const Spacer(),
           ChooseLocationFormField(
             initialValue: false,
-            validator: (bool? value) {
+            validator: (dynamic value) {
               if (project != null) return null;
 
-              if (value ?? false) {
+              if ((value as bool? ?? false)) {
                 return null;
               } else {
                 return 'Select location';
@@ -701,7 +703,7 @@ class _AddProjectDetailsState extends CloudState<AddProjectDetails>
                 ),
                 child: InkWell(
                   onTap: () {
-                    _onTapChooseLocation.call(state);
+                    _onTapChooseLocation(state);
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -813,7 +815,7 @@ class _AddProjectDetailsState extends CloudState<AddProjectDetails>
             child: Center(
               child: IconButton(
                 onPressed: () async {
-                  final filePickerResult = await FilePicker.platform.pickFiles(
+                  final filePickerResult = await FilePicker.pickFiles(
                     allowMultiple: true,
                   );
                   if (filePickerResult != null) {
@@ -968,4 +970,20 @@ class UrlDocument extends Document<dynamic> {
   @override
   final String value;
   final int id;
+}
+
+
+class ChooseLocationFormField extends FormField<dynamic> {
+  ChooseLocationFormField({
+    super.key,
+    super.onSaved,
+    super.validator,
+    dynamic initialValue = false,
+    required Widget Function(FormFieldState<dynamic>) build,
+  }) : super(
+          initialValue: initialValue,
+          builder: (state) {
+            return build(state);
+          },
+        );
 }

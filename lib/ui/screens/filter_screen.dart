@@ -40,6 +40,7 @@ class FilterScreenState extends State<FilterScreen> {
     Constant.propertyFilter = PropertyFilterModel.createEmpty();
   }
   late FilterApply filter = widget.selectedFilter ?? FilterApply();
+  Map<dynamic, dynamic> searchbody = {};
 
   TextEditingController minController =
       TextEditingController(text: Constant.propertyFilter?.minPrice);
@@ -56,8 +57,11 @@ class FilterScreenState extends State<FilterScreen> {
   static String filterAll = '';
   String postedOn = Constant.propertyFilter?.postedSince ??
       filterAll; // = 2; // 0: last_week   1: yesterday
-  dynamic defaultCategoryID = currentVisitingCategoryId;
-  dynamic defaultCategory = currentVisitingCategory;
+  dynamic defaultCategoryID;
+  dynamic defaultCategory;
+  Category? selectedCategory;
+  String selectedcategoryName = '';
+  String selectedcategoryId = '';
   List<int> selectedFacilities = Constant.filterFacilities ?? [];
   // In your State class
   final List<_PostedSinceOption> _postedSinceOptions = [
@@ -128,7 +132,7 @@ class FilterScreenState extends State<FilterScreen> {
     _state = '';
     country = '';
     selectedcategoryName = '';
-    selectedCategory = defaultCategory;
+    selectedCategory = defaultCategory as Category?;
     selectedFacilities = [];
     Constant.filterFacilities = [];
 
@@ -237,12 +241,11 @@ class FilterScreenState extends State<FilterScreen> {
                       //this will set name of previous screen app bar
 
                       if (widget.showPropertyType ?? false) {
-                        if (selectedCategory == null ||
-                            selectedCategory == '') {
+                        if (selectedCategory == null) {
                           selectedcategoryName = '';
                         } else {
                           selectedcategoryName =
-                              (selectedCategory as Category).category ?? '';
+                              (selectedCategory!).category ?? '';
                         }
                       }
 
@@ -498,7 +501,7 @@ class FilterScreenState extends State<FilterScreen> {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: context.color.tertiaryColor.withValues(alpha: 0.2),
+              color: context.color.tertiaryColor.withOpacity(0.2),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Container(
@@ -541,7 +544,7 @@ class FilterScreenState extends State<FilterScreen> {
                       buttonColor: filter.check<PropertyTypeFilter>().type ==
                               Constant.valSellBuy
                           ? context.color.tertiaryColor
-                          : context.color.textColorDark.withValues(alpha: 0),
+                          : context.color.textColorDark.withOpacity(0),
                       fontSize: context.font.md,
                       buttonTitle: UiUtils.translate(
                         context,
@@ -576,7 +579,7 @@ class FilterScreenState extends State<FilterScreen> {
                       buttonColor: filter.check<PropertyTypeFilter>().type ==
                               Constant.valRent
                           ? context.color.tertiaryColor
-                          : context.color.textColorDark.withValues(alpha: 0),
+                          : context.color.textColorDark.withOpacity(0),
                       fontSize: context.font.md,
                       buttonTitle: UiUtils.translate(
                         context,

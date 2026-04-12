@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/validator.dart';
 
 enum CustomTextFieldValidator {
@@ -119,7 +119,7 @@ class CustomTextFormField extends StatelessWidget {
         hintText: hintText,
         contentPadding: const EdgeInsetsDirectional.only(start: 12, end: 8),
         hintStyle: TextStyle(
-          color: context.color.textColorDark.withValues(alpha: 0.7),
+          color: context.color.textColorDark.withOpacity(0.7),
           fontSize: context.font.sm,
           fontWeight: FontWeight.w400,
         ),

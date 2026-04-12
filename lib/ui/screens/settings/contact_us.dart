@@ -196,7 +196,7 @@ class ContactUsState extends State<ContactUs> {
               height: 36.rh(context),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: context.color.textColorDark.withValues(alpha: 0.1),
+                color: context.color.textColorDark.withOpacity(0.1),
                 border: Border.all(color: context.color.textColorDark),
                 borderRadius: BorderRadius.circular(4),
               ),
@@ -274,7 +274,7 @@ class _EmailSendWidgetState extends State<EmailSendWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.color.secondaryColor.withValues(alpha: 0.1),
+      backgroundColor: context.color.secondaryColor.withOpacity(0.1),
       body: Center(
         child: Container(
           clipBehavior: Clip.antiAlias,

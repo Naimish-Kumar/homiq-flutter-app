@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/file_picker.dart' as fp;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -568,7 +568,7 @@ class _TransactionHistoryState extends State<TransactionHistory> {
                 isCopied ? Icons.check : Icons.copy,
                 color: isCopied
                     ? Colors.green
-                    : context.color.textColorDark.withValues(alpha: 0.5),
+                    : context.color.textColorDark.withOpacity(0.5),
                 size: 24,
               );
             },
@@ -638,8 +638,8 @@ class _TransactionHistoryState extends State<TransactionHistory> {
   }) {
     return GestureDetector(
       onTap: () async {
-        final filePickerResult = await FilePicker.platform.pickFiles(
-          type: FileType.custom,
+        final filePickerResult = await fp.FilePicker.pickFiles(
+          type: fp.FileType.custom,
           allowedExtensions: [
             'jpeg',
             'png',
@@ -691,13 +691,13 @@ class _TransactionHistoryState extends State<TransactionHistory> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(4),
           border: Border.all(
-            color: context.color.textLightColor.withValues(alpha: 0.2),
+            color: context.color.textLightColor.withOpacity(0.2),
           ),
         ),
         margin: const EdgeInsetsDirectional.only(end: 16),
         child: Icon(
           Icons.file_upload_outlined,
-          color: context.color.textLightColor.withValues(alpha: 0.5),
+          color: context.color.textLightColor.withOpacity(0.5),
           size: 18,
         ),
       ),

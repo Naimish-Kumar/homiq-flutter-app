@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:homiq/app/app.dart';
-import 'package:homiq/utils/Extensions/extensions.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/custom_appbar.dart';
 import 'package:homiq/utils/custom_image.dart';
 import 'package:homiq/utils/helper_utils.dart';
@@ -140,7 +140,7 @@ class _FullScreenImageViewState extends State<FullScreenImageView> {
                       height: 100,
                       decoration: BoxDecoration(
                         color:
-                            context.color.tertiaryColor.withValues(alpha: 0.2),
+                            context.color.tertiaryColor.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: CustomImage(
