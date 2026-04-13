@@ -35,7 +35,7 @@ class CountryPickerWidget extends StatelessWidget {
               ),
               const SizedBox(width: 8.0),
               CustomImage(
-                imageUrl: AppIcons.downArrow,
+                icon: AppIcons.downArrow,
                 height: 16.rh(context),
                 width: 16.rw(context),
                 color: context.color.tertiaryColor,

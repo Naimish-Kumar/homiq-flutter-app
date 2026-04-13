@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:homiq/data/repositories/auth_repository.dart';
 import 'package:homiq/exports/main_export.dart';
 
@@ -10,10 +12,7 @@ class SendOtpInitial extends SendOtpState {}
 class SendOtpInProgress extends SendOtpState {}
 
 class SendOtpSuccess extends SendOtpState {
-  SendOtpSuccess({
-    this.verificationId,
-    this.message,
-  });
+  SendOtpSuccess({this.verificationId, this.message});
   String? verificationId;
   String? message;
 }
@@ -27,128 +26,51 @@ class SendOtpCubit extends Cubit<SendOtpState> {
   SendOtpCubit() : super(SendOtpInitial());
 
   final AuthRepository _authRepository = AuthRepository();
-  static const Duration _otpTimeout = Duration(seconds: 30);
   static const Duration _cooldownPeriod = Duration(minutes: 1);
   static DateTime? _lastRequestTime;
-  static String? _lastPhoneNumber;
-  
-  // Unified OTP sending method to reduce code duplication
-  Future<void> sendOTP({
-    required String phoneNumber, 
-    required String countryCode,
-    String? provider,
+  static String? _lastIdentifier;
+
+  /// Simplified OTP sending for any identifier (Email or Mobile)
+  Future<void> sendOtp({
+    required String identifier,
+    required String type,
   }) async {
     if (state is SendOtpInProgress) return;
-    
+
     // Check cooldown period
     final now = DateTime.now();
-    final fullPhoneNumber = '+$countryCode$phoneNumber';
-    
-    if (_lastRequestTime != null && _lastPhoneNumber == fullPhoneNumber) {
+    if (_lastRequestTime != null && _lastIdentifier == identifier) {
       final timeSinceLastRequest = now.difference(_lastRequestTime!);
       if (timeSinceLastRequest < _cooldownPeriod) {
         final remainingTime = _cooldownPeriod - timeSinceLastRequest;
-        emit(SendOtpFailure('Please wait ${remainingTime.inSeconds} seconds before requesting another OTP.'));
+        emit(
+          SendOtpFailure(
+            'Please wait ${remainingTime.inSeconds} seconds before requesting another OTP.',
+          ),
+        );
         return;
       }
     }
-    
+
     emit(SendOtpInProgress());
-    
+
     try {
       _lastRequestTime = now;
-      _lastPhoneNumber = fullPhoneNumber;
-      
-      await _authRepository.sendOTP(
-        phoneNumber: phoneNumber,
-        countryCode: countryCode,
-        onCodeSent: (verificationId) {
-          verificationID = verificationId;
-          emit(SendOtpSuccess(verificationId: verificationId));
-        },
-        onError: (e) {
-          emit(SendOtpFailure(e.toString()));
-        },
-      ).timeout(_otpTimeout);
-    } on TimeoutException catch (_) {
-      emit(SendOtpFailure('OTP request timed out. Please try again.'));
+      _lastIdentifier = identifier;
+
+      final result = await _authRepository.sendOtp(
+        identifier: identifier,
+        type: type,
+      );
+      log(result.toString());
+      if (result['success'] == true) {
+        emit(SendOtpSuccess(message: result['message']?.toString()));
+      } else {
+        emit(
+          SendOtpFailure(result['message']?.toString() ?? 'Failed to send OTP'),
+        );
+      }
     } catch (e) {
-      emit(SendOtpFailure(e.toString()));
-    }
-  }
-
-  Future<void> sendFirebaseOTP(
-      {required String phoneNumber, required String countryCode}) async {
-    await sendOTP(phoneNumber: phoneNumber, countryCode: countryCode, provider: 'firebase');
-  }
-
-  Future<void> sendTwilioOTP(
-      {required String phoneNumber, required String countryCode}) async {
-    await sendOTP(phoneNumber: phoneNumber, countryCode: countryCode, provider: 'twilio');
-  }
-
-  Future<void> sendForgotPasswordEmail({
-    required String email,
-  }) async {
-    emit(SendOtpInProgress());
-    try {
-      final result = await _authRepository.sendForgotPasswordEmail(
-        email: email,
-      );
-      if (result['error'] == true) {
-        emit(SendOtpFailure(result['message']?.toString() ?? ''));
-      } else {
-        emit(SendOtpSuccess(message: result['message']?.toString() ?? ''));
-      }
-    } on ApiException catch (e) {
-      emit(SendOtpFailure(e.toString()));
-    }
-  }
-
-  Future<void> sendEmailOTP({
-    required String email,
-    required String name,
-    required String phoneNumber,
-    required String countryCode,
-    required String password,
-    required String confirmPassword,
-  }) async {
-    emit(SendOtpInProgress());
-    try {
-      final result = await _authRepository.sendEmailOTP(
-        email: email,
-        name: name,
-        phoneNumber: phoneNumber,
-        countryCode: countryCode,
-        password: password,
-        confirmPassword: confirmPassword,
-      );
-      if (result['error'] == true) {
-        emit(SendOtpFailure(result['message']?.toString() ?? ''));
-      } else {
-        emit(SendOtpSuccess());
-      }
-    } on ApiException catch (e) {
-      emit(SendOtpFailure(e.toString()));
-    }
-  }
-
-  Future<void> resendEmailOTP({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      emit(SendOtpInProgress());
-      final result = await _authRepository.resendEmailOTP(
-        email: email,
-        password: password,
-      );
-      if (result['error'] == true) {
-        emit(SendOtpFailure(result['message']?.toString() ?? ''));
-      } else {
-        emit(SendOtpSuccess());
-      }
-    } on ApiException catch (e) {
       emit(SendOtpFailure(e.toString()));
     }
   }

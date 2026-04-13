@@ -15,52 +15,52 @@ class GoogleLogin extends LoginSystem {
 
   @override
   Future<void> init() async {
-    _googleSignIn = GoogleSignIn.instance;
+    _googleSignIn = GoogleSignIn();
   }
 
   @override
   Future<UserCredential?> login() async {
     try {
       emit(MProgress());
-      
-      // Add timeout to prevent hanging
-      final googleSignIn = await _googleSignIn?.authenticate()
-          .timeout(_timeoutDuration);
 
-      if (googleSignIn == null) {
+      // Use standard signIn() method
+      final googleSignInAccount =
+          await _googleSignIn?.signIn().timeout(_timeoutDuration);
+
+      if (googleSignInAccount == null) {
         emit(MFail('google-terminated'));
         return null;
       }
-      
-      // Get authentication with timeout
-      final googleAuth = googleSignIn.authentication;
+
+      // Get authentication tokens
+      final googleAuth = await googleSignInAccount.authentication;
 
       final AuthCredential authCredential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Firebase sign-in with timeout
+      // Firebase sign-in
       final userCredential = await firebaseAuth
           .signInWithCredential(authCredential)
           .timeout(_timeoutDuration);
-          
+
       emit(MSuccess(userCredential, type: 'google'));
       return userCredential;
-      
     } on TimeoutException catch (_) {
       emit(MFail('connectionTimeout'.translate(context!)));
     } on PlatformException catch (e) {
       if (e.code == 'network_error') {
         emit(MFail('noInternet'.translate(context!)));
-      } else if (e.code == 'sign_in_canceled') {
+      } else if (e.code == 'sign_in_canceled' || e.code == 'google-terminated') {
         emit(MFail('google-terminated'));
       } else {
         emit(MFail('googleLoginFailed'.translate(context!)));
       }
     } on FirebaseAuthException catch (e) {
       emit(MFail(ErrorFilter.check(e.code)));
-    } on Exception catch (_) {
+    } on Exception catch (e) {
+      if (kDebugMode) print('Google Login Error: $e');
       emit(MFail('googleLoginFailed'.translate(context!)));
     }
     return null;
@@ -68,7 +68,13 @@ class GoogleLogin extends LoginSystem {
 
   @override
   void onEvent(MLoginState state) {
-    if (kDebugMode) print('MLoginState is: $state');
+    if (kDebugMode) {
+      if (state is MFail) {
+        print('MLoginState is: MFail(${state.error})');
+      } else {
+        print('MLoginState is: $state');
+      }
+    }
   }
   
   // Add method to clear cached sign-in for faster subsequent logins

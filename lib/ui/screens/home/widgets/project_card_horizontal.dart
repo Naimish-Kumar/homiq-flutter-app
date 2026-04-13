@@ -117,7 +117,7 @@ class ProjectHorizontalCard extends StatelessWidget {
                   start: 4.rh(context),
                   top: 4.rh(context),
                   child: CustomImage(
-                    imageUrl: AppIcons.premium,
+                    icon: AppIcons.premium,
                     width: 18.rw(context),
                     height: 18.rh(context),
                   ),
@@ -193,7 +193,7 @@ class ProjectHorizontalCard extends StatelessWidget {
                                 if (isRejected) ...[
                                   const SizedBox(width: 2),
                                   CustomImage(
-                                    imageUrl: AppIcons.info,
+                                    icon: AppIcons.info,
                                     width: 16,
                                     height: 16,
                                     color: statusButton!.textColor,

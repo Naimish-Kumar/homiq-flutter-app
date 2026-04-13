@@ -8,6 +8,7 @@ import 'package:homiq/data/cubits/auth/get_user_data_cubit.dart';
 import 'package:homiq/data/model/user_model.dart';
 import 'package:homiq/data/repositories/auth_repository.dart';
 import 'package:homiq/exports/main_export.dart';
+import 'package:homiq/ui/screens/widgets/custom_back_button.dart';
 import 'package:homiq/ui/screens/widgets/image_cropper.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -114,13 +115,13 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _onTapChangeLocation() async {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    final placeMark = await Navigator.pushNamed(
-      context,
-      Routes.chooseLocaitonMap,
-      arguments: {
-        'from': 'edit_profile',
-      },
-    ) as Map?;
+    final placeMark =
+        await Navigator.pushNamed(
+              context,
+              Routes.chooseLocaitonMap,
+              arguments: {'from': 'edit_profile'},
+            )
+            as Map?;
     try {
       setState(() {
         final latlng = placeMark?['latlng'] as LatLng? ?? const LatLng(0, 0);
@@ -196,11 +197,19 @@ class EditProfileScreenState extends State<EditProfileScreen> {
       child: safeAreaCondition(
         child: Scaffold(
           backgroundColor: context.color.primaryColor,
-          appBar: widget.from == 'login'
-              ? null
-              : CustomAppBar(
-                  title: CustomText(UiUtils.translate(context, 'editProfile')),
-                ),
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            leading: CustomBackButton(),
+            title: CustomText(
+              'EDIT PROFILE',
+              fontWeight: FontWeight.w900,
+              color: context.color.textColorDark,
+              fontSize: 14,
+              letterSpacing: 4,
+            ),
+          ),
           body: Padding(
             padding: const EdgeInsets.all(20),
             child: BlocBuilder<GetUserDataCubit, GetUserDataState>(
@@ -219,15 +228,14 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Align(
-                            child: buildProfilePicture(),
-                          ),
+                          Align(child: buildProfilePicture()),
                           buildTextField(
                             context,
                             title: 'fullName',
                             controller: nameController,
                             validator: CustomTextFieldValidator.nullCheck,
                           ),
+                          const SizedBox(height: 12),
                           buildTextField(
                             context,
                             title: 'email',
@@ -235,6 +243,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                             validator: CustomTextFieldValidator.email,
                             readOnly: loginType != LoginType.phone,
                           ),
+                          const SizedBox(height: 12),
                           buildTextField(
                             context,
                             textDirection: Directionality.of(context),
@@ -244,10 +253,14 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                               onTap: loginType == LoginType.phone
                                   ? null
                                   : _onTapCountryCode,
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
                                 child: CustomText(
-                                  ' + $selectedCountryCode ',
+                                  '+$selectedCountryCode',
+                                  fontWeight: FontWeight.w600,
+                                  color: context.color.textColorDark,
                                 ),
                               ),
                             ),
@@ -258,62 +271,85 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                                 : CustomTextFieldValidator.phoneNumber,
                             readOnly: loginType == LoginType.phone,
                           ),
+                          const SizedBox(height: 12),
                           buildAddressTextField(
                             context,
                             title: 'addressLbl',
                             controller: addressController,
                             validator: CustomTextFieldValidator.nullCheck,
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          CustomText(
-                            'enablesNewSection'.translate(context),
-                            fontWeight: FontWeight.w300,
-                            fontSize: context.font.xs,
-                            color: context.color.textColorDark
-                                .withOpacity(0.8),
-                          ),
+                          const SizedBox(height: 10),
+                          const SizedBox(height: 32),
+                          _sectionHeader('SOCIAL CHANNELS'),
+                          const SizedBox(height: 16),
                           buildTextField(
                             context,
                             title: 'instagram',
                             controller: instagramController,
                             validator: CustomTextFieldValidator.link,
                           ),
+                          const SizedBox(height: 12),
                           buildTextField(
                             context,
                             title: 'facebook',
                             controller: facebookController,
                             validator: CustomTextFieldValidator.link,
                           ),
+                          const SizedBox(height: 12),
                           buildTextField(
                             context,
                             title: 'youtube',
                             controller: youtubeController,
                             validator: CustomTextFieldValidator.link,
                           ),
+                          const SizedBox(height: 12),
                           buildTextField(
                             context,
                             title: 'twitter',
                             controller: twitterController,
                             validator: CustomTextFieldValidator.link,
                           ),
-                          SizedBox(
-                            height: 45.rh(context),
+                          const SizedBox(height: 48),
+                          Container(
+                            width: double.infinity,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: context.color.tertiaryColor.withValues(
+                                    alpha: 0.25,
+                                  ),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if (cityEdit != null && cityEdit != '') {
+                                } else {
+                                  await HiveUtils.clearLocation();
+                                }
+                                await validateData();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: context.color.tertiaryColor,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: const CustomText(
+                                'SAVE CHANGES',
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 2,
+                              ),
+                            ),
                           ),
-                          UiUtils.buildButton(
-                            context,
-                            onPressed: () async {
-                              if (cityEdit != null && cityEdit != '') {
-                              } else {
-                                await HiveUtils.clearLocation();
-                              }
-                              await validateData();
-                            },
-                            height: 48.rh(context),
-                            buttonTitle:
-                                UiUtils.translate(context, 'updateProfile'),
-                          ),
+                          const SizedBox(height: 40),
                         ],
                       ),
                     ),
@@ -328,6 +364,16 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  Widget _sectionHeader(String title) {
+    return CustomText(
+      title,
+      fontSize: 12,
+      fontWeight: FontWeight.w800,
+      letterSpacing: 2,
+      color: context.color.tertiaryColor,
+    );
+  }
+
   Widget locationWidget(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
@@ -339,9 +385,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
               decoration: BoxDecoration(
                 color: context.color.secondaryColor,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(
-                  color: context.color.borderColor,
-                ),
+                border: Border.all(color: context.color.borderColor),
               ),
               child: Row(
                 children: [
@@ -397,14 +441,12 @@ class EditProfileScreenState extends State<EditProfileScreen> {
               decoration: BoxDecoration(
                 color: context.color.secondaryColor,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(
-                  color: context.color.borderColor,
-                ),
+                border: Border.all(color: context.color.borderColor),
               ),
               child: CustomImage(
                 height: 24.rh(context),
                 width: 24.rw(context),
-                imageUrl: AppIcons.location,
+                icon: AppIcons.location,
                 color: context.color.textColorDark,
               ),
             ),
@@ -424,9 +466,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   Widget buildNotificationEnableDisableSwitch(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: context.color.borderColor,
-        ),
+        border: Border.all(color: context.color.borderColor),
         borderRadius: BorderRadius.circular(10),
         color: context.color.textLightColor.withOpacity(00.01),
       ),
@@ -473,28 +513,37 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: 8.rh(context),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: CustomText(
+            UiUtils.translate(context, title).toUpperCase(),
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+            color: context.color.textColorDark.withValues(alpha: 0.6),
+          ),
         ),
-        CustomText(
-          UiUtils.translate(context, title),
-          fontSize: context.font.sm,
-          fontWeight: FontWeight.w600,
-        ),
-        SizedBox(
-          height: 8.rh(context),
-        ),
-        CustomTextFormField(
-          textDirection: textDirection,
-          controller: controller,
-          keyboard: keyboard,
-          isReadOnly: readOnly,
-          validator: validator,
-
-          prefix: prefix,
-          suffix: suffix,
-          formaters: formaters, //
-          fillColor: context.color.secondaryColor,
+        Container(
+          decoration: BoxDecoration(
+            color: context.color.brightness == Brightness.light
+                ? Colors.black.withValues(alpha: 0.03)
+                : Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: context.color.borderColor.withValues(alpha: 0.5),
+            ),
+          ),
+          child: CustomTextFormField(
+            textDirection: textDirection,
+            controller: controller,
+            keyboard: keyboard,
+            isReadOnly: readOnly,
+            validator: validator,
+            prefix: prefix,
+            suffix: suffix,
+            formaters: formaters,
+            fillColor: Colors.transparent,
+          ),
         ),
       ],
     );
@@ -510,22 +559,36 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 8.rh(context)),
-        CustomText(
-          UiUtils.translate(context, title),
-          fontSize: context.font.sm,
-          fontWeight: FontWeight.w600,
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: CustomText(
+            UiUtils.translate(context, title).toUpperCase(),
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+            color: context.color.textColorDark.withValues(alpha: 0.6),
+          ),
         ),
-        SizedBox(height: 8.rh(context)),
-        CustomTextFormField(
-          controller: controller,
-          maxLine: 5,
-          action: TextInputAction.newline,
-          isReadOnly: readOnly,
-          validator: validator,
-          fillColor: context.color.secondaryColor,
+        Container(
+          decoration: BoxDecoration(
+            color: context.color.brightness == Brightness.light
+                ? Colors.black.withValues(alpha: 0.03)
+                : Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: context.color.borderColor.withValues(alpha: 0.5),
+            ),
+          ),
+          child: CustomTextFormField(
+            controller: controller,
+            maxLine: 3,
+            action: TextInputAction.newline,
+            isReadOnly: readOnly,
+            validator: validator,
+            fillColor: Colors.transparent,
+          ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(height: 12),
         locationWidget(context),
       ],
     );
@@ -533,32 +596,26 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
   Widget getProfileImage() {
     if (fileUserimg != null) {
-      return CustomImage(
-        imageUrl: fileUserimg!.path,
-      );
+      return CustomImage(imageUrl: fileUserimg!.path);
     } else {
       if (widget.from == 'login') {
         if (HiveUtils.getUserDetails().profile != '' &&
             HiveUtils.getUserDetails().profile != null) {
-          return CustomImage(
-            imageUrl: HiveUtils.getUserDetails().profile!,
-          );
+          return CustomImage(imageUrl: HiveUtils.getUserDetails().profile!);
         }
 
         return CustomImage(
-          imageUrl: AppIcons.defaultPersonLogo,
+          icon: AppIcons.defaultPersonLogo,
           color: context.color.tertiaryColor,
         );
       } else {
         if ((HiveUtils.getUserDetails().profile ?? '').isEmpty) {
           return CustomImage(
-            imageUrl: AppIcons.defaultPersonLogo,
+            icon: AppIcons.defaultPersonLogo,
             color: context.color.tertiaryColor,
           );
         } else {
-          return CustomImage(
-            imageUrl: HiveUtils.getUserDetails().profile!,
-          );
+          return CustomImage(imageUrl: HiveUtils.getUserDetails().profile!);
         }
       }
     }
@@ -568,46 +625,56 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     return Stack(
       children: [
         Container(
-          height: 124.rh(context),
-          width: 124.rw(context),
-          alignment: Alignment.center,
+          height: 140,
+          width: 140,
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: context.color.tertiaryColor, width: 2),
+            border: Border.all(
+              color: context.color.tertiaryColor.withValues(alpha: 0.4),
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: context.color.tertiaryColor.withValues(alpha: 0.1),
+                blurRadius: 30,
+                spreadRadius: 2,
+              ),
+            ],
           ),
           child: Container(
-            alignment: Alignment.center,
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              color: context.color.tertiaryColor.withOpacity(0.2),
+              color: context.color.tertiaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            width: 106.rw(context),
-            height: 106.rh(context),
             child: getProfileImage(),
           ),
         ),
-        PositionedDirectional(
-          bottom: 0,
-          end: 0,
+        Positioned(
+          bottom: 5,
+          right: 5,
           child: GestureDetector(
             onTap: showPicker,
             child: Container(
-              height: 37.rh(context),
-              width: 37.rw(context),
-              alignment: Alignment.center,
+              height: 40,
+              width: 40,
               decoration: BoxDecoration(
-                border: Border.all(
-                  color: context.color.buttonColor,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.white, width: 3),
                 shape: BoxShape.circle,
                 color: context.color.tertiaryColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: CustomImage(
-                imageUrl: AppIcons.edit,
-                height: 18.rh(context),
-                width: 18.rw(context),
+              child: const Icon(
+                Icons.edit_rounded,
+                color: Colors.white,
+                size: 18,
               ),
             ),
           ),
@@ -620,15 +687,12 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     if (_formKey.currentState!.validate()) {
       final checkinternet = await HelperUtils.checkInternet();
       if (!checkinternet) {
-        Future.delayed(
-          Duration.zero,
-          () {
-            HelperUtils.showSnackBarMessage(
-              context,
-              UiUtils.translate(context, 'lblchecknetwork'),
-            );
-          },
-        );
+        Future.delayed(Duration.zero, () {
+          HelperUtils.showSnackBarMessage(
+            context,
+            UiUtils.translate(context, 'lblchecknetwork'),
+          );
+        });
         return;
       }
       await process();
@@ -639,23 +703,23 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     try {
       unawaited(Widgets.showLoader(context));
       final response = await context.read<AuthCubit>().updateUserData(
-            name: nameController.text.trim(),
-            email: emailController.text.trim(),
-            fileUserimg: fileUserimg,
-            phone: phoneController.text,
-            latitude: latitude,
-            longitude: longitude,
-            city: cityEdit?.toString() ?? '',
-            state: stateEdit?.toString() ?? '',
-            country: countryEdit?.toString() ?? '',
-            countryCode: selectedCountryCode,
-            address: addressController.text,
-            notification: isNotificationsEnabled == true ? '1' : '0',
-            instagram: instagramController.text,
-            facebook: facebookController.text,
-            youtube: youtubeController.text,
-            twitter: twitterController.text,
-          );
+        name: nameController.text.trim(),
+        email: emailController.text.trim(),
+        fileUserimg: fileUserimg,
+        phone: phoneController.text,
+        latitude: latitude,
+        longitude: longitude,
+        city: cityEdit?.toString() ?? '',
+        state: stateEdit?.toString() ?? '',
+        country: countryEdit?.toString() ?? '',
+        countryCode: selectedCountryCode,
+        address: addressController.text,
+        notification: isNotificationsEnabled == true ? '1' : '0',
+        instagram: instagramController.text,
+        facebook: facebookController.text,
+        youtube: youtubeController.text,
+        twitter: twitterController.text,
+      );
 
       Future.delayed(Duration.zero, () {
         final data = response['data'];
@@ -674,53 +738,42 @@ class EditProfileScreenState extends State<EditProfileScreen> {
         }
 
         context.read<UserDetailsCubit>().copy(
-              UserModel.fromJson(
-                response['data'] as Map<String, dynamic>? ?? {},
-              ),
-            );
+          UserModel.fromJson(response['data'] as Map<String, dynamic>? ?? {}),
+        );
       });
 
-      Future.delayed(
-        Duration.zero,
-        () {
-          Widgets.hideLoder(context);
-          Navigator.pop(context);
-          HelperUtils.showSnackBarMessage(
-            context,
-            UiUtils.translate(context, 'profileupdated'),
-            onClose: () {
-              if (mounted) Navigator.pop(context);
-            },
-          );
-          if (widget.navigateToHome ?? false) {
-            Future.delayed(Duration.zero, () {
-              HelperUtils.killPreviousPages(
-                context,
-                Routes.main,
-                {'from': 'login'},
-              );
-            });
-          }
-        },
-      );
-
-      if (widget.from == 'login' && widget.popToCurrent != true) {
-        Future.delayed(
-          Duration.zero,
-          () {
-            HelperUtils.killPreviousPages(
-                context, Routes.personalizedPropertyScreen, {
-              'type': PersonalizedVisitType.firstTime,
-            });
+      Future.delayed(Duration.zero, () {
+        Widgets.hideLoder(context);
+        Navigator.pop(context);
+        HelperUtils.showSnackBarMessage(
+          context,
+          UiUtils.translate(context, 'profileupdated'),
+          onClose: () {
+            if (mounted) Navigator.pop(context);
           },
         );
-      } else if (widget.from == 'login' && (widget.popToCurrent ?? false)) {
+        if (widget.navigateToHome ?? false) {
+          Future.delayed(Duration.zero, () {
+            HelperUtils.killPreviousPages(context, Routes.main, {
+              'from': 'login',
+            });
+          });
+        }
+      });
+
+      if (widget.from == 'login' && widget.popToCurrent != true) {
         Future.delayed(Duration.zero, () {
           HelperUtils.killPreviousPages(
             context,
-            Routes.main,
-            {'from': 'login'},
+            Routes.personalizedPropertyScreen,
+            {'type': PersonalizedVisitType.firstTime},
           );
+        });
+      } else if (widget.from == 'login' && (widget.popToCurrent ?? false)) {
+        Future.delayed(Duration.zero, () {
+          HelperUtils.killPreviousPages(context, Routes.main, {
+            'from': 'login',
+          });
         });
       }
       Widgets.hideLoder(context);

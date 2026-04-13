@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:homiq/exports/main_export.dart';
 // import 'package:homiq/ui/screens/advertisement/my_advertisment_screen.dart';
-import 'package:homiq/ui/screens/auth/email_registration_form.dart';
+import 'package:homiq/ui/screens/auth/registration_form.dart';
 import 'package:homiq/ui/screens/auth/otp_screen.dart';
 import 'package:homiq/ui/screens/home/home_screen.dart';
 // import 'package:homiq/ui/screens/proprties/widgets/compare_property_screen.dart';
@@ -20,7 +20,7 @@ class Routes {
   static const onboarding = 'onboarding';
   static const login = 'login';
   static const otpScreen = 'otpScreen';
-  static const emailRegistrationForm = 'emailRegistrationForm';
+  static const registrationForm = 'registrationForm';
   static const editProfile = 'editProfile';
   static const main = 'main';
   static const home = 'home_screen';
@@ -118,8 +118,8 @@ class Routes {
         return LoginScreen.route(routeSettings);
       case otpScreen:
         return OtpScreen.route(routeSettings);
-      case emailRegistrationForm:
-        return EmailRegistrationForm.route(routeSettings);
+      case registrationForm:
+        return RegistrationForm.route(routeSettings);
       case editProfile:
         return EditProfileScreen.route(routeSettings);
       case maintenanceMode:

@@ -113,7 +113,7 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget>
                       height: widget.isFromDetailsPage
                           ? 24.rw(context)
                           : 18.rw(context),
-                      imageUrl: isLiked ? AppIcons.heartFilled : AppIcons.heart,
+                      icon: isLiked ? AppIcons.heartFilled : AppIcons.heart,
                       color: context.color.tertiaryColor,
                     ),
                   );

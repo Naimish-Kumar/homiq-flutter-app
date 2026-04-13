@@ -54,14 +54,17 @@ class _AIChatPageState extends State<AIChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.color.primaryColor,
-      appBar: CustomAppBar(
-        title: CustomText('DESIGN ASSISTANT', 
-          fontWeight: FontWeight.w900, 
-          letterSpacing: 2,
-          fontSize: 14,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: CustomText(
+          'AI ASSISTANT',
+          fontWeight: FontWeight.w900,
           color: context.color.textColorDark,
+          fontSize: 14,
+          letterSpacing: 4,
         ),
-        showBackButton: false,
       ),
       body: Column(
         children: [
@@ -88,50 +91,56 @@ class _AIChatPageState extends State<AIChatPage> {
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.only(bottom: 24),
         child: Column(
-          crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.75),
               decoration: BoxDecoration(
-                gradient: isUser 
-                  ? LinearGradient(
-                      colors: [context.color.tertiaryColor, context.color.tertiaryColor.withOpacity(0.8)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )
-                  : null,
-                color: isUser ? null : context.color.secondaryColor.withOpacity(0.5),
+                color: isUser
+                    ? context.color.tertiaryColor
+                    : context.color.brightness == Brightness.light
+                        ? Colors.black.withValues(alpha: 0.05)
+                        : Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(24),
                   topRight: const Radius.circular(24),
                   bottomLeft: Radius.circular(isUser ? 24 : 4),
                   bottomRight: Radius.circular(isUser ? 4 : 24),
                 ),
-                border: isUser ? null : Border.all(color: Colors.white.withOpacity(0.05)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+                    color: isUser
+                        ? context.color.tertiaryColor.withValues(alpha: 0.2)
+                        : Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
               child: CustomText(
                 msg['text'] as String,
-                color: Colors.white.withOpacity(0.95),
+                color: isUser
+                    ? Colors.white
+                    : context.color.textColorDark.withValues(alpha: 0.9),
                 fontSize: 14,
+             
               ),
             ),
-            const SizedBox(height: 6),
-            CustomText(
-              msg['time'] as String,
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-              color: context.color.textLightColor.withOpacity(0.5),
-              letterSpacing: 0.5,
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: CustomText(
+                (msg['time'] as String).toUpperCase(),
+                fontSize: 8,
+                fontWeight: FontWeight.w900,
+                color: context.color.textLightColor.withValues(alpha: 0.4),
+                letterSpacing: 1.5,
+              ),
             ),
           ],
         ),
@@ -140,99 +149,109 @@ class _AIChatPageState extends State<AIChatPage> {
   }
 
   Widget _buildBottomInput() {
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: EdgeInsets.fromLTRB(20, 16, 20, MediaQuery.of(context).padding.bottom + 20),
-          decoration: BoxDecoration(
-            color: context.color.secondaryColor.withOpacity(0.8),
-            border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1))),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Suggestions List
-              SizedBox(
-                height: 36,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: _suggestions.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() => _msgController.text = _suggestions[index]);
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: context.color.tertiaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: context.color.tertiaryColor.withOpacity(0.2)),
-                        ),
-                        alignment: Alignment.center,
-                        child: CustomText(
-                          _suggestions[index],
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: context.color.tertiaryColor,
-                        ),
-                      ),
-                    );
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+          20, 20, 20, MediaQuery.of(context).padding.bottom + 20),
+      color: Colors.transparent,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Suggestions List
+          SizedBox(
+            height: 40,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount: _suggestions.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    setState(() => _msgController.text = _suggestions[index]);
                   },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: context.color.brightness == Brightness.light
+                          ? Colors.black.withValues(alpha: 0.04)
+                          : Colors.white.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: context.color.borderColor.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: CustomText(
+                      _suggestions[index],
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: context.color.textColorDark,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Input Row
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  decoration: BoxDecoration(
+                    color: context.color.brightness == Brightness.light
+                        ? Colors.black.withValues(alpha: 0.04)
+                        : Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: context.color.borderColor.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: TextField(
+                    controller: _msgController,
+                    style: TextStyle(
+                        color: context.color.textColorDark, fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Describe your vision...',
+                      hintStyle: TextStyle(
+                        color:
+                            context.color.textLightColor.withValues(alpha: 0.4),
+                        fontSize: 14,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 18),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              // Input Row
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.white.withOpacity(0.1)),
+              const SizedBox(width: 16),
+              GestureDetector(
+                onTap: _sendMessage,
+                child: Container(
+                  height: 56,
+                  width: 56,
+                  decoration: BoxDecoration(
+                    color: context.color.tertiaryColor,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            context.color.tertiaryColor.withValues(alpha: 0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
                       ),
-                      child: TextField(
-                        controller: _msgController,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
-                        decoration: InputDecoration(
-                          hintText: 'Describe your vision...',
-                          hintStyle: TextStyle(color: context.color.textLightColor.withOpacity(0.5)),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
-                      ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    height: 48,
-                    width: 48,
-                    decoration: BoxDecoration(
-                      color: context.color.tertiaryColor,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: context.color.tertiaryColor.withOpacity(0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      onPressed: _sendMessage,
-                      icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-                    ),
+                  child: const Center(
+                    child: Icon(Icons.send_rounded,
+                        color: Colors.white, size: 24),
                   ),
-                ],
+                ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }

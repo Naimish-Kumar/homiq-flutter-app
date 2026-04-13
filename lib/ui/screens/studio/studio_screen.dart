@@ -51,38 +51,80 @@ class StudioScreenState extends State<StudioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.color.primaryColor,
-      appBar: CustomAppBar(
+    return AnnotatedRegion(
+      value: UiUtils.getSystemUiOverlayStyle(context: context),
+      child: Scaffold(
         backgroundColor: context.color.primaryColor,
-        title: CustomText(
-          'AI Studio',
-          fontWeight: FontWeight.bold,
-          color: context.color.textColorDark,
-          fontSize: context.font.lg,
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_new_rounded,
+                color: context.color.textColorDark),
+            onPressed: () => Navigator.pop(context),
+          ),
+          centerTitle: true,
+          title: CustomText(
+            'DESIGN STUDIO',
+            fontWeight: FontWeight.w400,
+            color: context.color.textColorDark,
+            fontSize: 16,
+            letterSpacing: 4,
+            useSerif: true,
+          ),
         ),
-        showBackButton: true,
-      ),
-      body: BlocConsumer<DesignGenerationCubit, DesignGenerationState>(
-        listener: (context, state) {
-          if (state is DesignGenerationSuccess) {
-            Navigator.pushNamed(
-              context,
-              Routes.designResult,
-              arguments: {'result': state.result, 'original': _selectedImage},
-            );
-          }
-          if (state is DesignGenerationFailure) {
-            HelperUtils.showSnackBarMessage(context, state.errorMessage,
-                type: MessageType.error);
-          }
-        },
-        builder: (context, state) {
-          if (state is DesignGenerationInProgress) {
-            return _buildLoadingState();
-          }
-          return _buildForm();
-        },
+        body: Stack(
+          children: [
+            // Luxury Mesh Gradient Background
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: context.color.brightness == Brightness.light
+                      ? [
+                          const Color(0xFFFBFBF9),
+                          const Color(0xFFF5F5F4),
+                          context.color.tertiaryColor.withValues(alpha: 0.1),
+                          const Color(0xFFFBFBF9),
+                        ]
+                      : [
+                          const Color(0xFF0C0A09),
+                          const Color(0xFF1C1917),
+                          context.color.tertiaryColor.withValues(alpha: 0.15),
+                          const Color(0xFF0C0A09),
+                        ],
+                  stops: const [0.0, 0.4, 0.8, 1.0],
+                ),
+              ),
+            ),
+            BlocConsumer<DesignGenerationCubit, DesignGenerationState>(
+              listener: (context, state) {
+                if (state is DesignGenerationSuccess) {
+                  Navigator.pushNamed(
+                    context,
+                    Routes.designResult,
+                    arguments: {
+                      'result': state.result,
+                      'original': _selectedImage
+                    },
+                  );
+                }
+                if (state is DesignGenerationFailure) {
+                  HelperUtils.showSnackBarMessage(context, state.errorMessage,
+                      type: MessageType.error);
+                }
+              },
+              builder: (context, state) {
+                if (state is DesignGenerationInProgress) {
+                  return _buildLoadingState();
+                }
+                return _buildForm();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -90,78 +132,94 @@ class StudioScreenState extends State<StudioScreen> {
   Widget _buildLoadingState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(40),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                height: 240,
-                width: 240,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      context.color.tertiaryColor.withOpacity(0.2),
-                      Colors.transparent,
+      color: context.color.primaryColor.withValues(alpha: 0.8),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                // Glowing Pulse Ring
+                Container(
+                  height: 200,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            context.color.tertiaryColor.withValues(alpha: 0.2),
+                        blurRadius: 50,
+                        spreadRadius: 10,
+                      ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 120,
-                width: 120,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                  valueColor: AlwaysStoppedAnimation(Color(0xFF49A9B4)),
+                Container(
+                  height: 140,
+                  width: 140,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor:
+                        AlwaysStoppedAnimation(context.color.tertiaryColor),
+                  ),
                 ),
+                Icon(Icons.auto_awesome_rounded,
+                    size: 50, color: context.color.tertiaryColor),
+              ],
+            ),
+             SizedBox(height: 60),
+            const CustomText(
+              'CONCEPTUALIZING',
+              fontSize: 18,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 4,
+              textAlign: TextAlign.center,
+              useSerif: true,
+            ),
+             SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: CustomText(
+                'Our AI is analyzing architecture, light patterns, and textures to craft your premium space.',
+                color: context.color.textLightColor,
+                textAlign: TextAlign.center,
+                fontSize: 14,
+            
               ),
-              const Icon(Icons.auto_awesome_rounded,
-                  size: 40, color: Color(0xFF49A9B4)),
-            ],
-          ),
-          const SizedBox(height: 48),
-          const CustomText(
-            'Conceptualizing Your Space',
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          CustomText(
-            'Our AI is analyzing lighting, architecture, and style patterns...',
-            color: context.color.textLightColor,
-            textAlign: TextAlign.center,
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildForm() {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader('UPLOAD ROOM'),
-          const SizedBox(height: 16),
-          _imagePickerArea(),
-          const SizedBox(height: 32),
-          _buildSectionHeader('SELECT AESTHETIC'),
-          const SizedBox(height: 16),
-          _styleSelectorGrid(),
-          const SizedBox(height: 32),
-          _buildSectionHeader('ESTIMATED BUDGET'),
-          const SizedBox(height: 8),
-          _buildBudgetSelector(),
-          const SizedBox(height: 48),
-          _buildGenerateButton(),
-          const SizedBox(height: 32),
-        ],
+    return SafeArea(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader('INPUT CANVAS'),
+             SizedBox(height: 16),
+            _imagePickerArea(),
+             SizedBox(height: 32),
+            _buildSectionHeader('SELECT AESTHETIC'),
+             SizedBox(height: 16),
+            _styleSelectorGrid(),
+             SizedBox(height: 32),
+            _buildSectionHeader('FINANCIAL PARAMETERS'),
+             SizedBox(height: 16),
+            _buildBudgetSelector(),
+             SizedBox(height: 60),
+            _buildGenerateButton(),
+             SizedBox(height: 60),
+          ],
+        ),
       ),
     );
   }
@@ -179,41 +237,53 @@ class StudioScreenState extends State<StudioScreen> {
   Widget _imagePickerArea() {
     return GestureDetector(
       onTap: () => _showImageSourceOptions(),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Container(
-          height: 240,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: context.color.secondaryColor.withOpacity(0.05),
-            border: Border.all(
-              color: context.color.borderColor.withOpacity(0.5),
-              width: 1.5,
-            ),
+      child: Container(
+        height: 280,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(32),
+          color: context.color.brightness == Brightness.light
+              ? Colors.black.withValues(alpha: 0.03)
+              : Colors.white.withValues(alpha: 0.05),
+          border: Border.all(
+            color: context.color.tertiaryColor.withValues(alpha: 0.2),
+            width: 1.5,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
           child: _selectedImage == null
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: context.color.tertiaryColor.withOpacity(0.1),
+                        color:
+                            context.color.tertiaryColor.withValues(alpha: 0.05),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.add_a_photo_rounded,
-                          size: 32, color: context.color.tertiaryColor),
+                      child: Icon(Icons.add_photo_alternate_rounded,
+                          size: 40, color: context.color.tertiaryColor),
                     ),
-                    const SizedBox(height: 16),
-                    CustomText(
-                      'Capture your space',
-                      fontWeight: FontWeight.w600,
-                      fontSize: context.font.md,
+                    const SizedBox(height: 24),
+                    const CustomText(
+                      'CAPTURE SPACE',
+                      fontWeight: FontWeight.w900,
+                      fontSize: 10,
+                      letterSpacing: 2,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     CustomText(
-                      'Tap to upload room photo',
-                      fontSize: context.font.xs,
+                      'Upload your room photo to begin',
+                      fontSize: 13,
                       color: context.color.textLightColor,
                     ),
                   ],
@@ -222,18 +292,20 @@ class StudioScreenState extends State<StudioScreen> {
                   fit: StackFit.expand,
                   children: [
                     Image.file(_selectedImage!, fit: BoxFit.cover),
+                    // Glass Overlay for control
                     Positioned(
-                      top: 12,
-                      right: 12,
+                      top: 16,
+                      right: 16,
                       child: GestureDetector(
                         onTap: () => setState(() => _selectedImage = null),
-                        child: ClipOval(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
                           child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                             child: Container(
-                              padding: const EdgeInsets.all(6),
-                              color: Colors.black38,
-                              child: const Icon(Icons.close,
+                              padding: const EdgeInsets.all(10),
+                              color: Colors.black.withValues(alpha: 0.3),
+                              child: const Icon(Icons.refresh_rounded,
                                   color: Colors.white, size: 20),
                             ),
                           ),
@@ -354,78 +426,103 @@ class StudioScreenState extends State<StudioScreen> {
     return GestureDetector(
       onTap: () => setState(() => _selectedStyleId = style['id'].toString()),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(32),
           border: Border.all(
             color: isSelected
                 ? context.color.tertiaryColor
                 : Colors.transparent,
-            width: 2.5,
+            width: 3,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: context.color.tertiaryColor.withOpacity(0.3),
-                    blurRadius: 15,
-                    spreadRadius: 2,
+                    color: context.color.tertiaryColor.withValues(alpha: 0.3),
+                    blurRadius: 30,
+                    spreadRadius: -5,
                   )
                 ]
-              : [],
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 15,
+                    offset: const Offset(0, 10),
+                  )
+                ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(28),
           child: Stack(
             fit: StackFit.expand,
             children: [
               Image.asset(assetPath, fit: BoxFit.cover),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.8),
-                    ],
+              // Luxury Gradient Overlay
+              Positioned.fill(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        isSelected
+                            ? Colors.black.withValues(alpha: 0.4)
+                            : Colors.black.withValues(alpha: 0.2),
+                        Colors.black.withValues(alpha: 0.8),
+                      ],
+                      stops: const [0.5, 0.7, 1.0],
+                    ),
                   ),
                 ),
               ),
               Positioned(
-                bottom: 12,
-                left: 12,
-                right: 12,
+                bottom: 16,
+                left: 16,
+                right: 16,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CustomText(
-                      style['name'] as String,
+                      (style['name'] as String).toUpperCase(),
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: context.font.sm,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 10,
+                      letterSpacing: 2,
                     ),
                     if (isSelected)
-                      Container(
-                        margin: const EdgeInsets.only(top: 4),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.only(top: 8),
                         height: 2,
-                        width: 24,
-                        color: context.color.tertiaryColor,
+                        width: 30,
+                        decoration: BoxDecoration(
+                          color: context.color.tertiaryColor,
+                          boxShadow: [
+                            BoxShadow(
+                              color: context.color.tertiaryColor,
+                              blurRadius: 5,
+                            )
+                          ],
+                        ),
                       ),
                   ],
                 ),
               ),
               if (isSelected)
                 Positioned(
-                  top: 8,
-                  right: 8,
+                  top: 12,
+                  right: 12,
                   child: Container(
-                    padding: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(6),
                     decoration: const BoxDecoration(
-                      color: Color(0xFF49A9B4),
+                      color: Colors.white,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.check,
-                        color: Colors.white, size: 14),
+                    child: Icon(Icons.check_rounded,
+                        color: context.color.tertiaryColor, size: 14),
                   ),
                 ),
             ],
@@ -436,41 +533,88 @@ class StudioScreenState extends State<StudioScreen> {
   }
 
   Widget _buildBudgetSelector() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            CustomText(
-              '\$${_budgetRange.toInt().toString()}',
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: context.color.textColorDark,
-            ),
-            CustomText(
-              'Est. Cost',
-              fontSize: context.font.xs,
-              color: context.color.textLightColor,
-            ),
-          ],
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: context.color.brightness == Brightness.light
+            ? Colors.black.withValues(alpha: 0.03)
+            : Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(
+          color: context.color.tertiaryColor.withValues(alpha: 0.1),
         ),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: context.color.tertiaryColor,
-            inactiveTrackColor: context.color.borderColor,
-            thumbColor: context.color.tertiaryColor,
-            overlayColor: context.color.tertiaryColor.withOpacity(0.1),
-            trackHeight: 4,
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(
+                    'ESTIMATED COST',
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: context.color.textLightColor,
+                    letterSpacing: 2,
+                  ),
+                  const SizedBox(height: 4),
+                  CustomText(
+                    '\$${_budgetRange.toInt().toString()}',
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: context.color.textColorDark,
+                    letterSpacing: 1,
+                  ),
+                ],
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: context.color.tertiaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Row(
+                  children: [
+                    const FaIcon(FontAwesomeIcons.bolt,
+                        color: Colors.amber, size: 12),
+                    const SizedBox(width: 8),
+                    CustomText(
+                      '1 PASS',
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: context.color.tertiaryColor,
+                      letterSpacing: 1,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          child: Slider(
-            value: _budgetRange,
-            min: 500,
-            max: 50000,
-            divisions: 99,
-            onChanged: (value) => setState(() => _budgetRange = value),
+          const SizedBox(height: 32),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: context.color.tertiaryColor,
+              inactiveTrackColor:
+                  context.color.tertiaryColor.withValues(alpha: 0.1),
+              thumbColor: context.color.tertiaryColor,
+              overlayColor: context.color.tertiaryColor.withValues(alpha: 0.1),
+              trackHeight: 2,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+            ),
+            child: Slider(
+              value: _budgetRange,
+              min: 500,
+              max: 50000,
+              divisions: 99,
+              onChanged: (value) => setState(() => _budgetRange = value),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -482,8 +626,8 @@ class StudioScreenState extends State<StudioScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: context.color.tertiaryColor.withOpacity(0.3),
-            blurRadius: 20,
+            color: context.color.tertiaryColor.withValues(alpha: 0.3),
+            blurRadius: 25,
             offset: const Offset(0, 10),
           ),
         ],
@@ -500,15 +644,14 @@ class StudioScreenState extends State<StudioScreen> {
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.auto_awesome_rounded),
-            SizedBox(width: 12),
-            Text(
+            Icon(Icons.auto_awesome_rounded, size: 20),
+            SizedBox(width: 14),
+            CustomText(
               'REIMAGINE SPACE',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.5,
-              ),
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2,
             ),
           ],
         ),

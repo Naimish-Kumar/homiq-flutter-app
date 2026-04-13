@@ -131,10 +131,10 @@ class HiveUtils {
   }
 
   static LoginType getUserLoginType() {
+    final storedType = Hive.box<dynamic>(HiveKeys.userDetailsBox).get('type');
     return LoginType.values.firstWhere(
-      (element) =>
-          element.name ==
-          Hive.box<dynamic>(HiveKeys.userDetailsBox).get('type'),
+      (element) => element.name == storedType,
+      orElse: () => LoginType.phone,
     );
   }
 

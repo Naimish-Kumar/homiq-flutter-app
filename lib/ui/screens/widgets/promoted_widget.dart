@@ -20,7 +20,7 @@ class PromotedCard extends StatelessWidget {
       child: Row(
         children: [
           CustomImage(
-            imageUrl: AppIcons.featuredBolt,
+            icon: AppIcons.featuredBolt,
             color: context.color.buttonColor,
             width: 16.rw(context),
             height: 16.rh(context),

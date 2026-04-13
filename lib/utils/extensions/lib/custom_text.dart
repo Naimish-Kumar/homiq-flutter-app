@@ -20,6 +20,7 @@ class CustomText extends StatelessWidget {
     this.textBaseline,
     this.isRichText = false,
     this.textSpan,
+    this.useSerif = false,
   });
 
   final String text;
@@ -37,6 +38,7 @@ class CustomText extends StatelessWidget {
   final TextBaseline? textBaseline;
   final bool isRichText;
   final InlineSpan? textSpan;
+  final bool useSerif;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +48,20 @@ class CustomText extends StatelessWidget {
             ? TextDecoration.underline
             : null;
 
-    final style = TextStyle(
+    final themeStyle = useSerif
+        ? Theme.of(context).textTheme.displaySmall
+        : Theme.of(context).textTheme.bodyMedium;
+
+    final style = themeStyle?.copyWith(
+      color: color ?? context.color.textColorDark,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      fontSize: fontSize?.rf(context),
+      decoration: decoration,
+      decorationColor: underlineOrLineColor,
+      letterSpacing: letterSpacing,
+      textBaseline: textBaseline,
+    ) ?? TextStyle(
       color: color ?? context.color.textColorDark,
       fontWeight: fontWeight,
       fontStyle: fontStyle,

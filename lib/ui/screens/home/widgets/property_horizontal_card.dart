@@ -134,7 +134,7 @@ class PropertyHorizontalCard extends StatelessWidget {
                       start: 4.rw(context),
                       top: 4.rh(context),
                       child: CustomImage(
-                        imageUrl: AppIcons.premium,
+                        icon: AppIcons.premium,
                         height: 24.rh(context),
                         width: 24.rw(context),
                       ),
@@ -232,7 +232,7 @@ class PropertyHorizontalCard extends StatelessWidget {
                                       );
                                     },
                                     child: CustomImage(
-                                      imageUrl: AppIcons.info,
+                                      icon: AppIcons.info,
                                       width: 18.rw(context),
                                       height: 18.rh(context),
                                       color: statusButton!.textColor,
@@ -261,7 +261,7 @@ class PropertyHorizontalCard extends StatelessWidget {
                       Row(
                         children: [
                           CustomImage(
-                            imageUrl: AppIcons.location,
+                            icon: AppIcons.location,
                             width: 18.rw(context),
                             height: 18.rh(context),
                             color: context.color.textLightColor,

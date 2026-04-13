@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:homiq/exports/main_export.dart';
-import 'package:homiq/utils/encryption/rsa.dart';
 
 class GetApiKeysCubit extends Cubit<GetApiKeysState> {
   GetApiKeysCubit() : super(GetApiKeysInitial());
@@ -76,10 +75,6 @@ class GetApiKeysCubit extends Cubit<GetApiKeysState> {
       AppSettings.paystackCurrency = st.paystackCurrency;
       AppSettings.stripeCurrency = st.stripeCurrency;
       AppSettings.stripePublishableKey = st.stripePublishableKey;
-      AppSettings.stripeSecrateKey = RSAEncryption().decrypt(
-        privateKey: Constant.keysDecryptionPasswordRSA,
-        encryptedData: st.stripeSecretKey,
-      );
     }
     if (state is GetApiKeysFail) {
       log((state as GetApiKeysFail).error.toString(), name: 'API KEY FAIL');
@@ -87,14 +82,15 @@ class GetApiKeysCubit extends Cubit<GetApiKeysState> {
   }
 
   dynamic _getDataFromKey(List<dynamic> data, String key) {
-    final listData =
-        data.where((element) => element['type'] == key).toList().first as Map;
     try {
-      return listData['data'];
-    } on Exception catch (e) {
-      if (e.toString().contains('Bad state')) {
-        log('The key>>> $key is not comming from API');
-      }
+      final item = data.firstWhere(
+        (element) => element is Map && element['type'] == key,
+        orElse: () => null,
+      );
+      return item?['data'];
+    } catch (e) {
+      log('Error fetching key $key: $e');
+      return null;
     }
   }
 }

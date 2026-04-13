@@ -1,30 +1,19 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:homiq/data/repositories/auth_repository.dart';
 import 'package:homiq/exports/main_export.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class OtpScreen extends StatefulWidget {
   const OtpScreen({
+    required this.identifier,
+    required this.type,
     required this.isDeleteAccount,
-    required this.isEmailSelected,
     super.key,
-    this.phoneNumber,
-    this.email,
-    this.password,
-    this.otpVerificationId,
-    this.countryCode,
-    this.otpIs,
   });
 
+  final String identifier;
+  final String type;
   final bool isDeleteAccount;
-
-  final bool isEmailSelected;
-  final String? phoneNumber;
-  final String? email;
-  final String? password;
-  final String? otpVerificationId;
-  final String? countryCode;
-  final String? otpIs;
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -39,13 +28,9 @@ class OtpScreen extends StatefulWidget {
             BlocProvider(create: (context) => VerifyOtpCubit()),
           ],
           child: OtpScreen(
+            identifier: arguments['identifier']?.toString() ?? '',
+            type: arguments['type']?.toString() ?? 'mobile',
             isDeleteAccount: arguments['isDeleteAccount'] as bool? ?? false,
-            phoneNumber: arguments['phoneNumber']?.toString() ?? '',
-            email: arguments['email']?.toString() ?? '',
-            otpVerificationId: arguments['otpVerificationId']?.toString() ?? '',
-            countryCode: arguments['countryCode']?.toString() ?? '',
-            otpIs: arguments['otpIs']?.toString() ?? '',
-            isEmailSelected: arguments['isEmailSelected'] as bool? ?? false,
           ),
         );
       },
@@ -55,452 +40,308 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   Timer? timer;
-  ValueNotifier<int> otpResendTime = ValueNotifier<int>(
-    Constant.otpResendSecond,
-  );
-  final TextEditingController phoneOtpController = TextEditingController();
-  final TextEditingController emailOtpController = TextEditingController();
-  int otpLength = 6;
-  bool isOtpAutoFilled = false;
-  final List<FocusNode> _focusNodes = [];
-  int focusIndex = 0;
-  String otpIs = '';
+  ValueNotifier<int> otpResendTime = ValueNotifier<int>(Constant.otpResendSecond);
+  final TextEditingController otpController = TextEditingController();
 
   @override
   void initState() {
-    // otpResendTime = ValueNotifier<int>(
-    //   widget.isEmailSelected
-    //       ? Constant.otpResendSecondForEmail
-    //       : Constant.otpResendSecond,
-    // );
-    otpIs = widget.otpIs ?? '';
     super.initState();
-    if (timer != null) {
-      timer!.cancel();
-    }
     startTimer();
   }
 
   @override
   void dispose() {
-    for (final fNode in _focusNodes) {
-      fNode.dispose();
-    }
+    timer?.cancel();
     otpResendTime.dispose();
-    phoneOtpController.dispose();
-    emailOtpController.dispose();
-
+    otpController.dispose();
     super.dispose();
+  }
+
+  void startTimer() {
+    timer?.cancel();
+    otpResendTime.value = Constant.otpResendSecond;
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      if (otpResendTime.value == 0) {
+        timer.cancel();
+      } else {
+        if (mounted) otpResendTime.value--;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<VerifyOtpCubit, VerifyOtpState>(
-      listener: (context, state) {
-        if (state is VerifyOtpInProgress) {
-          Widgets.showLoader(context);
-        } else {
-          Widgets.hideLoder(context);
-        }
-        if (state is VerifyOtpFailure) {
-          Widgets.hideLoder(context);
-          HelperUtils.showSnackBarMessage(
-            context,
-            state.errorMessage,
-            type: MessageType.error,
-          );
-        }
-
-        if (state is VerifyOtpSuccess) {
-          Widgets.hideLoder(context);
-          if (widget.isEmailSelected) {
-            Navigator.of(context).pushReplacementNamed(
-              Routes.login,
-              arguments: {
-                'isDeleteAccount': widget.isDeleteAccount,
-              },
-            );
-            HelperUtils.showSnackBarMessage(
-              context,
-              'otpVerifiedSuccessfully'.translate(context),
-              type: MessageType.success,
-            );
+    return AnnotatedRegion(
+      value: UiUtils.getSystemUiOverlayStyle(context: context),
+      child: BlocListener<VerifyOtpCubit, VerifyOtpState>(
+        listener: (context, state) {
+          if (state is VerifyOtpInProgress) Widgets.showLoader(context);
+          if (state is VerifyOtpFailure) {
+            Widgets.hideLoder(context);
+            HelperUtils.showSnackBarMessage(context, state.errorMessage,
+                type: MessageType.error);
           }
-          if (widget.isDeleteAccount) {
-            context.read<DeleteAccountCubit>().deleteUserAccount(
-                  context,
-                );
-          } else if (AppSettings.otpServiceProvider == 'firebase') {
-            context.read<LoginCubit>().login(
-                  type: LoginType.phone,
-                  phoneNumber: widget.phoneNumber ??
-                      state.credential!.user!.phoneNumber?.toString() ??
-                      '',
-                  uniqueId: state.credential!.user!.uid?.toString() ?? '',
-                  countryCode: widget.countryCode ?? '',
-                );
-          } else if (AppSettings.otpServiceProvider == 'twilio') {
-            context.read<LoginCubit>().login(
-                  type: LoginType.phone,
-                  phoneNumber: widget.phoneNumber ?? '',
-                  uniqueId: state.authId!,
-                  countryCode: widget.countryCode ?? '',
-                );
+          if (state is VerifyOtpSuccess) {
+            Widgets.hideLoder(context);
+            if (widget.isDeleteAccount) {
+              context.read<DeleteAccountCubit>().deleteUserAccount(context);
+            } else {
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil(Routes.main, (route) => false);
+            }
           }
-        }
-      },
-      child: Scaffold(
-        backgroundColor: context.color.primaryColor,
-        appBar: CustomAppBar(
-          title: CustomText(UiUtils.translate(context, 'enterCodeSend')),
+        },
+        child: Scaffold(
+          backgroundColor: context.color.primaryColor,
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios_new_rounded,
+                  color: context.color.textColorDark),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          body: Stack(
+            children: [
+              // Luxury Mesh Gradient Background
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: context.color.brightness == Brightness.light
+                        ? [
+                            const Color(0xFFFBFBF9),
+                            const Color(0xFFF5F5F4),
+                            context.color.tertiaryColor.withValues(alpha: 0.1),
+                            const Color(0xFFFBFBF9),
+                          ]
+                        : [
+                            const Color(0xFF0C0A09),
+                            const Color(0xFF1C1917),
+                            context.color.tertiaryColor.withValues(alpha: 0.2),
+                            const Color(0xFF0C0A09),
+                          ],
+                    stops: const [0.0, 0.4, 0.8, 1.0],
+                  ),
+                ),
+              ),
+              SafeArea(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 40),
+                      _buildHeader(),
+                      const SizedBox(height: 60),
+                      _buildOtpInput(),
+                      const SizedBox(height: 60),
+                      _buildVerifyButton(),
+                      const SizedBox(height: 32),
+                      _buildResendSection(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        body: otpScreenContainer(context),
       ),
     );
   }
 
-  Widget otpScreenContainer(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
-      padding: const EdgeInsets.all(20),
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          // Header message and contact info
-          _buildHeaderSection(context),
-
-          SizedBox(height: 20.rh(context)),
-
-          // OTP input field
-          _buildOtpField(context),
-
-          // Login button
-          loginButton(context),
-
-          // Timer widget
-          SizedBox(child: resendOtpTimerWidget()),
-
-          // Resend button (only show when timer is not active)
-          if (!(timer?.isActive ?? false)) _buildResendButton(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeaderSection(BuildContext context) {
-    final isEmail = widget.isEmailSelected;
-    final messageKey = isEmail ? 'weSentCodeOnEmail' : 'weSentCodeOnNumber';
-    final contactInfo = _getContactInfo();
-
+  Widget _buildHeader() {
     return Column(
       children: [
-        CustomText(
-          UiUtils.translate(context, messageKey),
-          fontSize: context.font.md,
-          color: context.color.textColorDark.withOpacity(0.8),
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: context.color.tertiaryColor.withValues(alpha: 0.05),
+          ),
+          child: Icon(
+            Icons.mark_email_unread_rounded,
+            size: 60,
+            color: context.color.tertiaryColor,
+          ),
         ),
+        const SizedBox(height: 32),
         CustomText(
-          contactInfo,
-          fontSize: context.font.md,
-          color: context.color.textColorDark.withOpacity(0.8),
+          'Verification Code',
+          fontSize: 28,
+          fontWeight: FontWeight.w900,
+          color: context.color.textColorDark,
+          letterSpacing: 1,
+        ),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              style: TextStyle(
+                color: context.color.textLightColor,
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+                height: 1.5,
+              ),
+              children: [
+                const TextSpan(text: 'We have sent a 6-digit verification code to '),
+                TextSpan(
+                  text: widget.identifier,
+                  style: TextStyle(
+                    color: context.color.textColorDark,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
   }
 
-  String _getContactInfo() {
-    if (widget.isEmailSelected) {
-      return widget.isDeleteAccount
-          ? HiveUtils.getUserDetails().email ?? ''
-          : widget.email ?? '';
-    } else {
-      final countryCode = widget.countryCode;
-      final phoneNumber = widget.isDeleteAccount
-          ? HiveUtils.getUserDetails().mobile
-          : widget.phoneNumber;
-      return '+$countryCode $phoneNumber';
-    }
-  }
-
-  Widget _buildOtpField(BuildContext context) {
-    final controller =
-        widget.isEmailSelected ? emailOtpController : phoneOtpController;
-
-    return PinFieldAutoFill(
-      autoFocus: true,
-      controller: controller,
-      decoration: UnderlineDecoration(
-        textStyle: TextStyle(
-          color: context.color.textColorDark.withOpacity(0.8),
-          fontSize: context.font.xl,
-        ),
-        lineHeight: 1.5,
-        colorBuilder: PinListenColorBuilder(
-          context.color.tertiaryColor,
-          Colors.grey,
-        ),
-      ),
-      currentCode: demoOTP(),
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      keyboardType: Platform.isIOS
-          ? const TextInputType.numberWithOptions(signed: true)
-          : TextInputType.number,
-      onCodeSubmitted: (code) => _handleOtpSubmission(context, code),
-      onCodeChanged: (code) {
-        if (code?.length == 6) {
-          otpIs = code!;
-        }
-      },
-    );
-  }
-
-  void _handleOtpSubmission(BuildContext context, String code) {
-    if (widget.isEmailSelected) {
-      context.read<VerifyOtpCubit>().verifyEmailOTP(
-            otp: code,
-            email: widget.email ?? '',
-          );
-    } else {
-      _handlePhoneOtpSubmission(context, code);
-    }
-  }
-
-  void _handlePhoneOtpSubmission(BuildContext context, String code) {
-    final cubit = context.read<VerifyOtpCubit>();
-
-    switch (AppSettings.otpServiceProvider) {
-      case 'firebase':
-        final verificationId =
-            widget.isDeleteAccount ? verificationID : widget.otpVerificationId;
-        cubit.verifyOTP(verificationId: verificationId, otp: code);
-
-      case 'twilio':
-        cubit.verifyOTP(
-          otp: widget.otpIs ?? '',
-          number: widget.phoneNumber,
-          countryCode: widget.countryCode,
-        );
-    }
-  }
-
-  Widget _buildResendButton(BuildContext context) {
-    return SizedBox(
-      height: 70,
-      child: IgnorePointer(
-        ignoring: timer?.isActive ?? false,
-        child: TextButton(
-          onPressed: resendOTP,
-          child: CustomText(
-            UiUtils.translate(context, 'resendCodeBtnLbl'),
-            color: (timer?.isActive ?? false)
-                ? context.color.textLightColor
-                : context.color.tertiaryColor,
-            fontWeight: FontWeight.bold,
+  Widget _buildOtpInput() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: PinFieldAutoFill(
+        controller: otpController,
+        codeLength: 6,
+        decoration: UnderlineDecoration(
+          textStyle: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w800,
+            color: context.color.textColorDark,
+            letterSpacing: 10,
           ),
+          colorBuilder: FixedColorBuilder(
+            context.color.tertiaryColor.withValues(alpha: 0.5),
+          ),
+          lineHeight: 2.5,
+          gapSpace: 12,
         ),
+        currentCode: '',
+        onCodeChanged: (code) {
+          if (code?.length == 6) _handleVerify();
+        },
       ),
     );
   }
 
-  Future<void> startTimer() async {
-    timer?.cancel();
-    timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (Timer timer) {
-        if (otpResendTime.value == 0) {
-          timer.cancel();
-          otpResendTime.value = Constant.otpResendSecond;
-          setState(() {});
-        } else {
-          if (mounted) otpResendTime.value--;
-        }
+  Widget _buildVerifyButton() {
+    return BlocBuilder<VerifyOtpCubit, VerifyOtpState>(
+      builder: (context, state) {
+        return Container(
+          width: double.infinity,
+          height: 60,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: context.color.tertiaryColor.withValues(alpha: 0.2),
+                blurRadius: 25,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: state is VerifyOtpInProgress ? null : _handleVerify,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.color.tertiaryColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              elevation: 0,
+            ),
+            child: state is VerifyOtpInProgress
+                ? const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const CustomText(
+                    'VERIFY & CONTINUE',
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                    letterSpacing: 2,
+                  ),
+          ),
+        );
       },
     );
-    setState(() {});
   }
 
-  String demoOTP() {
-    if (Constant.isDemoModeOn &&
-        Constant.demoMobileNumber == widget.phoneNumber) {
-      return Constant.demoModeOTP; // If true, return the demo mode OTP.
-    } else {
-      return ''; // If false, return an empty string.
-    }
-  }
-
-  Widget resendOtpTimerWidget() {
+  Widget _buildResendSection() {
     return ValueListenableBuilder(
       valueListenable: otpResendTime,
       builder: (context, value, child) {
-        if (!(timer?.isActive ?? false)) {
-          return const SizedBox.shrink();
-        }
-        String formatSecondsToMinutes(int seconds) {
-          final minutes = seconds ~/ 60;
-          final remainingSeconds = seconds % 60;
-          return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
-        }
-
-        return SizedBox(
-          height: 70,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: RichText(
-              text: TextSpan(
-                text: "${UiUtils.translate(context, "resendMessage")} ",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.textColorDark,
-                  letterSpacing: 0.5,
-                ),
-                children: <TextSpan>[
-                  TextSpan(
-                    text: formatSecondsToMinutes(int.parse(value.toString())),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.tertiaryColor,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.5,
-                    ),
+        return Column(
+          children: [
+            if (value > 0)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CustomText(
+                    'Resend code in ',
+                    color: context.color.textLightColor,
+                    fontSize: 14,
                   ),
-                  TextSpan(
-                    text: UiUtils.translate(
-                      context,
-                      'resendMessageDuration',
-                    ),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.tertiaryColor,
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: 0.5,
-                    ),
+                  CustomText(
+                    '${value}s',
+                    color: context.color.tertiaryColor,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
                   ),
                 ],
+              )
+            else
+              TextButton(
+                onPressed: _handleResend,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: CustomText(
+                  'RESEND CODE',
+                  color: context.color.tertiaryColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  letterSpacing: 1,
+                ),
               ),
-            ),
-          ),
+          ],
         );
       },
     );
   }
 
-  void resendOTP() {
-    if (widget.isEmailSelected) {
-      context.read<SendOtpCubit>().resendEmailOTP(
-            email: widget.email ?? '',
-            password: widget.password ?? '',
-          );
-      return;
-    }
-    if (AppSettings.otpServiceProvider == 'firebase') {
-      context.read<SendOtpCubit>().sendFirebaseOTP(
-            countryCode: widget.countryCode ?? '',
-            phoneNumber: widget.phoneNumber ?? '',
-          );
-    } else if (AppSettings.otpServiceProvider == 'twilio') {
-      context.read<SendOtpCubit>().sendTwilioOTP(
-            countryCode: widget.countryCode ?? '',
-            phoneNumber: widget.phoneNumber ?? '',
+  void _handleVerify() {
+    if (otpController.text.length == 6) {
+      context.read<VerifyOtpCubit>().verifyOtp(
+            otp: otpController.text,
+            identifier: widget.identifier,
+            type: widget.type,
           );
     }
   }
 
-  Widget buildButton(
-    BuildContext context, {
-    required VoidCallback onPressed,
-    required String buttonTitle,
-    required bool disabled,
-    double? height,
-    double? width,
-  }) {
-    return UiUtils.buildButton(
-      context,
-      height: height ?? 56.rh(context),
-      outerPadding: EdgeInsets.only(top: 58.rh(context)),
-      disabledColor: context.color.textLightColor,
-      onPressed: (disabled != true)
-          ? () {
-              HelperUtils.unfocus();
-              onPressed.call();
-            }
-          : () {},
-      buttonTitle: buttonTitle,
-    );
-  }
-
-  Widget loginButton(BuildContext context) {
-    return buildButton(
-      context,
-      onPressed: onTapLogin,
-      disabled: false,
-      width: MediaQuery.of(context).size.width,
-      buttonTitle: UiUtils.translate(
-        context,
-        'comfirmBtnLbl',
-      ),
-    );
-  }
-
-  Future<void> onTapLogin() async {
-    if (widget.isEmailSelected) {
-      try {
-        await context.read<VerifyOtpCubit>().verifyEmailOTP(
-              otp: emailOtpController.text,
-              email: widget.email ?? '',
-            );
-        if (context.read<VerifyOtpCubit>().state is VerifyOtpSuccess) {
-          await Navigator.pushReplacementNamed(
-            context,
-            Routes.main,
-            arguments: {
-              'from': 'login',
-            },
-          );
-        }
-        return;
-      } on Exception catch (e) {
-        await HelperUtils.showSnackBarMessage(
-          context,
-          e.toString(),
-          messageDuration: 1,
+  void _handleResend() {
+    context.read<SendOtpCubit>().sendOtp(
+          identifier: widget.identifier,
+          type: 'mobile',
         );
-        return;
-      }
-    }
-    try {
-      if (phoneOtpController.text.isEmpty) {
-        await HelperUtils.showSnackBarMessage(
-          context,
-          UiUtils.translate(context, 'lblEnterOtp'),
-          messageDuration: 2,
-        );
-        return;
-      }
-      if (AppSettings.otpServiceProvider == 'firebase') {
-        if (widget.isDeleteAccount) {
-          await context.read<VerifyOtpCubit>().verifyOTP(
-                verificationId: verificationID,
-                otp: phoneOtpController.text,
-              );
-        } else {
-          await context.read<VerifyOtpCubit>().verifyOTP(
-                verificationId: widget.otpVerificationId,
-                otp: phoneOtpController.text,
-                number: widget.phoneNumber,
-                countryCode: widget.countryCode,
-              );
-        }
-      } else if (AppSettings.otpServiceProvider == 'twilio') {
-        await context.read<VerifyOtpCubit>().verifyOTP(
-              otp: phoneOtpController.text,
-              number: widget.phoneNumber,
-              countryCode: widget.countryCode,
-            );
-      }
-    } on Exception catch (_) {
-      Widgets.hideLoder(context);
-      await HelperUtils.showSnackBarMessage(
-        context,
-        'invalidOtp'.translate(context),
-      );
-    }
+    startTimer();
   }
 }

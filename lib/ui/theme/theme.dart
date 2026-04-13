@@ -1,29 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:homiq/app/app.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 ///Light Theme Colors
-const Color primaryColor_ = Color(0xFFF8FAFC); // Soft Mist White
-const Color secondaryColor_ = Color(0xFFFFFFFF); // White
-const Color tertiaryColor_ = Color(0xFF49A9B4); // Brand Teal
-const Color accentColor_ = Color(0xFFFF7F64); // Brand Coral
-const Color textColor = Color(0xFF0F172A); // Dark Slate
-Color lightTextColor = const Color(0xFF64748B); // Muted Slate
-Color widgetsBorderColorLight = const Color(0xFFE2E8F0);
-Color senderChatColor = const Color(0xFFEDF8F9); // Very Light Teal Tint
+const Color primaryColor_ = Color(0xFFFBFBF9); // Warm Parchment/Ivory
+const Color secondaryColor_ = Color(0xFFFFFFFF); // Pure White
+const Color tertiaryColor_ = Color(0xFFB8860B); // Metallic Bronze/Gold (Luxury Accent)
+const Color accentColor_ = Color(0xFFE5E7EB); // Soft Metallic Silver
+const Color textColor = Color(0xFF1C1917); // Stone 900 (Soft Black)
+Color lightTextColor = const Color(0xFF78716C); // Stone 500
+Color widgetsBorderColorLight = const Color(0xFFE7E5E4); // Stone 200
+Color senderChatColor = const Color(0xFFF5F5F4); // Stone 100
 
 ///Dark Theme Colors
-Color primaryColorDark = const Color(0xFF0F172A); // Deep Navy Slate
-Color secondaryColorDark = const Color(0xFF1E293B); // Muted Dark Navy
-const Color tertiaryColorDark = Color(0xFF49A9B4); // Brand Teal
-const Color textColorDarkTheme = Color(0xFFF8FAFC);
-Color lightTextColorDarkTheme = const Color(0xFF94A3B8).withValues(alpha: 0.8);
-Color widgetsBorderColorDark = const Color(0xFF334155);
-Color darkSenderChatColor = const Color(0xFF134E4A); // Deep Teal
+Color primaryColorDark = const Color(0xFF0C0A09); // Deep Ebony
+Color secondaryColorDark = const Color(0xFF1C1917); // Stone 900
+const Color tertiaryColorDark = Color(0xFFD4AF37); // Classic Gold
+const Color textColorDarkTheme = Color(0xFFFAFAF9); // Stone 50
+Color lightTextColorDarkTheme = const Color(0xFFA8A29E).withValues(alpha: 0.8); // Stone 400
+Color widgetsBorderColorDark = const Color(0xFF292524); // Stone 800
+Color darkSenderChatColor = const Color(0xFF1C1917); // Stone 900/Deep Chat
 
-///Messages Color
-const Color errorMessageColor = Color(0xFFD32F2F);
-const Color successMessageColor = Color(0xFF388E3C);
-const Color warningMessageColor = Color(0xFFFBC02D);
+// Message Colors (Luxury Muted Palette)
+const Color successMessageColor = Color(0xFF15803D); // Muted Emerald
+const Color warningMessageColor = Color(0xFFB45309); // Muted Amber
+const Color errorMessageColor = Color(0xFFB91C1C); // Muted Crimson
 
 //Button text color
 const Color buttonTextColor = Colors.white;
@@ -31,85 +31,87 @@ const Color buttonTextColor = Colors.white;
 ///Advance
 //Theme settings
 extension ColorPrefs on ColorScheme {
-  Color get primaryColor => _getColor(
-        brightness,
-        lightColor: appSettings.lightPrimary,
-        darkColor: appSettings.darkPrimary,
-      );
+  Color get primaryColor =>
+      _getColor(brightness, lightColor: primaryColor_, darkColor: primaryColorDark);
 
-  Color get secondaryColor => _getColor(
-        brightness,
-        lightColor: appSettings.lightSecondary,
-        darkColor: appSettings.darkSecondary,
-      );
+  Color get backgroundColor => primaryColor;
 
-  Color get tertiaryColor => _getColor(
-        brightness,
-        lightColor: appSettings.lightTertiary,
-        darkColor: appSettings.darkTertiary,
-      );
- 
-  Color get accentColor => _getColor(
-        brightness,
-        lightColor: accentColor_,
-        darkColor: accentColor_,
-      );
+  Color get secondaryColor => _getColor(brightness,
+      lightColor: secondaryColor_, darkColor: secondaryColorDark);
 
-  Color get backgroundColor => _getColor(
-        brightness,
-        lightColor: appSettings.lightPrimary,
-        darkColor: appSettings.darkPrimary,
-      );
+  Color get tertiaryColor => _getColor(brightness,
+      lightColor: tertiaryColor_, darkColor: tertiaryColorDark);
 
-  Color get buttonColor => _getColor(
-        brightness,
-        lightColor: Colors.white,
-        darkColor: Colors.black,
-      );
+  Color get accentColor =>
+      _getColor(brightness, lightColor: accentColor_, darkColor: accentColor_);
+
+  Color get buttonColor =>
+      _getColor(brightness, lightColor: Colors.white, darkColor: Colors.black);
 
   Color get textColorDark => _getColor(
-        brightness,
-        lightColor: textColor,
-        darkColor: textColorDarkTheme,
-      );
+    brightness,
+    lightColor: textColor,
+    darkColor: textColorDarkTheme,
+  );
 
   Color get textLightColor => _getColor(
-        brightness,
-        lightColor: lightTextColor,
-        darkColor: lightTextColorDarkTheme,
-      );
+    brightness,
+    lightColor: lightTextColor,
+    darkColor: lightTextColorDarkTheme,
+  );
 
   Color get borderColor => _getColor(
-        brightness,
-        lightColor: widgetsBorderColorLight,
-        darkColor: widgetsBorderColorDark,
-      );
+    brightness,
+    lightColor: widgetsBorderColorLight,
+    darkColor: widgetsBorderColorDark,
+  );
 
   Color get chatSenderColor => _getColor(
-        brightness,
-        lightColor: senderChatColor,
-        darkColor: darkSenderChatColor,
-      );
+    brightness,
+    lightColor: senderChatColor,
+    darkColor: darkSenderChatColor,
+  );
 
-  Color get inverseThemeColor => _getColor(
-        brightness,
-        lightColor: Colors.black,
-        darkColor: Colors.white,
-      );
+  Color get inverseThemeColor =>
+      _getColor(brightness, lightColor: Colors.black, darkColor: Colors.white);
 
   Color get blackColor => Colors.black;
 
-  Color get shimmerBaseColor => brightness == Brightness.light
-      ? const Color.fromARGB(255, 225, 225, 225)
-      : const Color.fromARGB(255, 150, 150, 150);
+  /// Standard ColorScheme mappings for extension compatibility
+  Color get error => this.error;
+  Color get onPrimary => this.onPrimary;
+  Color get onSurface => this.onSurface;
+  Color get inverseSurface => this.inverseSurface;
+  Color get onInverseSurface => this.onInverseSurface;
 
-  Color get shimmerHighlightColor => brightness == Brightness.light
-      ? Colors.grey.shade100
-      : Colors.grey.shade300;
+  Color get shimmerBaseColor => brightness == Brightness.light
+      ? const Color(0xFFF1F5F9)
+      : const Color(0xFF1E293B);
+
+  Color get shimmerHighlightColor =>
+      brightness == Brightness.light ? Colors.white : const Color(0xFF334155);
 
   Color get shimmerContentColor => brightness == Brightness.light
-      ? Colors.white.withOpacity(0.85)
-      : Colors.white.withOpacity(0.7);
+      ? Colors.white.withValues(alpha: 0.8)
+      : Colors.white.withValues(alpha: 0.2);
+
+  Color get cardGlassColor => _getColor(
+    brightness,
+    lightColor: Colors.white.withValues(alpha: 0.85),
+    darkColor: const Color(0xFF1E293B).withValues(alpha: 0.85),
+  );
+
+  LinearGradient get primaryGradient => LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [primary, accentColor],
+  );
+
+  LinearGradient get glassGradient => LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Colors.white.withOpacity(0.15), Colors.white.withOpacity(0.05)],
+  );
 }
 
 // 11pt: Smaller
@@ -119,6 +121,54 @@ extension ColorPrefs on ColorScheme {
 // 24pt: Extra large
 extension TextThemeForFont on TextTheme {
   Font get font => Font();
+
+  TextTheme get luxuryTheme {
+    return copyWith(
+      displayLarge: GoogleFonts.prata(
+        letterSpacing: -1,
+        fontWeight: FontWeight.w400,
+      ),
+      displayMedium: GoogleFonts.prata(
+        letterSpacing: -0.5,
+        fontWeight: FontWeight.w400,
+      ),
+      displaySmall: GoogleFonts.prata(
+        fontWeight: FontWeight.w400,
+      ),
+      headlineLarge: GoogleFonts.prata(
+        fontWeight: FontWeight.w500,
+      ),
+      headlineMedium: GoogleFonts.prata(
+        fontWeight: FontWeight.w500,
+      ),
+      headlineSmall: GoogleFonts.prata(
+        fontWeight: FontWeight.w600,
+      ),
+      titleLarge: GoogleFonts.inter(
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.5,
+      ),
+      titleMedium: GoogleFonts.inter(
+        fontWeight: FontWeight.w600,
+      ),
+      titleSmall: GoogleFonts.inter(
+        fontWeight: FontWeight.w500,
+      ),
+      bodyLarge: GoogleFonts.inter(
+        fontWeight: FontWeight.w400,
+      ),
+      bodyMedium: GoogleFonts.inter(
+        fontWeight: FontWeight.w400,
+      ),
+      bodySmall: GoogleFonts.inter(
+        fontWeight: FontWeight.w300,
+      ),
+      labelLarge: GoogleFonts.inter(
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1.5,
+      ),
+    );
+  }
 }
 
 class Font {

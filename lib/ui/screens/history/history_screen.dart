@@ -27,16 +27,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.color.primaryColor,
-      appBar: CustomAppBar(
-        backgroundColor: context.color.primaryColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
         title: CustomText(
-          'Galleria',
-          fontWeight: FontWeight.bold,
+          'GALLERIA',
+          fontWeight: FontWeight.w900,
           color: context.color.textColorDark,
-          fontSize: context.font.lg,
-          letterSpacing: 1.2,
+          fontSize: 14,
+          letterSpacing: 4,
         ),
-        showBackButton: false,
       ),
       body: CustomRefreshIndicator(
         onRefresh: () async => _fetch(),
@@ -111,42 +112,79 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
-      child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation(Color(0xFF49A9B4)),
+    return Center(
+      child: UiUtils.progress(
+        normalProgressColor: context.color.tertiaryColor,
       ),
     );
   }
 
   Widget _buildEmptyState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: context.color.tertiaryColor.withOpacity(0.05),
-              shape: BoxShape.circle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(40),
+              decoration: BoxDecoration(
+                color: context.color.tertiaryColor.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.auto_awesome_rounded,
+                  size: 60, color: context.color.tertiaryColor),
             ),
-            child: Icon(Icons.collections_bookmark_rounded,
-                size: 64, color: context.color.tertiaryColor.withOpacity(0.4)),
-          ),
-          const SizedBox(height: 24),
-          const CustomText('No Masterpieces Yet',
-              fontSize: 20, fontWeight: FontWeight.bold),
-          const SizedBox(height: 8),
-          CustomText('Transform your first room in the studio',
-              color: context.color.textLightColor),
-          const SizedBox(height: 32),
-          UiUtils.buildButton(
-            context,
-            onPressed: () => Navigator.pushNamed(context, Routes.designStudio),
-            buttonTitle: 'ENTER STUDIO',
-            width: 200,
-            buttonColor: context.color.tertiaryColor,
-          ),
-        ],
+            const SizedBox(height: 40),
+            const CustomText(
+              'CURATE YOUR COLLECTION',
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            CustomText(
+              'Your Al-crafted transformations will appear here as you explore new aesthetics.',
+              color: context.color.textLightColor,
+              textAlign: TextAlign.center,
+              
+            ),
+            const SizedBox(height: 48),
+            Container(
+              width: 220,
+              height: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: context.color.tertiaryColor.withValues(alpha: 0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: () =>
+                    Navigator.pushNamed(context, Routes.designStudio),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: context.color.tertiaryColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  elevation: 0,
+                ),
+                child: const CustomText(
+                  'ENTER STUDIO',
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                  letterSpacing: 2,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -164,44 +202,56 @@ class _HistoryScreenState extends State<HistoryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CustomImage(
-                    imageUrl: design['result_image_url'] as String,
-                    fit: BoxFit.cover,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
                   ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          color: Colors.black26,
-                          child: const CustomText(
-                            'CONCEPT',
-                            fontSize: 9,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.5,
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CustomImage(
+                      imageUrl: design['result_image_url'] as String,
+                      fit: BoxFit.cover,
+                    ),
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            color: Colors.black.withValues(alpha: 0.3),
+                            child: const CustomText(
+                              'CONCEPT',
+                              fontSize: 8,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 2,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -209,18 +259,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   (design['style']?['name'] as String?)?.toUpperCase() ??
                       'AI DESIGN',
                   fontSize: 10,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w900,
                   color: context.color.tertiaryColor,
-                  letterSpacing: 1,
+                  letterSpacing: 1.5,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 CustomText(
-                  timeago.format(
-                      DateTime.tryParse(design['created_at'].toString()) ??
-                          DateTime.now()),
-                  fontSize: 12,
-                  color: context.color.textLightColor,
-                  fontWeight: FontWeight.w500,
+                  timeago
+                      .format(
+                          DateTime.tryParse(design['created_at'].toString()) ??
+                              DateTime.now())
+                      .toUpperCase(),
+                  fontSize: 10,
+                  color: context.color.textLightColor.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1,
                 ),
               ],
             ),

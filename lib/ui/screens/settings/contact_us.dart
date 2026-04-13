@@ -134,7 +134,7 @@ class ContactUsState extends State<ContactUs> {
                         ),
                       );
                     },
-                    svgImagePath: AppIcons.callFilled,
+                    icon: AppIcons.callFilled,
                   ),
                   SizedBox(height: 16.rh(context)),
                   customTile(
@@ -144,7 +144,7 @@ class ContactUsState extends State<ContactUs> {
                       final email = state.companyData.companyEmail;
                       showEmailDialoge(email);
                     },
-                    svgImagePath: AppIcons.message,
+                    icon: AppIcons.message,
                   ),
                 ],
               ),
@@ -172,7 +172,8 @@ class ContactUsState extends State<ContactUs> {
   Widget customTile(
     BuildContext context, {
     required String title,
-    required String svgImagePath,
+    FaIconData? icon,
+    String? svgImagePath,
     required VoidCallback onTap,
     bool? isSwitchBox,
     dynamic Function(dynamic value)? onTapSwitch,
@@ -201,7 +202,8 @@ class ContactUsState extends State<ContactUs> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: CustomImage(
-                imageUrl: svgImagePath,
+                imageUrl: svgImagePath ?? '',
+                icon: icon,
                 color: context.color.textColorDark,
               ),
             ),
@@ -217,7 +219,7 @@ class ContactUsState extends State<ContactUs> {
             const Spacer(),
             if (isSwitchBox != true)
               CustomImage(
-                imageUrl: AppIcons.arrowRight,
+                icon: AppIcons.arrowRight,
                 matchTextDirection: true,
                 color: context.color.textColorDark,
               ),
@@ -309,7 +311,7 @@ class _EmailSendWidgetState extends State<EmailSendWidget> {
                           width: 24.rw(context),
                           height: 24.rh(context),
                           child: CustomImage(
-                            imageUrl: AppIcons.closeCircle,
+                            icon: AppIcons.closeCircle,
                             matchTextDirection: true,
                             color: context.color.textColorDark,
                           ),

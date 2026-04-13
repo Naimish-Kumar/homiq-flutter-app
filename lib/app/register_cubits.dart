@@ -73,7 +73,6 @@ class RegisterCubits {
       BlocProvider(create: (context) => AuthCubit()),
       BlocProvider(create: (context) => FetchMyProjectsListCubit()),
       BlocProvider(create: (context) => HomePageInfinityScrollCubit()),
-      BlocProvider(create: (context) => LoginCubit()),
       BlocProvider(create: (context) => CompanyCubit()),
       BlocProvider(create: (context) => FetchCategoryCubit()),
       BlocProvider(create: (context) => SearchPropertyCubit()),

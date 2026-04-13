@@ -4,13 +4,13 @@ import 'package:homiq/exports/main_export.dart';
 import 'package:homiq/ui/screens/auth/country_picker.dart';
 import 'package:homiq/utils/validator.dart';
 
-class EmailRegistrationForm extends StatefulWidget {
-  const EmailRegistrationForm({required this.email, super.key});
+class RegistrationForm extends StatefulWidget {
+  const RegistrationForm({required this.phone, super.key});
 
-  final String email;
+  final String phone;
 
   @override
-  State<EmailRegistrationForm> createState() => _EmailRegistrationFormState();
+  State<RegistrationForm> createState() => _RegistrationFormState();
 
   static Route<dynamic> route(RouteSettings routeSettings) {
     final arguments = routeSettings.arguments! as Map;
@@ -21,13 +21,13 @@ class EmailRegistrationForm extends StatefulWidget {
           BlocProvider(create: (context) => VerifyOtpCubit()),
         ],
         child:
-            EmailRegistrationForm(email: arguments['email']?.toString() ?? ''),
+            RegistrationForm(phone: arguments['phone']?.toString() ?? ''),
       ),
     );
   }
 }
 
-class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
+class _RegistrationFormState extends State<RegistrationForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -55,7 +55,7 @@ class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
     });
 
     startTimer();
-    emailController.text = widget.email;
+    mobileController.text = widget.phone;
   }
 
   @override
@@ -78,7 +78,7 @@ class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
         extendBody: true,
         backgroundColor: context.color.primaryColor,
         appBar: CustomAppBar(
-          title: CustomText('registerEmail'.translate(context)),
+          title: CustomText('Complete Profile'),
         ),
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -103,17 +103,14 @@ class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
       );
     } else if (state is SendOtpSuccess) {
       Widgets.hideLoder(context);
+      // For now, if we still need to verify something, we go to OTP
       Navigator.pushReplacementNamed(
         context,
         Routes.otpScreen,
         arguments: {
           'isDeleteAccount': false,
-          'phoneNumber': mobileController.text,
-          'email': emailController.text,
-          'otpVerificationId': state.verificationId,
-          'countryCode': countryCode,
-          'otpIs': state.verificationId,
-          'isEmailSelected': true,
+          'identifier': mobileController.text,
+          'type': 'mobile',
         },
       );
     }
@@ -196,15 +193,14 @@ class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
   }
 
   Future<void> _handleRegister() async {
-    final checkMobile = mobileController.text.isNotEmpty;
     if (_formKey.currentState!.validate()) {
-      await context.read<SendOtpCubit>().sendEmailOTP(
-            email: emailController.text,
-            name: nameController.text,
-            phoneNumber: checkMobile ? mobileController.text : '',
-            countryCode: countryCode,
-            password: passwordController.text,
-            confirmPassword: confirmPasswordController.text,
+      // In a phone-only flow, we might just submit the profile data
+      // For now, let's assume we trigger a register API or similar
+      // Since the user is already verified via phone, we might not need another OTP
+      // But if the backend requires it, keep it mobile-based.
+      await context.read<SendOtpCubit>().sendOtp(
+            identifier: mobileController.text,
+            type: 'mobile',
           );
     } else {
       await HelperUtils.showSnackBarMessage(
@@ -317,7 +313,7 @@ class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: CustomImage(
-                  imageUrl:
+                  icon:
                       isPasswordVisible ? AppIcons.eye : AppIcons.eyeSlash,
                   color: context.color.textColorDark.withOpacity(0.5),
                   width: 24.rw(context),
@@ -444,13 +440,9 @@ class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
   }
 
   void resendOTP() {
-    context.read<SendOtpCubit>().sendEmailOTP(
-          email: emailController.text.trim(),
-          name: nameController.text.trim(),
-          phoneNumber: mobileController.text.trim(),
-          countryCode: countryCode,
-          password: passwordController.text.trim(),
-          confirmPassword: confirmPasswordController.text.trim(),
+    context.read<SendOtpCubit>().sendOtp(
+          identifier: emailController.text.trim(),
+          type: 'email',
         );
   }
 

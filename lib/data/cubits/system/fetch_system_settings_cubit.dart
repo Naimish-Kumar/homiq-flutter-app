@@ -2,7 +2,6 @@ import 'package:homiq/data/model/languages_model.dart';
 import 'package:homiq/data/model/system_settings_model.dart';
 import 'package:homiq/data/repositories/system_repository.dart';
 import 'package:homiq/exports/main_export.dart';
-import 'package:homiq/utils/encryption/rsa.dart';
 import 'package:homiq/utils/network/cache_manger.dart';
 
 abstract class FetchSystemSettingsState {}
@@ -52,12 +51,7 @@ class FetchSystemSettingsCubit extends Cubit<FetchSystemSettingsState> {
           final response = data['data'] as Map<dynamic, dynamic>;
           Constant.currencySymbol =
               _getSetting(data, SystemSetting.currencySymbol)?.toString() ?? '';
-          if (response['place_api_key'] != null) {
-            Constant.googlePlaceAPIkey = RSAEncryption().decrypt(
-              privateKey: Constant.keysDecryptionPasswordRSA,
-              encryptedData: response['place_api_key']?.toString() ?? '',
-            );
-          }
+      
           Constant.isAdmobAdsEnabled = (response['show_admob_ads'] == '1');
 
           Constant.admobBannerAndroid =
@@ -75,7 +69,7 @@ class FetchSystemSettingsCubit extends Cubit<FetchSystemSettingsState> {
               response['ios_interstitial_ad_id']?.toString() ?? '';
           AppSettings.homePageLocatoinAlertStatus =
               (response['home_page_location_alert_status'] == '1');
-          AppSettings.languages = (response['languages'] as List)
+          AppSettings.languages = (response['languages'] as List? ?? [])
               .map((e) => LanguagesModel.fromJson(e as Map<String, dynamic>))
               .toList();
           AppSettings.distanceOption =
@@ -98,10 +92,9 @@ class FetchSystemSettingsCubit extends Cubit<FetchSystemSettingsState> {
             AppSettings.currencySymbol =
                 selectedCurrencyData['symbol']?.toString() ?? '';
             AppSettings.bankTransferDetails =
-                (response['bank_details'] as List?)
-                        ?.map((e) => e as Map<String, dynamic>)
-                        .toList() ??
-                    [];
+                (response['bank_details'] as List? ?? [])
+                        .map((e) => e as Map<String, dynamic>)
+                        .toList();
             AppSettings.minRadius =
                 response['min_radius_range']?.toString() ?? '';
             AppSettings.maxRadius =

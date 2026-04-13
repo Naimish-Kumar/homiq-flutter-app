@@ -108,90 +108,129 @@ class _ProfileScreenState extends State<ProfileScreen>
             },
             child: systemSettingsState is FetchSystemSettingsInProgress
                 ? buildProfileLoadingShimmer()
-                : SingleChildScrollView(
-                    physics: Constant.scrollPhysics,
-                    controller: profileScreenController,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        children: <Widget>[
-                          // Profile Header
-                          const SizedBox(height: 20),
-                          Center(
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: context.color.tertiaryColor,
-                                      width: 2,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: context.color.tertiaryColor.withOpacity(0.2),
-                                        blurRadius: 20,
-                                        spreadRadius: 5,
-                                      ),
-                                    ],
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(60),
-                                    child: SizedBox(
-                                      width: 100,
-                                      height: 100,
-                                      child: profileImgWidget(),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                CustomText(
-                                  username.toUpperCase(),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.5,
-                                  color: context.color.textColorDark,
-                                ),
-                                CustomText(
-                                  email,
-                                  fontSize: 14,
-                                  color: context.color.textLightColor,
-                                ),
-                                if (isGuest == false) ...[
-                                  const SizedBox(height: 12),
-                                  _buildVerificationUI(
-                                    context,
-                                    verificationStatus,
-                                  ),
-                                ],
-                              ],
-                            ),
+                : Stack(
+                    children: [
+                      // Decorative Background Elements
+                      Positioned(
+                        top: -50,
+                        right: -50,
+                        child: Container(
+                          width: 200,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: context.color.tertiaryColor.withValues(alpha: 0.05),
                           ),
+                        ),
+                      ),
+                      SingleChildScrollView(
+                        physics: Constant.scrollPhysics,
+                        controller: profileScreenController,
+                        child: Column(
+                          children: <Widget>[
+                            // Premium Hero Header
+                            Container(
+                              width: double.infinity,
+                              padding:
+                                  const EdgeInsets.fromLTRB(20, 60, 20, 40),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    context.color.tertiaryColor
+                                        .withValues(alpha: 0.15),
+                                    context.color.primaryColor
+                                        .withValues(alpha: 0.0),
+                                  ],
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  // Profile Avatar with Glow
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: context.color.tertiaryColor
+                                            .withValues(alpha: 0.5),
+                                        width: 2,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: context.color.tertiaryColor
+                                              .withValues(alpha: 0.15),
+                                          blurRadius: 40,
+                                          spreadRadius: 5,
+                                        ),
+                                      ],
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(60),
+                                      child: SizedBox(
+                                        width: 120,
+                                        height: 120,
+                                        child: profileImgWidget(),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 28),
+                                  CustomText(
+                                    username.toUpperCase(),
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w400,
+                                    letterSpacing: 4,
+                                    color: context.color.textColorDark,
+                                    useSerif: true,
+                                  ),
+                                  const SizedBox(height: 6),
+                                  CustomText(
+                                    email,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: context.color.textLightColor,
+                                    letterSpacing: 0.5,
+                                  ),
+                                  if (isGuest == false) ...[
+                                    const SizedBox(height: 20),
+                                    _buildVerificationUI(
+                                      context,
+                                      verificationStatus,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Column(
+                                children: [
                           const SizedBox(height: 48),
 
                           // Premium Actions
                           Row(
                             children: [
                               Expanded(
-                                child: _actionCard(
-                                  context,
-                                  title: 'GALLERIA',
-                                  subtitle: 'AI Creations',
-                                  icon: Icons.collections_rounded,
-                                  onTap: () => Navigator.pushNamed(context, Routes.historyTab),
-                                ),
+                                  child: _actionCard(
+                                    context,
+                                    title: 'GALLERIA',
+                                    subtitle: 'AI Creations',
+                                    icon: FontAwesomeIcons.images,
+                                    onTap: () => Navigator.pushNamed(context, Routes.historyTab),
+                                  ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: _actionCard(
-                                  context,
-                                  title: 'MEMBERSHIP',
-                                  subtitle: 'Active Plan',
-                                  icon: Icons.workspace_premium_rounded,
-                                  accent: true,
-                                  onTap: () => _navigateToSubscriptions(context),
-                                ),
+                                  child: _actionCard(
+                                    context,
+                                    title: 'MEMBERSHIP',
+                                    subtitle: 'Active Plan',
+                                    icon: AppIcons.premium,
+                                    accent: true,
+                                    onTap: () => _navigateToSubscriptions(context),
+                                  ),
                               ),
                             ],
                           ),
@@ -204,19 +243,19 @@ class _ProfileScreenState extends State<ProfileScreen>
                           _menuTile(
                             context,
                             title: 'Edit Profile Information',
-                            icon: Icons.person_outline_rounded,
+                            icon: AppIcons.profile,
                             onTap: () => _navigateToEditProfile(context),
                           ),
                           _menuTile(
                             context,
                             title: 'Notification Settings',
-                            icon: Icons.notifications_none_rounded,
+                            icon: AppIcons.notification,
                             onTap: () => Navigator.pushNamed(context, Routes.notificationPage),
                           ),
                           _menuTile(
                             context,
                             title: 'Dark Experience',
-                            icon: Icons.dark_mode_outlined,
+                            icon: FontAwesomeIcons.moon,
                             isSwitch: true,
                             onTap: () {},
                           ),
@@ -227,19 +266,19 @@ class _ProfileScreenState extends State<ProfileScreen>
                           _menuTile(
                             context,
                             title: 'Help & FAQ',
-                            icon: Icons.help_outline_rounded,
+                            icon: FontAwesomeIcons.circleQuestion,
                             onTap: () => Navigator.pushNamed(context, Routes.faqsScreen),
                           ),
                           _menuTile(
                             context,
                             title: 'Privacy Policy',
-                            icon: Icons.security_outlined,
+                            icon: FontAwesomeIcons.shieldHalved,
                             onTap: () => _navigateToLegal(context, 'privacyPolicy', Api.privacyPolicy),
                           ),
                           _menuTile(
                             context,
                             title: 'Terms of Service',
-                            icon: Icons.description_outlined,
+                            icon: FontAwesomeIcons.fileLines,
                             onTap: () => _navigateToLegal(context, 'termsConditions', Api.termsAndConditions),
                           ),
                           
@@ -248,7 +287,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                              _menuTile(
                               context,
                               title: 'Update Available (${Constant.newVersionNumber})',
-                              icon: Icons.system_update_rounded,
+                              icon: FontAwesomeIcons.arrowsRotate,
                               onTap: () async {
                                 if (Platform.isIOS) {
                                   await launchUrl(Uri.parse(Constant.appstoreURLios));
@@ -266,7 +305,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                             _menuTile(
                               context,
                               title: 'Delete Account',
-                              icon: Icons.delete_forever_rounded,
+                              icon: FontAwesomeIcons.trashCan,
                               onTap: () {
                                 if (Constant.isDemoModeOn &&
                                     context.read<UserDetailsCubit>().state.user?.authId == Constant.demoFirebaseID) {
@@ -285,10 +324,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                           const SizedBox(height: 48),
                           if (isGuest == false)
                             _buildLogoutButton(context),
-                          const SizedBox(height: 24),
-                        ],
+                          const SizedBox(height: 40),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
           ),
         ),
@@ -300,23 +343,23 @@ class _ProfileScreenState extends State<ProfileScreen>
     return GestureDetector(
       onTap: logOutConfirmWidget,
       child: Container(
-        height: 56,
+        height: 60,
         decoration: BoxDecoration(
-          color: Colors.red.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.red.withOpacity(0.2)),
+          color: Colors.red.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.red.withValues(alpha: 0.15)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.logout_rounded, color: Colors.red.shade400, size: 20),
-            const SizedBox(width: 12),
+            FaIcon(AppIcons.logout, color: Colors.red.shade400, size: 18),
+            const SizedBox(width: 14),
             CustomText(
               'LOGOUT',
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w900,
               color: Colors.red.shade400,
-              letterSpacing: 1.5,
+              letterSpacing: 2,
             ),
           ],
         ),
@@ -337,49 +380,60 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _actionCard(
+   Widget _actionCard(
     BuildContext context, {
     required String title,
     required String subtitle,
-    required IconData icon,
+    required FaIconData icon,
     required VoidCallback onTap,
     bool accent = false,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: accent ? context.color.tertiaryColor : context.color.secondaryColor,
-          borderRadius: BorderRadius.circular(24),
+          color: accent
+              ? context.color.tertiaryColor
+              : context.color.secondaryColor.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: accent
+                ? Colors.transparent
+                : context.color.tertiaryColor.withValues(alpha: 0.1),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
+            FaIcon(
               icon,
               color: accent ? Colors.white : context.color.tertiaryColor,
-              size: 28,
+              size: 24,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             CustomText(
               title,
               fontSize: 12,
               fontWeight: FontWeight.w900,
               color: accent ? Colors.white : context.color.textColorDark,
-              letterSpacing: 1,
+              letterSpacing: 1.5,
             ),
+            const SizedBox(height: 4),
             CustomText(
               subtitle,
               fontSize: 11,
-              color: accent ? Colors.white.withOpacity(0.8) : context.color.textLightColor,
+              fontWeight: FontWeight.w600,
+              color: accent
+                  ? Colors.white.withValues(alpha: 0.8)
+                  : context.color.textLightColor,
             ),
           ],
         ),
@@ -390,42 +444,71 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget _menuTile(
     BuildContext context, {
     required String title,
-    required IconData icon,
+    required FaIconData icon,
     required VoidCallback onTap,
     bool isSwitch = false,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: context.color.secondaryColor.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(16),
+        color: context.color.brightness == Brightness.light
+            ? Colors.black.withValues(alpha: 0.03)
+            : Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: context.color.borderColor.withValues(alpha: 0.4),
+        ),
       ),
       child: ListTile(
         onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
-          padding: const EdgeInsets.all(8),
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
-            color: context.color.tertiaryColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
+            color: context.color.tertiaryColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: context.color.tertiaryColor.withValues(alpha: 0.1),
+            ),
           ),
-          child: Icon(icon, color: context.color.tertiaryColor, size: 20),
+          child: Center(
+            child: FaIcon(
+              icon,
+              color: context.color.tertiaryColor,
+              size: 18,
+            ),
+          ),
         ),
         title: CustomText(
           title,
           fontSize: 14,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: context.color.textColorDark,
         ),
         trailing: isSwitch
-            ? Switch.adaptive(
-                value: Theme.of(context).brightness == Brightness.dark,
-                onChanged: (v) {
-                  // Theme toggle logic
-                },
-                activeColor: context.color.tertiaryColor,
+            ? Transform.scale(
+                scale: 0.7,
+                child: BlocBuilder<AppThemeCubit, ThemeMode>(
+                  builder: (context, themeMode) {
+                    final isDark = context.read<AppThemeCubit>().isDarkMode;
+                    return Switch(
+                      value: isDark,
+                      onChanged: (val) {
+                        final newTheme =
+                            isDark ? ThemeMode.light : ThemeMode.dark;
+                        context.read<AppThemeCubit>().changeTheme(newTheme);
+                      },
+                      activeTrackColor: context.color.tertiaryColor,
+                    );
+                  },
+                ),
               )
-            : Icon(Icons.chevron_right_rounded, color: context.color.textLightColor, size: 20),
+            : Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: context.color.textLightColor.withValues(alpha: 0.3),
+              ),
       ),
     );
   }
@@ -440,8 +523,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  void _navigateToSubscriptions(BuildContext context) {
-    GuestChecker.check(
+  Future<void> _navigateToSubscriptions(BuildContext context) async {
+    await GuestChecker.check(
       onNotGuest: () async {
         try {
           await context.read<GetApiKeysCubit>().fetch();
@@ -509,7 +592,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     required String title,
     required String newVersion,
     required bool isUpdateAvailable,
-    required String svgImagePath,
+    FaIconData? icon,
+    String? svgImagePath,
     required VoidCallback onTap,
     dynamic Function(dynamic value)? onTapSwitch,
   }) {
@@ -536,7 +620,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                 child: isUpdateAvailable == false
                     ? const Icon(Icons.done)
                     : CustomImage(
-                        imageUrl: svgImagePath,
+                        imageUrl: svgImagePath ?? '',
+                        icon: icon,
                         color: context.color.tertiaryColor,
                       ),
               ),
@@ -578,7 +663,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 child: FittedBox(
                   fit: BoxFit.none,
                   child: CustomImage(
-                    imageUrl: AppIcons.arrowRight,
+                    icon: AppIcons.arrowRight,
                     matchTextDirection: true,
                     color: context.color.textColorDark,
                   ),
@@ -594,7 +679,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget customTile(
     BuildContext context, {
     required String title,
-    required String svgImagePath,
+    FaIconData? icon,
+    String? svgImagePath,
     required VoidCallback onTap,
     bool? isSwitchBox,
   }) {
@@ -621,7 +707,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: CustomImage(
-                    imageUrl: svgImagePath,
+                    imageUrl: svgImagePath ?? '',
+                    icon: icon,
                     height: 20,
                     width: 20,
                     color: context.color.tertiaryColor,
@@ -799,7 +886,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: FittedBox(
         fit: BoxFit.none,
         child: CustomImage(
-          imageUrl: AppIcons.defaultPersonLogo,
+          icon: AppIcons.defaultPersonLogo,
           color: context.color.tertiaryColor,
           width: 32.rw(context),
           height: 32.rh(context),
@@ -896,7 +983,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   HiveUtils.logoutUser(context, onLogout: () {});
                 },
               );
-              await gsis.GoogleSignIn.instance.signOut();
+              await gsis.GoogleSignIn().signOut();
             }
           } on Exception catch (e) {
             log('Issue while logout is $e');
@@ -1055,7 +1142,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: FittedBox(
         fit: BoxFit.none,
         child: CustomImage(
-          imageUrl: AppIcons.agentBadge,
+          icon: AppIcons.agentBadge,
           height: 16.rh(context),
           width: 16.rw(context),
           color: color,

@@ -77,25 +77,38 @@ class MainActivityState extends State<MainActivity> {
   Widget _buildBottomBar() {
     return ClipRRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           height: 85 + MediaQuery.of(context).padding.bottom,
           decoration: BoxDecoration(
-            color: context.color.primaryColor.withOpacity(0.85),
-            border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1))),
-          ),
-          child: Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _bottomItem(0, Icons.home_filled, 'Home'),
-                _bottomItem(1, Icons.auto_awesome_motion_rounded, 'Galleria'),
-                const SizedBox(width: 60), // Space for larger FAB
-                _bottomItem(3, Icons.chat_bubble_rounded, 'AI Help'),
-                _bottomItem(4, Icons.person_rounded, 'Profile'),
-              ],
+            color: context.color.primaryColor.withValues(alpha: 0.85),
+            border: Border(
+              top: BorderSide(
+                color: context.color.brightness == Brightness.light
+                    ? Colors.black.withValues(alpha: 0.04)
+                    : Colors.white.withValues(alpha: 0.08),
+                width: 1,
+              ),
             ),
+          ),
+          child: Stack(
+            children: [
+              // Animated Indicator Background (Optional: can add a sliding glow here)
+              Padding(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).padding.bottom),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _bottomItem(0, Icons.grid_view_rounded, 'Home'),
+                    _bottomItem(1, Icons.auto_awesome_motion_rounded, 'Galleria'),
+                    const SizedBox(width: 60),
+                    _bottomItem(3, Icons.chat_bubble_rounded, 'AI Help'),
+                    _bottomItem(4, Icons.person_rounded, 'Profile'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -106,21 +119,30 @@ class MainActivityState extends State<MainActivity> {
     final isSelected = currtab == index;
     return GestureDetector(
       onTap: () {
-        setState(() {
-          currtab = index;
-          pageController.jumpToPage(index);
-        });
+        if (currtab != index) {
+          setState(() {
+            currtab = index;
+            pageController.jumpToPage(index);
+          });
+        }
       },
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         color: Colors.transparent,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 24,
-              color: isSelected ? context.color.tertiaryColor : context.color.textLightColor,
+            AnimatedScale(
+              duration: const Duration(milliseconds: 300),
+              scale: isSelected ? 1.2 : 1.0,
+              child: Icon(
+                icon,
+                size: 22,
+                color: isSelected
+                    ? context.color.tertiaryColor
+                    : context.color.textLightColor.withValues(alpha: 0.6),
+              ),
             ),
             const SizedBox(height: 6),
             CustomText(
@@ -128,25 +150,29 @@ class MainActivityState extends State<MainActivity> {
               fontSize: 8,
               fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
               letterSpacing: 1,
-              color: isSelected ? context.color.tertiaryColor : context.color.textLightColor,
+              color: isSelected
+                  ? context.color.tertiaryColor
+                  : context.color.textLightColor.withValues(alpha: 0.6),
             ),
-            if (isSelected)
-              Container(
-                margin: const EdgeInsets.only(top: 4),
-                width: 4,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: context.color.tertiaryColor,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: context.color.tertiaryColor.withOpacity(0.5),
-                      blurRadius: 4,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.only(top: 4),
+              width: isSelected ? 4 : 0,
+              height: 4,
+              decoration: BoxDecoration(
+                color: context.color.tertiaryColor,
+                shape: BoxShape.circle,
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: context.color.tertiaryColor.withValues(alpha: 0.5),
+                          blurRadius: 6,
+                          spreadRadius: 1,
+                        ),
+                      ]
+                    : [],
               ),
+            ),
           ],
         ),
       ),
@@ -155,17 +181,25 @@ class MainActivityState extends State<MainActivity> {
 
   Widget _buildFab() {
     return Container(
-      height: 64,
-      width: 64,
+      height: 68,
+      width: 68,
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: context.color.tertiaryColor,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            context.color.tertiaryColor,
+            context.color.accentColor,
+          ],
+        ),
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: context.color.tertiaryColor.withOpacity(0.4),
+            color: context.color.tertiaryColor.withValues(alpha: 0.25),
             blurRadius: 20,
             spreadRadius: 2,
-            offset: const Offset(0, 4),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -174,7 +208,11 @@ class MainActivityState extends State<MainActivity> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         highlightElevation: 0,
-        child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 30),
+        child: const Icon(
+          Icons.auto_awesome_rounded,
+          color: Colors.white,
+          size: 32,
+        ),
       ),
     );
   }

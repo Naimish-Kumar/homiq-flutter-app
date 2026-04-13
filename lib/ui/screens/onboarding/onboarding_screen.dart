@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
 import 'package:homiq/app/routes.dart';
-import 'package:homiq/data/cubits/system/fetch_system_settings_cubit.dart';
-import 'package:homiq/data/model/system_settings_model.dart';
 import 'package:homiq/utils/extensions/extensions.dart';
 import 'package:homiq/utils/app_icons.dart' show AppIcons;
 import 'package:homiq/utils/custom_image.dart';
 import 'package:homiq/utils/extensions/lib/custom_text.dart';
-import 'package:homiq/utils/hive_keys.dart';
 import 'package:homiq/utils/responsive_size.dart';
 import 'package:homiq/utils/ui_utils.dart';
 
@@ -51,27 +46,27 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Widget build(BuildContext context) {
     final slidersList = [
       {
-        'image': AppIcons.onBoardingOne,
-        'title': 'AI Transformation',
-        'subtitle': 'REIMAGINE YOUR SPACE',
+        'image': 'assets/onboarding/onboarding_1.png',
+        'title': 'Bright Living',
+        'subtitle': 'CLEAN LUXURY SPACES',
         'description':
-            'Experience the future of interior design. Our advanced AI analyzes your room and generates photorealistic concepts in seconds.',
+            'Experience the beauty of Scandinavian minimalism. Curate spaces that are bright, airy, and effortlessly sophisticated.',
         'color': context.color.tertiaryColor,
       },
       {
-        'image': AppIcons.onBoardingTwo,
+        'image': 'assets/onboarding/onboarding_2.png',
         'title': 'Tailored Styles',
         'subtitle': 'CURATE YOUR AESTHETIC',
         'description':
-            'From Scandinavian Minimalism to Modern Industrial. Discover the perfect style that resonates with your unique personality.',
-        'color': context.color.accentColor,
+            'From Mid-Century Modern to Industrial Loft. Discover the styles that resonate with your personality.',
+        'color': context.color.tertiaryColor,
       },
       {
-        'image': AppIcons.onBoardingThree,
-        'title': 'Instant High fidelity',
+        'image': 'assets/onboarding/onboarding_3.png',
+        'title': 'High Fidelity',
         'subtitle': 'PROFESSIONAL RESULTS',
         'description':
-            'Get professional-grade renderings instantly. Visualize furniture, lighting, and colors with unparalleled clarity and detail.',
+            'Get professional-grade renderings instantly. Visualize every detail with unparalleled clarity and realism.',
         'color': context.color.tertiaryColor,
       },
     ];
@@ -79,46 +74,72 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     return AnnotatedRegion(
       value: UiUtils.getSystemUiOverlayStyle(context: context),
       child: Scaffold(
-        backgroundColor: context.color.primaryColor,
-        body: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: Column(
-              children: [
-                _buildTopBar(context),
-                Hero(
-                  tag: 'splash_logo',
-                  child: Container(
-                    height: 80.rh(context),
-                    margin: EdgeInsets.symmetric(vertical: 20.rh(context)),
-                    child: CustomImage(
-                      imageUrl: AppIcons.splashLogo,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
+        body: Stack(
+          children: [
+            // Background Luxury Gradient
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: context.color.brightness == Brightness.light
+                      ? [
+                          const Color(0xFFFBFBF9),
+                          const Color(0xFFF5F5F4),
+                          context.color.tertiaryColor.withValues(alpha: 0.1),
+                        ]
+                      : [
+                          const Color(0xFF0C0A09),
+                          const Color(0xFF1C1917),
+                          context.color.tertiaryColor.withValues(alpha: 0.2),
+                        ],
+                  stops: const [0.0, 0.4, 1.0],
                 ),
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        currentPageIndex = index;
-                      });
-                    },
-                    itemCount: slidersList.length,
-                    itemBuilder: (context, index) {
-                      return _buildOnboardingPage(
-                        context,
-                        slidersList[index],
-                        index,
-                      );
-                    },
-                  ),
-                ),
-                _buildBottomSection(context, slidersList.length),
-              ],
+              ),
             ),
-          ),
+            // Floating Mesh Glow
+            Positioned(
+              top: -150,
+              left: -150,
+              child: Container(
+                width: 400,
+                height: 400,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: context.color.tertiaryColor.withValues(alpha: 0.05),
+                ),
+              ),
+            ),
+            SafeArea(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Column(
+                  children: [
+                    _buildTopBar(context),
+                    Expanded(
+                      child: PageView.builder(
+                        controller: _pageController,
+                        onPageChanged: (index) {
+                          setState(() {
+                            currentPageIndex = index;
+                          });
+                        },
+                        itemCount: slidersList.length,
+                        itemBuilder: (context, index) {
+                          return _buildOnboardingPage(
+                            context,
+                            slidersList[index],
+                            index,
+                          );
+                        },
+                      ),
+                    ),
+                    _buildBottomSection(context, slidersList.length),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -126,77 +147,22 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   Widget _buildTopBar(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildLanguageSelector(context),
+          Hero(
+            tag: 'splash_logo',
+            child: SizedBox(
+              height: 48.rh(context),
+              child: CustomImage(
+                imageUrl: AppIcons.splashLogo,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
           _buildSkipButton(context),
         ],
-      ),
-    );
-  }
-
-  Widget _buildLanguageSelector(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        await context.read<FetchSystemSettingsCubit>().fetchSettings(
-              isAnonymous: true,
-            );
-        await Navigator.pushNamed(
-          context,
-          Routes.languageListScreenRoute,
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: context.color.secondaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(
-              color: context.color.borderColor.withOpacity(0.3)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            StreamBuilder(
-              stream: Hive.box<dynamic>(HiveKeys.languageBox)
-                  .watch(key: HiveKeys.currentLanguageKey),
-              builder: (context, AsyncSnapshot<BoxEvent> value) {
-                final language = context
-                    .watch<FetchSystemSettingsCubit>()
-                    .getSetting(SystemSetting.language)
-                    .toString()
-                    .firstUpperCase();
-
-                if (value.data?.value == null) {
-                  if (language == 'null') {
-                    return const CustomText('');
-                  }
-                  return CustomText(
-                    language,
-                    color: context.color.textColorDark,
-                    fontSize: context.font.sm,
-                    fontWeight: FontWeight.w600,
-                  );
-                } else {
-                  return CustomText(
-                    value.data!.value!['code'].toString().firstUpperCase(),
-                    color: context.color.textColorDark,
-                    fontSize: context.font.sm,
-                    fontWeight: FontWeight.w600,
-                  );
-                }
-              },
-            ),
-            const SizedBox(width: 6),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: context.color.textColorDark,
-              size: 18,
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -207,15 +173,22 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         Navigator.pushReplacementNamed(context, Routes.login);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: context.color.tertiaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(25),
+          color: context.color.brightness == Brightness.light
+              ? Colors.black.withValues(alpha: 0.03)
+              : Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: context.color.brightness == Brightness.light
+                ? Colors.black.withValues(alpha: 0.05)
+                : Colors.white.withValues(alpha: 0.1),
+          ),
         ),
         child: CustomText(
           'Skip',
-          color: context.color.tertiaryColor,
-          fontSize: context.font.sm,
+          color: context.color.textLightColor,
+          fontSize: context.font.xs,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -223,68 +196,151 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   Widget _buildOnboardingPage(
-      BuildContext context, Map<String, dynamic> data, int index) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            height: 420.rh(context),
-            width: double.infinity,
-            margin: const EdgeInsets.only(bottom: 20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: context.color.textColorDark.withValues(alpha: 0.05),
-                  blurRadius: 40,
-                  spreadRadius: 5,
-                  offset: const Offset(0, 10),
+    BuildContext context,
+    Map<String, dynamic> data,
+    int index,
+  ) {
+    return AnimatedBuilder(
+      animation: _pageController,
+      builder: (context, child) {
+        double value = 1.0;
+        if (_pageController.position.haveDimensions) {
+          value = _pageController.page! - index;
+          value = (1 - (value.abs() * 0.5)).clamp(0, 1.0);
+        }
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              // Premium Hero Image with Parallax
+              Expanded(
+                flex: 10,
+                child: Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(top: 20, bottom: 40),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 30,
+                        offset: const Offset(0, 15),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Transform.scale(
+                          scale: 1.2,
+                          child: Transform.translate(
+                            offset: Offset(
+                              (_pageController.position.haveDimensions
+                                      ? (_pageController.page! - index)
+                                      : 0) *
+                                  150,
+                              0,
+                            ),
+                            child: Image.asset(
+                              data['image'] as String,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        ),
+                        // Luxury Overlay
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.1),
+                                Colors.black.withValues(alpha: 0.6),
+                              ],
+                              stops: const [0.5, 0.7, 1.0],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Image.asset(
-                data['image'] as String,
-                fit: BoxFit.cover,
               ),
-            ),
+
+              // Glassmorphic Content Section
+              Expanded(
+                flex: 4,
+                child: Transform.translate(
+                  offset: Offset(0, (1 - value) * 50),
+                  child: Opacity(
+                    opacity: value,
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: context.color.tertiaryColor.withValues(
+                              alpha: 0.1,
+                            ),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: context.color.tertiaryColor.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
+                          ),
+                          child: CustomText(
+                            data['subtitle']?.toString() ?? '',
+                            fontWeight: FontWeight.w800,
+                            fontSize: 10,
+                            letterSpacing: 2.5,
+                            color: context.color.tertiaryColor,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        CustomText(
+                          data['title']?.toString() ?? '',
+                          fontWeight: FontWeight.w900,
+                          fontSize: 34,
+                          color: context.color.textColorDark,
+                          textAlign: TextAlign.center,
+                          useSerif: true,
+                        ),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: CustomText(
+                            data['description']?.toString() ?? '',
+                            maxLines: 3,
+                            textAlign: TextAlign.center,
+                            fontSize: 15,
+                            color: context.color.textLightColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 40.rh(context)),
-          CustomText(
-            data['subtitle']?.toString() ?? '',
-            fontWeight: FontWeight.w500,
-            fontSize: context.font.md,
-            color: context.color.textColorDark.withOpacity(0.7),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 12.rh(context)),
-          CustomText(
-            data['title']?.toString() ?? '',
-            fontWeight: FontWeight.w700,
-            fontSize: context.font.xxl,
-            color: context.color.textColorDark,
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 16.rh(context)),
-          CustomText(
-            data['description']?.toString() ?? '',
-            maxLines: 3,
-            textAlign: TextAlign.center,
-            fontSize: context.font.md,
-            color: context.color.textColorDark.withOpacity(0.6),
-            fontWeight: FontWeight.w400,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildBottomSection(BuildContext context, int totalPages) {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.fromLTRB(32, 0, 32, 40),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -302,47 +358,69 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   Widget _buildIndicator(BuildContext context, bool isActive) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
-      margin: const EdgeInsets.only(right: 10),
-      height: 6,
-      width: isActive ? 32 : 6,
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.only(right: 8),
+      height: 4,
+      width: isActive ? 28 : 8,
       decoration: BoxDecoration(
         color: isActive
             ? context.color.tertiaryColor
-            : context.color.textColorDark.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(3),
+            : context.color.tertiaryColor.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(10),
       ),
     );
   }
 
   Widget _buildNextButton(BuildContext context, int totalPages) {
+    final bool isLastPage = currentPageIndex == totalPages - 1;
     return GestureDetector(
       onTap: () {
-        if (currentPageIndex < totalPages - 1) {
+        if (!isLastPage) {
           _pageController.nextPage(
-            duration: const Duration(milliseconds: 400),
+            duration: const Duration(milliseconds: 600),
             curve: Curves.easeInOutCubic,
           );
         } else {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            Routes.login,
-            (route) => false,
-          );
+          Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil(Routes.login, (route) => false);
         }
       },
-      child: Container(
-        width: 56,
-        height: 56,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 400),
+        width: isLastPage ? 180 : 70,
+        height: 70,
         decoration: BoxDecoration(
-          color: context.color.tertiaryColor,
-          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: [
+              context.color.tertiaryColor,
+              context.color.tertiaryColor.withValues(alpha: 0.8),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(35),
+          boxShadow: [
+            BoxShadow(
+              color: context.color.tertiaryColor.withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
-        child: Icon(
-          currentPageIndex < totalPages - 1
-              ? Icons.arrow_forward_rounded
-              : Icons.check_rounded,
-          color: Colors.white,
-          size: 24,
+        child: Center(
+          child: isLastPage
+              ? const CustomText(
+                  'GET STARTED',
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 14,
+                  letterSpacing: 2,
+                  useSerif: true,
+                )
+              : const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
         ),
       ),
     );

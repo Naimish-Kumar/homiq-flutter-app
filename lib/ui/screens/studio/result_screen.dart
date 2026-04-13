@@ -46,19 +46,20 @@ class DesignResultScreenState extends State<DesignResultScreen> {
 
   Widget _buildDiscoveryTray() {
     return DraggableScrollableSheet(
-      initialChildSize: 0.08,
-      minChildSize: 0.08,
-      maxChildSize: 0.45,
+      initialChildSize: 0.1,
+      minChildSize: 0.1,
+      maxChildSize: 0.5,
       builder: (context, scrollController) {
         return ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-                border: Border.all(color: Colors.white12),
+                color: Colors.black.withValues(alpha: 0.6),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(40)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
               ),
               child: ListView(
                 controller: scrollController,
@@ -70,32 +71,50 @@ class DesignResultScreenState extends State<DesignResultScreen> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.white24,
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const CustomText(
-                          'SHOP THE LOOK',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: 1.5,
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              'SHOP THE CONCEPT',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white60,
+                              letterSpacing: 2,
+                            ),
+                            SizedBox(height: 4),
+                            CustomText(
+                              'Suggested Elements',
+                              fontSize: 22,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white,
+                              useSerif: true,
+                            ),
+                          ],
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: context.color.tertiaryColor.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
+                            color: context.color.tertiaryColor
+                                .withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                                color: context.color.tertiaryColor
+                                    .withValues(alpha: 0.3)),
                           ),
                           child: CustomText(
-                            'AI SUGGESTIONS',
+                            'AI CURATED',
                             fontSize: 9,
                             fontWeight: FontWeight.w900,
                             color: context.color.tertiaryColor,
@@ -105,11 +124,12 @@ class DesignResultScreenState extends State<DesignResultScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   SizedBox(
-                    height: 180,
+                    height: 200,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       children: [
                         _furnitureCard(
@@ -135,7 +155,7 @@ class DesignResultScreenState extends State<DesignResultScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -147,38 +167,47 @@ class DesignResultScreenState extends State<DesignResultScreen> {
 
   Widget _furnitureCard(String name, String price, String img) {
     return Container(
-      width: 140,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
+      width: 150,
+      margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white10),
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              child: CustomImage(imageUrl: img, fit: BoxFit.cover, width: double.infinity),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+              child: CustomImage(
+                  imageUrl: img, fit: BoxFit.cover, width: double.infinity),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomText(
                   name,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
                   maxLines: 1,
-                  color: Colors.white,
+                  color: Colors.white.withValues(alpha: 0.9),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 CustomText(
                   price,
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w900,
                   color: context.color.tertiaryColor,
                 ),
@@ -232,7 +261,7 @@ class DesignResultScreenState extends State<DesignResultScreen> {
 
             // Divider Line & Handle
             Positioned(
-              left: constraints.maxWidth * _sliderValue - 2,
+              left: constraints.maxWidth * _sliderValue - 1,
               top: 0,
               bottom: 0,
               child: Stack(
@@ -240,36 +269,40 @@ class DesignResultScreenState extends State<DesignResultScreen> {
                 clipBehavior: Clip.none,
                 children: [
                   Container(
-                    width: 4,
+                    width: 2,
                     decoration: BoxDecoration(
-                      color: context.color.tertiaryColor,
+                      color: context.color.tertiaryColor.withValues(alpha: 0.8),
                       boxShadow: [
                         BoxShadow(
-                          color: context.color.tertiaryColor.withOpacity(0.5),
-                          blurRadius: 10,
-                          spreadRadius: 2,
+                          color: context.color.tertiaryColor
+                              .withValues(alpha: 0.5),
+                          blurRadius: 15,
                         ),
                       ],
                     ),
                   ),
                   Positioned(
                     child: Container(
-                      height: 54,
-                      width: 54,
+                      height: 60,
+                      width: 60,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 15,
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 20,
                             spreadRadius: 2,
                           ),
                         ],
+                        border: Border.all(
+                          color: context.color.tertiaryColor,
+                          width: 2,
+                        ),
                       ),
                       child: Center(
                         child: Icon(
-                          Icons.unfold_more_outlined,
+                          Icons.swap_horiz_rounded,
                           color: context.color.tertiaryColor,
                           size: 32,
                         ),
@@ -282,14 +315,14 @@ class DesignResultScreenState extends State<DesignResultScreen> {
 
             // Comparison Labels
             Positioned(
-              bottom: 160,
+              bottom: 200,
               left: 24,
-              child: _label('BASE VIEW', Colors.black45),
+              child: _label('ORIGINAL', Colors.black45),
             ),
             Positioned(
-              bottom: 160,
+              bottom: 200,
               right: 24,
-              child: _label('AI CONCEPT', context.color.tertiaryColor),
+              child: _label('REIMAGINED', context.color.tertiaryColor),
             ),
           ],
         );
@@ -299,18 +332,22 @@ class DesignResultScreenState extends State<DesignResultScreen> {
 
   Widget _label(String text, Color color) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(12),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          color: color.withOpacity(0.7),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          ),
           child: CustomText(
             text,
             color: Colors.white,
-            fontSize: 10,
+            fontSize: 9,
             fontWeight: FontWeight.w900,
-            letterSpacing: 2,
+            letterSpacing: 3,
           ),
         ),
       ),
@@ -340,15 +377,21 @@ class DesignResultScreenState extends State<DesignResultScreen> {
     );
   }
 
-  Widget _circleIconButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _circleIconButton(
+      {required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
-      child: ClipOval(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
           child: Container(
-            padding: const EdgeInsets.all(12),
-            color: Colors.black26,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.25),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            ),
             child: Icon(icon, color: Colors.white, size: 22),
           ),
         ),
@@ -358,19 +401,19 @@ class DesignResultScreenState extends State<DesignResultScreen> {
 
   Widget _buildBottomControls() {
     return Positioned(
-      bottom: 40,
+      bottom: 60,
       left: 24,
       right: 24,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(35),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
+              color: Colors.black.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(35),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -378,13 +421,14 @@ class DesignResultScreenState extends State<DesignResultScreen> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: context.color.tertiaryColor.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
+                        color:
+                            context.color.tertiaryColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(15),
                       ),
                       child: Icon(Icons.auto_awesome_rounded,
-                          color: context.color.tertiaryColor, size: 20),
+                          color: context.color.tertiaryColor, size: 22),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -392,25 +436,29 @@ class DesignResultScreenState extends State<DesignResultScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CustomText(
-                            widget.result['style']?['name']?.toString().toUpperCase() ??
-                                "AI PREVIEW",
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.2,
+                            widget.result['style']?['name']
+                                    ?.toString()
+                                    .toUpperCase() ??
+                                "DESIGN",
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 2,
                             color: context.color.tertiaryColor,
                           ),
+                          const SizedBox(height: 4),
                           const CustomText(
-                            'Conceptual Design Ready',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            'CONCEPT FINALIZED',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
                             color: Colors.white,
+                            useSerif: true,
                           ),
                         ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
                 Row(
                   children: [
                     Expanded(
@@ -428,8 +476,8 @@ class DesignResultScreenState extends State<DesignResultScreen> {
                           HelperUtils.showSnackBarMessage(
                               context, 'Design saved to your history!');
                         },
-                        icon: Icons.bookmark_add_rounded,
-                        label: 'SAVE CONCEPT',
+                        icon: Icons.bookmark_added_rounded,
+                        label: 'SAVE',
                         isPrimary: true,
                       ),
                     ),
@@ -452,31 +500,36 @@ class DesignResultScreenState extends State<DesignResultScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 56,
+        height: 60,
         decoration: BoxDecoration(
-          color: isPrimary ? context.color.tertiaryColor : Colors.white10,
-          borderRadius: BorderRadius.circular(18),
+          color: isPrimary
+              ? context.color.tertiaryColor
+              : Colors.white.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: isPrimary
               ? [
                   BoxShadow(
-                    color: context.color.tertiaryColor.withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    color: context.color.tertiaryColor.withValues(alpha: 0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   )
                 ]
               : [],
+          border: isPrimary
+              ? null
+              : Border.all(color: Colors.white.withValues(alpha: 0.1)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: Colors.white, size: 20),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             CustomText(
               label,
               color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
-              letterSpacing: 0.5,
+              fontWeight: FontWeight.w900,
+              fontSize: 12,
+              letterSpacing: 1,
             ),
           ],
         ),

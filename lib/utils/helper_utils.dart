@@ -122,10 +122,7 @@ class HelperUtils {
     return 'https://${AppSettings.shareNavigationWebUrl}/${HiveUtils.getLanguageCode()}/property-details/$slug?share=true';
   }
 
-  static Future<void> share(
-    BuildContext context,
-    String slugId,
-  ) async {
+  static Future<void> share(BuildContext context, String slugId) async {
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) return;
 
@@ -166,7 +163,7 @@ class HelperUtils {
             ),
             ListTile(
               leading: CustomImage(
-                imageUrl: AppIcons.shareIcon,
+                icon: AppIcons.shareIcon,
                 height: 24.rh(context),
                 width: 24.rw(context),
                 fit: BoxFit.fill,
@@ -182,11 +179,13 @@ class HelperUtils {
 
                 final text =
                     '${'sharePropertyDescription'.translate(context)}\n$deepLink';
-                await SharePlus.instance.share(ShareParams(
-                  text: text,
-                  subject: 'shareProperty'.translate(context),
-                  sharePositionOrigin: sharePositionOrigin,
-                ));
+                await SharePlus.instance.share(
+                  ShareParams(
+                    text: text,
+                    subject: 'shareProperty'.translate(context),
+                    sharePositionOrigin: sharePositionOrigin,
+                  ),
+                );
               },
             ),
           ],
@@ -239,7 +238,7 @@ class HelperUtils {
           color: context.color.buttonColor,
         ),
         behavior: (isFloating ?? false) ? SnackBarBehavior.floating : null,
-        backgroundColor: type?.value ?? successMessageColor,
+        backgroundColor: type?.value ?? const Color(0xFF15803D),
         duration: Duration(seconds: messageDuration),
         margin: isFloating ?? false ? margin ?? EdgeInsets.zero : null,
       ),
@@ -478,9 +477,9 @@ extension StringCasingExtension on String {
       length > 0 ? '${this[0].toUpperCase()}${substring(1).toLowerCase()}' : '';
 
   String toTitleCase() => replaceAll(
-        RegExp(' +'),
-        ' ',
-      ).split(' ').map((str) => str.toCapitalized()).join(' ');
+    RegExp(' +'),
+    ' ',
+  ).split(' ').map((str) => str.toCapitalized()).join(' ');
 }
 
 extension ListExtensions<T> on List<T> {

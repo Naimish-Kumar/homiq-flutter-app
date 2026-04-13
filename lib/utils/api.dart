@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:hive/hive.dart';
 import 'package:homiq/utils/constant.dart';
 import 'package:homiq/utils/curl_logger.dart';
@@ -30,6 +31,17 @@ class Api {
   static void initInterceptors() {
     if (_dio.interceptors.isEmpty) {
       _dio.interceptors.add(NetworkRequestInterseptor());
+      _dio.interceptors.add(
+        PrettyDioLogger(
+          requestHeader: true,
+          requestBody: true,
+          responseBody: true,
+          responseHeader: false,
+          error: true,
+          compact: true,
+          maxWidth: 90,
+        ),
+      );
     }
   }
 
@@ -93,8 +105,6 @@ class Api {
   static const String updatePropertyStatus = 'update_property_status';
 
   // User Management APIs
-  static const String apiLogin = 'user_signup';
-  static const String userRegister = 'user-register';
   static const String apiUpdateProfile = 'update_profile';
   static const String apiDeleteUser = 'delete_user';
   static const String apiBeforeLogout = 'before-logout';
@@ -102,9 +112,9 @@ class Api {
   static const String apiGetUserData = 'get-user-data';
 
   // Authentication APIs
-  static const String apiGetOtp = 'get-otp';
-  static const String apiVerifyOtp = 'verify-otp';
-  static const String apiForgotPassword = 'forgot-password';
+  static const String apiSendOtp = 'auth/otp/send';
+  static const String apiVerifyOtp = 'auth/otp/verify';
+  static const String apiSocialLogin = 'auth/social/login';
 
   // Content APIs
   static const String apiGetSlider = 'get-slider';
@@ -324,34 +334,43 @@ class Api {
 
   /// Process API response
   static Map<String, dynamic> _processResponse(Response<dynamic> response) {
-    final data =
-        response.data as Map<dynamic, dynamic>? ?? <dynamic, dynamic>{};
+    // Safely cast response data to Map
+    final dynamic rawData = response.data;
+    if (rawData is! Map) {
+      throw ApiException('Unexpected response format: ${rawData.runtimeType}');
+    }
+    
+    final data = Map<String, dynamic>.from(rawData);
 
-    // Check for API-level errors in DELETE requests
+    // Check for API-level errors
     if (data['error'] == true) {
       throw ApiException(data['message']?.toString() ?? 'API Error');
     }
 
-    return Map<String, dynamic>.from(data);
+    return data;
   }
 
   /// Handle Dio exceptions consistently
   static Map<String, dynamic> _handleDioException(DioException e) {
     if (e.response != null) {
       final statusCode = e.response!.statusCode;
+      final responseData = e.response?.data;
 
-      // Return response data for 400 and 500 errors
-      if (statusCode == 400 || statusCode == 500) {
-        return Map<String, dynamic>.from(
-          e.response?.data as Map<dynamic, dynamic>? ?? <dynamic, dynamic>{},
-        );
+      // Type safety check: Ensure responseData is a Map before indexing
+      if (responseData is Map) {
+        // Return response data for 400 and 500 errors if they are JSON
+        if (statusCode == 400 || statusCode == 500) {
+          return Map<String, dynamic>.from(responseData);
+        }
+
+        final errorMessage = responseData['message']?.toString() ??
+            e.message ??
+            'HTTP Error $statusCode';
+        throw ApiException(errorMessage);
       }
 
-      // Throw exception for other status codes
-      final errorMessage = e.response?.data?['message']?.toString() ??
-          e.message ??
-          'HTTP Error $statusCode';
-      throw ApiException(errorMessage);
+      // If data is not a Map (e.g. HTML 404), throw generic exception
+      throw ApiException(e.message ?? 'HTTP Error $statusCode');
     } else {
       throw ApiException(e.message ?? 'Network Error');
     }

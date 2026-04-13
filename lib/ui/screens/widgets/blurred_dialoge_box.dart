@@ -20,6 +20,7 @@ abstract class _BaseBlurredDialog extends StatelessWidget
     this.backAllowedButton,
     this.showCancleButton,
     this.svgImagePath,
+    this.icon,
     this.svgImageColor,
     this.barrierDismissable,
     this.isAcceptContainesPush,
@@ -32,6 +33,7 @@ abstract class _BaseBlurredDialog extends StatelessWidget
   final String? acceptButtonName;
   final VoidCallback? onCancel;
   final String? svgImagePath;
+  final FaIconData? icon;
   final Color? svgImageColor;
   final Future<dynamic> Function()? onAccept;
   final String title;
@@ -109,12 +111,13 @@ abstract class _BaseBlurredDialog extends StatelessWidget
   Widget _buildTitle(BuildContext context) {
     return Column(
       children: [
-        if (svgImagePath != null) ...[
+        if (svgImagePath != null || icon != null) ...[
           CircleAvatar(
             radius: 93, // 186 / 2
             backgroundColor: context.color.tertiaryColor.withOpacity(0.1),
             child: CustomImage(
-              imageUrl: svgImagePath!,
+              imageUrl: svgImagePath ?? '',
+              icon: icon,
               color: svgImageColor,
             ),
           ),
@@ -196,6 +199,7 @@ class BlurredDialogBox extends _BaseBlurredDialog {
     super.backAllowedButton,
     super.showCancleButton,
     super.svgImagePath,
+    super.icon,
     super.svgImageColor,
     super.barrierDismissable,
     super.isAcceptContainesPush,
@@ -264,13 +268,14 @@ class BlurredDialogBox extends _BaseBlurredDialog {
   Widget _buildTitle(BuildContext context) {
     return Column(
       children: [
-        if (svgImagePath != null) ...[
+        if (svgImagePath != null || icon != null) ...[
           CircleAvatar(
             radius: 93,
             backgroundColor: Colors.transparent,
             child: CustomImage(
               fit: BoxFit.contain,
-              imageUrl: svgImagePath!,
+              imageUrl: svgImagePath ?? '',
+              icon: icon,
               color: svgImageColor,
             ),
           ),
@@ -399,6 +404,7 @@ class BlurredDialogBuilderBox extends _BaseBlurredDialog {
     super.backAllowedButton,
     super.showCancleButton,
     super.svgImagePath,
+    super.icon,
     super.svgImageColor,
     super.isAcceptContainesPush,
     super.titleSize,
@@ -451,7 +457,7 @@ class BlurredDialogBuilderBox extends _BaseBlurredDialog {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (svgImagePath != null) ...[
+        if (svgImagePath != null || icon != null) ...[
           CircleAvatar(
             radius: 49.rs(context),
             backgroundColor: context.color.tertiaryColor.withOpacity(0.1),
@@ -459,7 +465,8 @@ class BlurredDialogBuilderBox extends _BaseBlurredDialog {
               width: 48.rw(context),
               height: 48.rh(context),
               child: CustomImage(
-                imageUrl: svgImagePath!,
+                imageUrl: svgImagePath ?? '',
+                icon: icon,
                 color: svgImageColor,
               ),
             ),
@@ -673,7 +680,7 @@ class BlurredSubscriptionDialogBox extends StatelessWidget
               borderRadius: BorderRadius.circular(8),
             ),
             padding: const EdgeInsets.all(8),
-            child: CustomImage(imageUrl: AppIcons.premium),
+            child: CustomImage(icon: AppIcons.premium),
           ),
         ),
         const SizedBox(width: 14),

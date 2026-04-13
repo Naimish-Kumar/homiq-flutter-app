@@ -8,7 +8,6 @@ import 'package:homiq/firebase_options.dart';
 
 PersonalizedInterestSettings personalizedInterestSettings =
     PersonalizedInterestSettings.empty();
-AppSettingsDataModel appSettings = fallbackSettingAppSettings;
 
 Future<void> initApp() async {
   ///Note: this file's code is very necessary and sensitive if you change it,
@@ -38,12 +37,13 @@ Future<void> initApp() async {
     NotificationService.onBackgroundMessageHandler,
   );
 
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((_) async {
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]).then((_) async {
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
     );
-    await LoadAppSettings().load(initBox: false);
+
     runApp(const EntryPoint());
   });
 }
@@ -76,22 +76,14 @@ class _AppState extends State<App> {
   void initState() {
     ///Here Fetching property report reasons
     context.read<LanguageCubit>().loadCurrentLanguage();
-
-    ///////////////////////////////////////
     NotificationService.init(context);
-    ///////////////////////////////////////
 
-    APICallTrigger.onTrigger(
-      () {
-        ///THIS WILL be CALLED WHEN USER WILL LOGIN FROM ANONYMOUS USER.
-        context.read<LikedPropertiesCubit>().clear();
+    APICallTrigger.onTrigger(() {
+      ///THIS WILL be CALLED WHEN USER WILL LOGIN FROM ANONYMOUS USER.
+      context.read<LikedPropertiesCubit>().clear();
 
-        loadInitialData(
-          context,
-          loadWithoutDelay: true,
-        );
-      },
-    );
+      loadInitialData(context, loadWithoutDelay: true);
+    });
 
     UiUtils.setContext(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -120,6 +112,7 @@ class _AppState extends State<App> {
                 initialRoute: Routes.splash,
                 navigatorKey: Constant.navigatorKey,
                 title: Constant.appName,
+                color: context.color.primaryColor,
                 debugShowCheckedModeBanner: false,
                 onGenerateRoute: Routes.onGenerateRouted,
                 themeMode: themeMode,
@@ -131,17 +124,15 @@ class _AppState extends State<App> {
 
                   // Set text direction based on language
                   if (languageState is LanguageLoader) {
-                    direction = languageState.isRTL
-                        ? TextDirection.rtl
-                        : TextDirection.ltr;
+                    direction = languageState.isRTL ? .rtl : .ltr;
                   } else {
-                    direction = TextDirection.ltr;
+                    direction = .ltr;
                   }
 
                   return MediaQuery(
-                    data: MediaQuery.of(context).copyWith(
-                      textScaler: TextScaler.noScaling,
-                    ),
+                    data: MediaQuery.of(
+                      context,
+                    ).copyWith(textScaler: TextScaler.noScaling),
                     child: Directionality(
                       textDirection: direction,
                       child: child!,
@@ -182,33 +173,34 @@ void loadInitialData(
   GuestChecker.check(
     onNotGuest: () async {
       final favoritesData = await FavoriteRepository().fechFavorites(offset: 0);
-      final favoriteIds =
-          favoritesData.modelList.map((property) => property.id!).toList();
+      final favoriteIds = favoritesData.modelList
+          .map((property) => property.id!)
+          .toList();
       context.read<LikedPropertiesCubit>().setFavorites(favoriteIds);
     },
   );
   if (context.read<FetchCategoryCubit>().state is! FetchCategorySuccess) {
     context.read<FetchCategoryCubit>().fetchCategories(
-          loadWithoutDelay: loadWithoutDelay,
-          forceRefresh: forceRefresh,
-        );
+      loadWithoutDelay: loadWithoutDelay,
+      forceRefresh: forceRefresh,
+    );
   }
   context.read<FetchNearbyPropertiesCubit>().fetch(
-        loadWithoutDelay: loadWithoutDelay,
-        forceRefresh: forceRefresh,
-      );
+    loadWithoutDelay: loadWithoutDelay,
+    forceRefresh: forceRefresh,
+  );
   context.read<FetchCityCategoryCubit>().fetchCityCategory(
-        loadWithoutDelay: loadWithoutDelay,
-        forceRefresh: forceRefresh,
-      );
+    loadWithoutDelay: loadWithoutDelay,
+    forceRefresh: forceRefresh,
+  );
 
   if (context.read<AuthenticationCubit>().isAuthenticated()) {
     context.read<GetChatListCubit>().setContext(context);
     context.read<GetChatListCubit>().fetch(forceRefresh: forceRefresh ?? false);
     context.read<FetchPersonalizedPropertyList>().fetch(
-          loadWithoutDelay: loadWithoutDelay,
-          forceRefresh: forceRefresh,
-        );
+      loadWithoutDelay: loadWithoutDelay,
+      forceRefresh: forceRefresh,
+    );
 
     PersonalizedFeedRepository().getUserPersonalizedSettings().then((value) {
       personalizedInterestSettings = value;

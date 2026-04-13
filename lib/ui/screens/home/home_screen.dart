@@ -12,14 +12,50 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
+    with TickerProviderStateMixin {
+  late AnimationController _entranceController;
+  late Animation<double> _headerOpacity;
+  late Animation<Offset> _headerSlide;
+  late Animation<double> _contentOpacity;
 
   @override
   void initState() {
     super.initState();
+    _entranceController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+
+    _headerOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _entranceController,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeIn),
+      ),
+    );
+
+    _headerSlide = Tween<Offset>(begin: const Offset(0, -0.2), end: Offset.zero)
+        .animate(
+      CurvedAnimation(
+        parent: _entranceController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOutCubic),
+      ),
+    );
+
+    _contentOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _entranceController,
+        curve: const Interval(0.4, 1.0, curve: Curves.easeIn),
+      ),
+    );
+
+    _entranceController.forward();
     _refreshData();
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    super.dispose();
   }
 
   Future<void> _refreshData() async {
@@ -29,26 +65,82 @@ class HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return Scaffold(
-      backgroundColor: context.color.primaryColor,
-      body: CustomRefreshIndicator(
-        onRefresh: _refreshData,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 32),
-              _buildStudioGateway(),
-              const SizedBox(height: 40),
-              _buildStylesSection(),
-              const SizedBox(height: 40),
-              _buildRecentActivity(),
-              const SizedBox(height: 120), // Space for bottom bar/FAB
-            ],
-          ),
+    return AnnotatedRegion(
+      value: UiUtils.getSystemUiOverlayStyle(context: context),
+      child: Scaffold(
+        backgroundColor: context.color.primaryColor,
+        body: Stack(
+          children: [
+            // Luxury Mesh Gradient Background
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: context.color.brightness == Brightness.light
+                      ? [
+                          const Color(0xFFFBFBF9),
+                          const Color(0xFFF5F5F4),
+                          context.color.tertiaryColor.withValues(alpha: 0.1),
+                          const Color(0xFFFBFBF9),
+                        ]
+                      : [
+                          const Color(0xFF0C0A09),
+                          const Color(0xFF1C1917),
+                          context.color.tertiaryColor.withValues(alpha: 0.15),
+                          const Color(0xFF0C0A09),
+                        ],
+                  stops: const [0.0, 0.4, 0.8, 1.0],
+                ),
+              ),
+            ),
+            // Floating Mesh Glow
+            Positioned(
+              top: -100,
+              right: -100,
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: context.color.tertiaryColor.withValues(alpha: 0.05),
+                ),
+              ),
+            ),
+            CustomRefreshIndicator(
+              onRefresh: _refreshData,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics()),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SlideTransition(
+                      position: _headerSlide,
+                      child: FadeTransition(
+                        opacity: _headerOpacity,
+                        child: _buildHeader(),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    FadeTransition(
+                      opacity: _contentOpacity,
+                      child: Column(
+                        children: [
+                          _buildStudioGateway(),
+                          const SizedBox(height: 48),
+                          _buildStylesSection(),
+                          const SizedBox(height: 48),
+                          _buildRecentActivity(),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 120),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -58,38 +150,27 @@ class HomeScreenState extends State<HomeScreen>
     final user = HiveUtils.getUserDetails();
     return Container(
       padding: EdgeInsets.fromLTRB(
-          20, MediaQuery.of(context).padding.top + 20, 20, 40),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            context.color.tertiaryColor.withOpacity(0.15),
-            Colors.transparent,
-          ],
-        ),
-      ),
+          20, MediaQuery.of(context).padding.top + 20, 20, 20),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: context.color.tertiaryColor, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: context.color.tertiaryColor.withOpacity(0.2),
-                  blurRadius: 15,
-                  spreadRadius: 2,
-                ),
-              ],
+              border: Border.all(
+                color: context.color.tertiaryColor.withValues(alpha: 0.3),
+                width: 1.5,
+              ),
             ),
             child: CircleAvatar(
-              radius: 28,
-              backgroundColor: context.color.secondaryColor,
+              radius: 26,
+              backgroundColor: context.color.brightness == Brightness.light
+                  ? Colors.black.withValues(alpha: 0.05)
+                  : Colors.white.withValues(alpha: 0.1),
               backgroundImage: user.profile != '' ? NetworkImage(user.profile!) : null,
               child: user.profile == ''
-                  ? Icon(Icons.person_rounded, color: context.color.tertiaryColor, size: 32)
+                  ? FaIcon(AppIcons.profile,
+                      color: context.color.tertiaryColor, size: 24)
                   : null,
             ),
           ),
@@ -99,18 +180,20 @@ class HomeScreenState extends State<HomeScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomText(
-                  'Good Morning,',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+                  'COLLECTION OF',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
                   color: context.color.textLightColor,
-                  letterSpacing: 0.5,
+                  letterSpacing: 2,
                 ),
+                const SizedBox(height: 2),
                 CustomText(
                   user.name?.toUpperCase() ?? 'DESIGNER',
                   fontSize: 22,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w400,
                   color: context.color.textColorDark,
-                  letterSpacing: 1.2,
+                  letterSpacing: 2,
+                  useSerif: true,
                 ),
               ],
             ),
@@ -129,19 +212,22 @@ class HomeScreenState extends State<HomeScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
-            color: context.color.tertiaryColor.withOpacity(0.1),
+            color: context.color.tertiaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: context.color.tertiaryColor.withOpacity(0.3)),
+            border: Border.all(
+              color: context.color.tertiaryColor.withValues(alpha: 0.2),
+            ),
           ),
           child: Row(
             children: [
-              const Icon(Icons.auto_awesome_rounded, color: Colors.amber, size: 16),
+              const FaIcon(FontAwesomeIcons.bolt,
+                  color: Colors.amber, size: 14),
               const SizedBox(width: 8),
-              const CustomText(
+              CustomText(
                 '12',
                 fontSize: 14,
                 fontWeight: FontWeight.w900,
-                color: Colors.white,
+                color: context.color.textColorDark,
               ),
               const SizedBox(width: 4),
               CustomText(
@@ -164,23 +250,24 @@ class HomeScreenState extends State<HomeScreen>
       child: GestureDetector(
         onTap: () => Navigator.pushNamed(context, Routes.designStudio),
         child: Container(
-          height: 220,
+          height: 240,
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: context.color.tertiaryColor.withOpacity(0.15),
-                blurRadius: 30,
-                offset: const Offset(0, 10),
+                color: context.color.tertiaryColor.withValues(alpha: 0.2),
+                blurRadius: 40,
+                spreadRadius: -10,
+                offset: const Offset(0, 20),
               ),
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(40),
             child: Stack(
               children: [
-                // Background Glow/Pattern
+                // Luxury Mesh Header Background
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -189,21 +276,22 @@ class HomeScreenState extends State<HomeScreen>
                         end: Alignment.bottomRight,
                         colors: [
                           context.color.tertiaryColor,
-                          context.color.secondaryColor,
+                          const Color(0xFF1C1917),
                         ],
                       ),
                     ),
                   ),
                 ),
+                // Sublte Mesh Glow
                 Positioned(
                   right: -50,
                   top: -50,
                   child: Container(
-                    width: 200,
-                    height: 200,
+                    width: 250,
+                    height: 250,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.08),
                     ),
                   ),
                 ),
@@ -213,54 +301,82 @@ class HomeScreenState extends State<HomeScreen>
                   padding: const EdgeInsets.all(32),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.1),
+                          ),
                         ),
-                        child: const Icon(Icons.auto_fix_high_rounded,
-                            color: Colors.white, size: 32),
+                        child: const FaIcon(AppIcons.magic,
+                            color: Colors.white, size: 24),
                       ),
                       const Spacer(),
-                      const CustomText(
-                        'START TRANSFORMATION',
+                      CustomText(
+                        'AI DESIGN STUDIO',
                         fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white70,
-                        letterSpacing: 2,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white.withValues(alpha: 0.6),
+                        letterSpacing: 3,
                       ),
                       const SizedBox(height: 8),
                       const CustomText(
-                        'AI Interior Studio',
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
+                        'Transform Your Space',
+                        fontSize: 28,
+                        fontWeight: FontWeight.w400,
                         color: Colors.white,
+                        useSerif: true,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       CustomText(
                         'Upload room & visualize styles instantly',
                         fontSize: 13,
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontWeight: FontWeight.w400,
                       ),
                     ],
                   ),
                 ),
 
-                // Action Indicator
+                // Premium Action Trigger
                 Positioned(
                   bottom: 24,
                   right: 24,
                   child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
                     ),
-                    child: Icon(Icons.arrow_forward_ios_rounded,
-                        color: context.color.tertiaryColor, size: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(25),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        CustomText(
+                          'START',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: context.color.tertiaryColor,
+                          letterSpacing: 1,
+                        ),
+                        const SizedBox(width: 8),
+                        FaIcon(
+                          AppIcons.forward,
+                          color: context.color.tertiaryColor,
+                          size: 14,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -335,33 +451,48 @@ class HomeScreenState extends State<HomeScreen>
 
   Widget _styleCard(String name, String? imageUrl) {
     return Container(
-      width: 130,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
+      width: 150,
+      margin: const EdgeInsets.only(right: 20, bottom: 10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white12),
-                image: imageUrl != null && imageUrl.isNotEmpty
-                    ? DecorationImage(
-                        image: NetworkImage(imageUrl),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
+                borderRadius: BorderRadius.circular(35),
                 color: context.color.secondaryColor,
+                border: Border.all(
+                  color: context.color.tertiaryColor.withValues(alpha: 0.1),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  )
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(35),
+                child: CustomImage(
+                  imageUrl: imageUrl ?? '',
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          CustomText(
-            name.toUpperCase(),
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-            color: context.color.textColorDark,
-            letterSpacing: 1,
-            textAlign: TextAlign.center,
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: CustomText(
+              name.toUpperCase(),
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: context.color.textColorDark,
+              letterSpacing: 2,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+            ),
           ),
         ],
       ),
@@ -426,7 +557,7 @@ class HomeScreenState extends State<HomeScreen>
       title,
       fontSize: 13,
       fontWeight: FontWeight.w900,
-      color: Colors.white,
+      color: context.color.textColorDark,
       letterSpacing: 1.5,
     );
   }
@@ -435,8 +566,8 @@ class HomeScreenState extends State<HomeScreen>
     return Center(
       child: Column(
         children: [
-          Icon(Icons.auto_fix_off_rounded,
-              size: 48, color: context.color.textLightColor.withOpacity(0.3)),
+          FaIcon(FontAwesomeIcons.wandMagic,
+              size: 40, color: context.color.textLightColor.withOpacity(0.3)),
           const SizedBox(height: 16),
           CustomText(
             'NO TRANSFORMATIONS YET',
@@ -459,55 +590,71 @@ class HomeScreenState extends State<HomeScreen>
           arguments: {'result': design, 'original': null},
         );
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: CustomImage(
-                imageUrl: design['result_image_url'] as String,
-                fit: BoxFit.cover,
-              ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.8),
-                    ],
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(32),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: CustomImage(
+                  imageUrl: design['result_image_url'] as String,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              // Luxury Inset Overlay
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.2),
+                        Colors.black.withValues(alpha: 0.8),
+                      ],
+                      stops: const [0.4, 0.6, 1.0],
+                    ),
                   ),
                 ),
               ),
-            ),
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    (design['style']?['name'] as String?)?.toUpperCase() ??
-                        'CONCEPT',
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
-                    color: context.color.tertiaryColor,
-                  ),
-                  const SizedBox(height: 2),
-                  const CustomText(
-                    'View Details',
-                    fontSize: 12,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ],
+              Positioned(
+                bottom: 20,
+                left: 16,
+                right: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomText(
+                      (design['style']?['name'] as String?)?.toUpperCase() ??
+                          'CONCEPT',
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      color: context.color.tertiaryColor,
+                      letterSpacing: 2,
+                    ),
+                    const SizedBox(height: 4),
+                    const CustomText(
+                      'Collection Details',
+                      fontSize: 13,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

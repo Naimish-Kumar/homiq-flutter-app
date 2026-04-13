@@ -215,7 +215,7 @@ class SearchScreenState extends State<SearchScreen>
         bottom: 8.rs(context),
       ),
       child: CustomImage(
-        imageUrl: AppIcons.search,
+        icon: AppIcons.search,
         color: context.color.tertiaryColor,
         width: 22.rw(context),
         height: 22.rh(context),
@@ -281,7 +281,7 @@ class SearchScreenState extends State<SearchScreen>
               child: Container(
                 alignment: Alignment.center,
                 child: CustomImage(
-                  imageUrl: AppIcons.filter,
+                  icon: AppIcons.filter,
                   width: 22.rw(context),
                   height: 22.rh(context),
                   color: context.color.tertiaryColor,

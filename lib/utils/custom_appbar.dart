@@ -78,7 +78,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Transform.flip(
           flipX: Directionality.of(context) == TextDirection.rtl,
           child: CustomImage(
-            imageUrl: AppIcons.arrowLeft,
+            icon: AppIcons.arrowLeft,
             width: 24.rh(context),
             height: 24.rh(context),
             color: context.color.textColorDark,
