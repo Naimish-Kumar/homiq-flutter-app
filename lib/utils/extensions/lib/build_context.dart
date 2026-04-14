@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:homiq/ui/theme/theme.dart';
+import 'package:homiq/core/theme/theme.dart';
 
-export 'package:homiq/ui/theme/theme.dart';
+export 'package:homiq/core/theme/theme.dart';
 
 extension CustomContext on BuildContext {
   double get screenWidth => MediaQuery.of(this).size.width;

@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:homiq/data/model/user_model.dart';
+import 'package:homiq/features/auth/data/models/user_model.dart';
 import 'package:homiq/utils/hive_utils.dart';
 
 class UserDetailsCubit extends Cubit<UserDetailsState> {

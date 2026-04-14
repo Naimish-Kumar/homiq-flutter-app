@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:homiq/exports/main_export.dart';
 
 abstract class NativeAdWidgetContainer {}
@@ -18,52 +19,47 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
   NativeAd? _nativeAd;
   @override
   void initState() {
-    Future.delayed(
-      Duration.zero,
-      () {
-        NativeAd(
-          adUnitId: Platform.isIOS
-              ? Constant.admobNativeIos
-              : Constant.admobNativeAndroid,
-          request: const AdRequest(),
-          listener: NativeAdListener(
-            onAdLoaded: (Ad ad) {
-              _nativeAd = ad as NativeAd;
+    Future.delayed(Duration.zero, () {
+      NativeAd(
+        adUnitId: '',
+        request: const AdRequest(),
+        listener: NativeAdListener(
+          onAdLoaded: (Ad ad) {
+            _nativeAd = ad as NativeAd;
 
-              log('$NativeAd loaded. ${ad.responseInfo}');
-              setState(() {
-                isAdvertisementLoaded = true;
-              });
-            },
-            onAdFailedToLoad: (Ad ad, LoadAdError error) {
-              log('$NativeAd failedToLoad: $error');
-              ad.dispose();
-            },
-            onAdOpened: (Ad ad) {
-              log('$NativeAd onAdOpened.');
-            },
-            onAdClosed: (Ad ad) {
-              log('$NativeAd onAdClosed.');
-            },
+            log('$NativeAd loaded. ${ad.responseInfo}');
+            setState(() {
+              isAdvertisementLoaded = true;
+            });
+          },
+          onAdFailedToLoad: (Ad ad, LoadAdError error) {
+            log('$NativeAd failedToLoad: $error');
+            ad.dispose();
+          },
+          onAdOpened: (Ad ad) {
+            log('$NativeAd onAdOpened.');
+          },
+          onAdClosed: (Ad ad) {
+            log('$NativeAd onAdClosed.');
+          },
+        ),
+        // nativeAdOptions:
+        //     NativeAdOptions(mediaAspectRatio: MediaAspectRatio.square),
+        nativeTemplateStyle: NativeTemplateStyle(
+          templateType: TemplateType.small,
+          cornerRadius: 10,
+          mainBackgroundColor: Colors.white12,
+          callToActionTextStyle: NativeTemplateTextStyle(
+            size: 16,
+            backgroundColor: context.color.tertiaryColor,
           ),
-          // nativeAdOptions:
-          //     NativeAdOptions(mediaAspectRatio: MediaAspectRatio.square),
-          nativeTemplateStyle: NativeTemplateStyle(
-            templateType: TemplateType.small,
-            cornerRadius: 10,
-            mainBackgroundColor: Colors.white12,
-            callToActionTextStyle: NativeTemplateTextStyle(
-              size: 16,
-              backgroundColor: context.color.tertiaryColor,
-            ),
-            primaryTextStyle: NativeTemplateTextStyle(
-              textColor: Colors.black38,
-              backgroundColor: Colors.white70,
-            ),
+          primaryTextStyle: NativeTemplateTextStyle(
+            textColor: Colors.black38,
+            backgroundColor: Colors.white70,
           ),
-        ).load();
-      },
-    );
+        ),
+      ).load();
+    });
 
     super.initState();
   }
@@ -96,7 +92,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       );
     }
 
-// Medium template
+    // Medium template
     return ConstrainedBox(
       constraints: const BoxConstraints(
         minWidth: 320, // minimum recommended width
@@ -123,20 +119,11 @@ class NativeAdInjector {
   bool checkListLimitCondition = false;
   List<int> totalAddedAds = [];
 
-  void wrapper({
-    required List<NativeAdWidgetContainer> injectableList,
-  }) {
-    if (!Constant.isAdmobAdsEnabled) {
-      return;
-    }
-
+  void wrapper({required List<NativeAdWidgetContainer> injectableList}) {
     try {
-      totalAddedAds = findIndices(
-        injectableList,
-        (element) {
-          return element is NativeAdWidget;
-        },
-      );
+      totalAddedAds = findIndices(injectableList, (element) {
+        return element is NativeAdWidget;
+      });
 
       _totalInjected = totalAddedAds.length;
       total = injectableList.length;
@@ -158,9 +145,7 @@ class NativeAdInjector {
         for (final index in totalAddedAds) {
           injectableList.insert(
             index,
-            const NativeAdWidget(
-              type: TemplateType.small,
-            ),
+            const NativeAdWidget(type: TemplateType.small),
           );
         }
       }
@@ -205,10 +190,7 @@ class AdConditions {
     return this;
   }
 
-  AdConditions setInjectSetting({
-    required int perLength,
-    required int count,
-  }) {
+  AdConditions setInjectSetting({required int perLength, required int count}) {
     injectCount
       ..per = perLength
       ..count = count;

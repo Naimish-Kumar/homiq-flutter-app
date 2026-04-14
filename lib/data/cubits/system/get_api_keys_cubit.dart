@@ -1,69 +1,12 @@
 import 'dart:developer';
 
 import 'package:homiq/exports/main_export.dart';
+import 'package:homiq/settings.dart';
 
 class GetApiKeysCubit extends Cubit<GetApiKeysState> {
   GetApiKeysCubit() : super(GetApiKeysInitial());
 
-  Future<void> fetch() async {
-    try {
-      emit(GetApiKeysInProgress());
-
-      final result = await Api.get(
-        url: Api.getPaymentApiKeys,
-        queryParameters: {},
-      );
-
-      if (result['error'] == true) {
-        emit(GetApiKeysFail(result['message']));
-        return;
-      }
-
-      final data = result['data'] as List? ?? [];
-      if (data.isEmpty) {
-        emit(GetApiKeysFail('No data found'));
-        return;
-      }
-      final bankTransferStatus = _getDataFromKey(data, 'bank_transfer_status');
-      final flutterwaveStatus = _getDataFromKey(data, 'flutterwave_status');
-      final razorpayKey = _getDataFromKey(data, 'razor_key');
-      final paystackPublicKey = _getDataFromKey(data, 'paystack_public_key');
-      final paystackCurrency = _getDataFromKey(data, 'paystack_currency');
-      final stripeCurrency = _getDataFromKey(data, 'stripe_currency');
-      final stripePublishableKey =
-          _getDataFromKey(data, 'stripe_publishable_key');
-      final stripeSecretKey = _getDataFromKey(data, 'stripe_secret_key');
-      var enabledGatway = '';
-      if (_getDataFromKey(data, 'paypal_gateway') == '1') {
-        enabledGatway = 'paypal';
-      } else if (_getDataFromKey(data, 'razorpay_gateway') == '1') {
-        enabledGatway = 'razorpay';
-      } else if (_getDataFromKey(data, 'paystack_gateway') == '1') {
-        enabledGatway = 'paystack';
-      } else if (_getDataFromKey(data, 'stripe_gateway') == '1') {
-        enabledGatway = 'stripe';
-      } else if (flutterwaveStatus == '1') {
-        enabledGatway = 'flutterwave';
-      }
-
-      emit(
-        GetApiKeysSuccess(
-          bankTransferStatus: bankTransferStatus?.toString() ?? '',
-          razorPayKey: razorpayKey?.toString() ?? '',
-          enabledPaymentGatway: enabledGatway,
-          paystackPublicKey: paystackPublicKey?.toString() ?? '',
-          paystackCurrency: paystackCurrency?.toString() ?? '',
-          stripeCurrency: stripeCurrency?.toString() ?? '',
-          stripePublishableKey: stripePublishableKey?.toString() ?? '',
-          stripeSecretKey: stripeSecretKey?.toString() ?? '',
-          flutterwaveStatus: flutterwaveStatus?.toString() ?? '',
-        ),
-      );
-    } on Exception catch (e) {
-      emit(GetApiKeysFail(e.toString()));
-    }
-  }
-
+ 
   void setAPIKeys() {
     //setKeys
     if (state is GetApiKeysSuccess) {
@@ -81,18 +24,22 @@ class GetApiKeysCubit extends Cubit<GetApiKeysState> {
     }
   }
 
-  dynamic _getDataFromKey(List<dynamic> data, String key) {
-    try {
-      final item = data.firstWhere(
-        (element) => element is Map && element['type'] == key,
-        orElse: () => null,
-      );
-      return item?['data'];
-    } catch (e) {
-      log('Error fetching key $key: $e');
-      return null;
-    }
+  Future<void> fetch() async {
+    // Stub implementation
+    emit(GetApiKeysInProgress());
+    emit(GetApiKeysSuccess(
+      bankTransferStatus: '0',
+      razorPayKey: '',
+      paystackPublicKey: '',
+      paystackCurrency: '',
+      enabledPaymentGatway: '',
+      stripeCurrency: '',
+      stripePublishableKey: '',
+      stripeSecretKey: '',
+      flutterwaveStatus: '0',
+    ));
   }
+
 }
 
 abstract class GetApiKeysState {}

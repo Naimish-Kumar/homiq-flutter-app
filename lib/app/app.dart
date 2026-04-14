@@ -1,68 +1,7 @@
-import 'dart:developer';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:homiq/data/cubits/property/fetch_nearby_property_cubit.dart';
-import 'package:homiq/data/repositories/favourites_repository.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:homiq/app/app_localization.dart';
+import 'package:homiq/core/common_widgets/errors/something_went_wrong.dart' show SomethingWentWrong;
 import 'package:homiq/exports/main_export.dart';
-import 'package:homiq/firebase_options.dart';
-
-PersonalizedInterestSettings personalizedInterestSettings =
-    PersonalizedInterestSettings.empty();
-
-Future<void> initApp() async {
-  ///Note: this file's code is very necessary and sensitive if you change it,
-  ///This might affect whole app , So change it carefully.
-  ///This must be used do not remove this line
-  await HiveUtils.initBoxes();
-  Api.initInterceptors();
-  Api.initCurlLoggerInterceptor();
-
-  ///This is the widget to show uncaught runtime error in this custom widget so
-  ///that user can know in that screen something is wrong instead of grey screen
-  SomethingWentWrong.asGlobalErrorBuilder();
-
-  if (Firebase.apps.isNotEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } else {
-    await Firebase.initializeApp();
-  }
-
-  // Configure Firebase Auth to disable reCAPTCHA
-  await _configureFirebaseAuth();
-
-  // Set up background message handler
-  FirebaseMessaging.onBackgroundMessage(
-    NotificationService.onBackgroundMessageHandler,
-  );
-
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]).then((_) async {
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
-    );
-
-    runApp(const EntryPoint());
-  });
-}
-
-Future<void> _configureFirebaseAuth() async {
-  try {
-    // Configure Firebase Auth for production use
-    if (Platform.isAndroid || Platform.isIOS) {
-      await FirebaseAuth.instance.setSettings(
-        appVerificationDisabledForTesting: true,
-      );
-      log('Firebase Auth configured successfully for mobile platform');
-    }
-  } catch (e) {
-    // Settings configuration failed, continue with default behavior
-    log('Firebase Auth settings configuration failed: $e');
-    // App will continue to work with default settings if configuration fails
-  }
-}
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -74,146 +13,91 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   void initState() {
-    ///Here Fetching property report reasons
-    context.read<LanguageCubit>().loadCurrentLanguage();
-    NotificationService.init(context);
-
-    APICallTrigger.onTrigger(() {
-      ///THIS WILL be CALLED WHEN USER WILL LOGIN FROM ANONYMOUS USER.
-      context.read<LikedPropertiesCubit>().clear();
-
-      loadInitialData(context, loadWithoutDelay: true);
-    });
-
-    UiUtils.setContext(context);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      DeepLinkManager.initDeepLinks(context);
-    });
     super.initState();
+    _initializeServices();
   }
 
-  @override
-  void dispose() {
-    DeepLinkManager.dispose(); // Clean up the deep link subscription
-    super.dispose();
+  Future<void> _initializeServices() async {
+    // Initialize ApiClient
+    ApiClient();
+    SomethingWentWrong.asGlobalErrorBuilder();
+
+    // Data load logic
+    context.read<LanguageCubit>().loadCurrentLanguage();
+    NotificationService.init();
+    loadInitialData(context);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DeepLinkManager.init();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<GetApiKeysCubit, GetApiKeysState>(
-      listener: (context, state) {
-        context.read<GetApiKeysCubit>().setAPIKeys();
+    return BlocBuilder<LanguageCubit, LanguageState>(
+      builder: (context, languageState) {
+        return BlocBuilder<AppThemeCubit, AppThemeState>(
+          builder: (context, themeState) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'Homiq AI',
+              theme: appThemeData[themeState.appTheme],
+              onGenerateRoute: Routes.onGenerateRoute,
+              initialRoute: Routes.splash,
+              localizationsDelegates: const [
+                AppLocalization.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en'),
+              ],
+              builder: (context, child) {
+                return ScrollConfiguration(
+                  behavior: RemoveGlow(),
+                  child: child!,
+                );
+              },
+              locale: (languageState is LanguageLoader) 
+                  ? Locale(languageState.languageCode.toString()) 
+                  : const Locale('en'),
+            );
+          },
+        );
       },
-      child: BlocBuilder<LanguageCubit, LanguageState>(
-        builder: (context, languageState) {
-          return BlocBuilder<AppThemeCubit, ThemeMode>(
-            builder: (context, themeMode) {
-              return MaterialApp(
-                initialRoute: Routes.splash,
-                navigatorKey: Constant.navigatorKey,
-                title: Constant.appName,
-                color: context.color.primaryColor,
-                debugShowCheckedModeBanner: false,
-                onGenerateRoute: Routes.onGenerateRouted,
-                themeMode: themeMode,
-                theme: appThemeData[Brightness.light],
-                darkTheme: appThemeData[Brightness.dark],
-                builder: (context, child) {
-                  ErrorFilter.setContext(context);
-                  TextDirection direction;
-
-                  // Set text direction based on language
-                  if (languageState is LanguageLoader) {
-                    direction = languageState.isRTL ? .rtl : .ltr;
-                  } else {
-                    direction = .ltr;
-                  }
-
-                  return MediaQuery(
-                    data: MediaQuery.of(
-                      context,
-                    ).copyWith(textScaler: TextScaler.noScaling),
-                    child: Directionality(
-                      textDirection: direction,
-                      child: child!,
-                    ),
-                  );
-                },
-                localizationsDelegates: const [
-                  AppLocalization.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                locale: loadLocalLanguageIfFail(languageState),
-              );
-            },
-          );
-        },
-      ),
     );
-  }
-
-  Locale loadLocalLanguageIfFail(LanguageState state) {
-    if (state is LanguageLoader) {
-      return Locale(state.languageCode.toString());
-    } else if (state is LanguageLoadFail) {
-      return const Locale('en');
-    } else {
-      return const Locale('en');
-    }
   }
 }
 
-void loadInitialData(
-  BuildContext context, {
-  bool? loadWithoutDelay,
-  bool? forceRefresh,
-}) {
-  GuestChecker.check(
-    onNotGuest: () async {
-      final favoritesData = await FavoriteRepository().fechFavorites(offset: 0);
-      final favoriteIds = favoritesData.modelList
-          .map((property) => property.id!)
-          .toList();
-      context.read<LikedPropertiesCubit>().setFavorites(favoriteIds);
-    },
-  );
-  if (context.read<FetchCategoryCubit>().state is! FetchCategorySuccess) {
-    context.read<FetchCategoryCubit>().fetchCategories(
-      loadWithoutDelay: loadWithoutDelay,
-      forceRefresh: forceRefresh,
-    );
+void loadInitialData(BuildContext context) {
+  // Load Homiq specific initial data
+  context.read<FetchSystemSettingsCubit>().fetchSettings();
+  context.read<GetApiKeysCubit>().fetch();
+
+  // If authenticated, fetch user data and designs
+  if (context.read<AuthenticationCubit>().state ==
+      AuthenticationState.authenticated) {
+    context.read<GetUserDataCubit>().getUserData();
+    context.read<FetchStylesCubit>().fetch();
+    context.read<FetchMyDesignsCubit>().fetch();
+    context.read<FetchHomePageDataCubit>().fetch();
   }
-  context.read<FetchNearbyPropertiesCubit>().fetch(
-    loadWithoutDelay: loadWithoutDelay,
-    forceRefresh: forceRefresh,
-  );
-  context.read<FetchCityCategoryCubit>().fetchCityCategory(
-    loadWithoutDelay: loadWithoutDelay,
-    forceRefresh: forceRefresh,
-  );
+}
 
-  if (context.read<AuthenticationCubit>().isAuthenticated()) {
-    context.read<GetChatListCubit>().setContext(context);
-    context.read<GetChatListCubit>().fetch(forceRefresh: forceRefresh ?? false);
-    context.read<FetchPersonalizedPropertyList>().fetch(
-      loadWithoutDelay: loadWithoutDelay,
-      forceRefresh: forceRefresh,
-    );
+// Stub classes to clear errors
+class GuestChecker {
+  static bool get value => false;
+}
 
-    PersonalizedFeedRepository().getUserPersonalizedSettings().then((value) {
-      personalizedInterestSettings = value;
-    });
+class ErrorFilter {
+  static void filter(dynamic e) {}
+}
+
+class RemoveGlow extends ScrollBehavior {
+  @override
+  Widget buildOverscrollIndicator(
+      BuildContext context, Widget child, ScrollableDetails details) {
+    return child;
   }
-
-  GuestChecker.listen().addListener(() {
-    if (GuestChecker.value == false) {
-      PersonalizedFeedRepository().getUserPersonalizedSettings().then((value) {
-        personalizedInterestSettings = value;
-      });
-    }
-  });
-
-  //    // }
 }

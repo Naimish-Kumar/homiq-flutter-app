@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:homiq/exports/main_export.dart';
+import 'package:homiq/exports/core_data.dart';
 import 'package:homiq/utils/login/lib/login_status.dart';
 import 'package:homiq/utils/login/lib/login_system.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';

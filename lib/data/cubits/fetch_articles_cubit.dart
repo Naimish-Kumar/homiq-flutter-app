@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:homiq/core/error/failures.dart';
 import 'package:homiq/data/model/article_model.dart';
 import 'package:homiq/data/repositories/articles_repository.dart';
-import 'package:homiq/utils/api.dart';
 
 abstract class FetchArticlesState {}
 
@@ -54,7 +54,7 @@ class FetchArticlesCubit extends Cubit<FetchArticlesState> {
     try {
       emit(FetchArticlesInProgress());
 
-      final result = await _articleRepository.fetchArticles(offset: 0);
+      final result = await _articleRepository.fetchArticles();
 
       emit(
         FetchArticlesSuccess(
@@ -70,39 +70,7 @@ class FetchArticlesCubit extends Cubit<FetchArticlesState> {
     }
   }
 
-  Future<void> fetchArticlesMore() async {
-    try {
-      if (state is FetchArticlesSuccess) {
-        if ((state as FetchArticlesSuccess).isLoadingMore) {
-          return;
-        }
-
-        emit((state as FetchArticlesSuccess).copyWith(isLoadingMore: true));
-
-        final result = await _articleRepository.fetchArticles(
-          offset: (state as FetchArticlesSuccess).articlemodel.length,
-        );
-
-        final articlemodelState = state as FetchArticlesSuccess;
-        articlemodelState.articlemodel.addAll(result.modelList);
-        emit(
-          FetchArticlesSuccess(
-            isLoadingMore: false,
-            loadingMoreError: false,
-            articlemodel: articlemodelState.articlemodel,
-            offset: (state as FetchArticlesSuccess).articlemodel.length,
-            total: result.total,
-          ),
-        );
-      }
-    } on Exception {
-      emit(
-        (state as FetchArticlesSuccess)
-            .copyWith(isLoadingMore: false, loadingMoreError: true),
-      );
-    }
-  }
-
+ 
   bool hasMoreData() {
     if (state is FetchArticlesSuccess) {
       return (state as FetchArticlesSuccess).articlemodel.length <

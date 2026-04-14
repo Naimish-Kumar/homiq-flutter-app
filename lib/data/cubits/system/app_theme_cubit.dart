@@ -1,11 +1,17 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:homiq/utils/hive_keys.dart';
 import 'package:homiq/utils/hive_utils.dart';
 
-class AppThemeCubit extends Cubit<ThemeMode> {
-  AppThemeCubit() : super(_getInitialThemeMode());
+class AppThemeState {
+  final ThemeMode appTheme;
+  AppThemeState(this.appTheme);
+}
+
+class AppThemeCubit extends Cubit<AppThemeState> {
+  AppThemeCubit() : super(AppThemeState(_getInitialThemeMode()));
 
   static ThemeMode _getInitialThemeMode() {
     final savedTheme = HiveUtils.getCurrentTheme();
@@ -19,7 +25,6 @@ class AppThemeCubit extends Cubit<ThemeMode> {
   }
 
   void changeTheme(ThemeMode themeMode) {
-    // Save the theme preference
     String themeValue;
     switch (themeMode) {
       case ThemeMode.system:
@@ -30,16 +35,20 @@ class AppThemeCubit extends Cubit<ThemeMode> {
         themeValue = 'light';
     }
 
-    Hive.box<dynamic>(HiveKeys.themeBox).put(HiveKeys.currentTheme, themeValue);
-    emit(themeMode);
+    try {
+      Hive.box<dynamic>(HiveKeys.themeBox).put(HiveKeys.currentTheme, themeValue);
+    } catch (e) {
+      log('Failed to save theme: $e');
+    }
+    emit(AppThemeState(themeMode));
   }
 
   bool get isDarkMode {
-    if (state == ThemeMode.system) {
+    if (state.appTheme == ThemeMode.system) {
       final brightness =
           WidgetsBinding.instance.platformDispatcher.platformBrightness;
       return brightness == Brightness.dark;
     }
-    return state == ThemeMode.dark;
+    return state.appTheme == ThemeMode.dark;
   }
 }

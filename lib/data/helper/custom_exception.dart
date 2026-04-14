@@ -27,3 +27,7 @@ class VerificationException extends CustomException {
 class InvalidInputException extends CustomException {
   InvalidInputException([super.message]);
 }
+
+class NoInternetConnectionError extends CustomException {
+  NoInternetConnectionError([super.message]);
+}

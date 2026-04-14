@@ -4,10 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:homiq/app/routes.dart';
-import 'package:homiq/data/model/user_model.dart';
-import 'package:homiq/data/repositories/auth_repository.dart';
+import 'package:homiq/features/auth/data/models/user_model.dart';
+import 'package:homiq/features/auth/data/repositories_impl/auth_repository_impl.dart';
 import 'package:homiq/settings.dart';
-import 'package:homiq/utils/extensions/extensions.dart';
+import 'package:homiq/core/network/api_client.dart';
 import 'package:homiq/utils/hive_keys.dart';
 
 class HiveUtils {
@@ -51,8 +51,8 @@ class HiveUtils {
     );
   }
 
-  static void setIsNotGuest() {
-    Hive.box<dynamic>(HiveKeys.userDetailsBox).put('isGuest', false);
+  static Future<void> setIsNotGuest() async {
+    await Hive.box<dynamic>(HiveKeys.userDetailsBox).put('isGuest', false);
   }
 
   static void setIsGuest() {
@@ -184,8 +184,8 @@ class HiveUtils {
     );
   }
 
-  static void setUserIsAuthenticated() {
-    Hive.box<dynamic>(HiveKeys.authBox).put(HiveKeys.isAuthenticated, true);
+  static Future<void> setUserIsAuthenticated() async {
+    await Hive.box<dynamic>(HiveKeys.authBox).put(HiveKeys.isAuthenticated, true);
   }
 
   static Future<void> setUserIsNotAuthenticated() async =>
@@ -250,8 +250,8 @@ class HiveUtils {
         await Hive.box<dynamic>(HiveKeys.userDetailsBox)
             .put(HiveKeys.longitude, longitude);
       }
-    } on Exception catch (e) {
-      e.toString().log('issue here is');
+    } on Exception {
+    
     }
   }
 
@@ -284,8 +284,8 @@ class HiveUtils {
         await Hive.box<dynamic>(HiveKeys.homeLocationBox)
             .put(HiveKeys.radius, radius);
       }
-    } on Exception catch (e) {
-      e.toString().log('issue here is');
+    } on Exception {
+     
     }
   }
 
@@ -345,7 +345,7 @@ class HiveUtils {
     try {
       final loginType = HiveUtils.getUserLoginType();
       if (loginType == LoginType.email) {
-        await AuthRepository().beforeLogout();
+        await AuthRepositoryImpl(ApiClient()).beforeLogout();
         await FirebaseAuth.instance.signOut();
         await setUserIsNotAuthenticated();
         await Hive.box<dynamic>(HiveKeys.userDetailsBox).clear();
@@ -355,7 +355,7 @@ class HiveUtils {
       }
       if (loginType == LoginType.phone &&
           AppSettings.otpServiceProvider == 'firebase') {
-        await AuthRepository().beforeLogout();
+        await AuthRepositoryImpl(ApiClient()).beforeLogout();
         await FirebaseAuth.instance.signOut();
         await setUserIsNotAuthenticated();
         await Hive.box<dynamic>(HiveKeys.userDetailsBox).clear();
@@ -364,7 +364,7 @@ class HiveUtils {
         await HiveUtils.clear();
       }
       if (loginType == LoginType.apple || loginType == LoginType.google) {
-        await AuthRepository().beforeLogout();
+        await AuthRepositoryImpl(ApiClient()).beforeLogout();
         await FirebaseAuth.instance.signOut();
         await setUserIsNotAuthenticated();
         await Hive.box<dynamic>(HiveKeys.userDetailsBox).clear();
@@ -388,8 +388,8 @@ class HiveUtils {
           }
         },
       );
-    } on Exception catch (e) {
-      e.toString().log('issue here is');
+    } on Exception {
+     
       await Future.delayed(
         Duration.zero,
         () {

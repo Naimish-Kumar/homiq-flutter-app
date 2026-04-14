@@ -1,13 +1,24 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:homiq/utils/hive_keys.dart';
 
 class NetworkToLocalSvg {
-  final Dio dio = Dio();
+  final Dio dio = Dio()
+    ..interceptors.add(PrettyDioLogger(
+      requestHeader: true,
+      requestBody: true,
+      responseBody: true,
+      responseHeader: false,
+      error: true,
+      compact: true,
+      maxWidth: 90,
+    ));
 
   Future<String?> convert(String url) async {
     try {

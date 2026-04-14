@@ -1,13 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:homiq/exports/main_export.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:homiq/app/app_localization.dart';
+import 'package:homiq/data/cubits/system/language_cubit.dart';
+import 'package:homiq/utils/extensions/extensions.dart';
+import 'package:homiq/utils/helper_utils.dart';
+import 'package:homiq/utils/hive_utils.dart';
+import 'package:homiq/utils/responsive_size.dart';
+import 'package:homiq/core/common_widgets/custom_shimmer.dart';
+import 'package:homiq/core/common_widgets/full_screen_image_view.dart';
+import 'package:homiq/core/common_widgets/gallery_view.dart';
+import 'package:homiq/core/common_widgets/blurred_dialoge_box.dart';
 import 'package:intl/intl.dart';
-import 'package:lottie/lottie.dart';
 
 class UiUtils {
-  static BuildContext? _context;
 
   static void setContext(BuildContext context) {
-    _context = context;
+  }
+
+  static Widget progress({
+    double? value,
+    BuildContext? context,
+    Color? color,
+    double? size,
+  }) {
+    return Center(
+      child: CircularProgressIndicator(
+        value: value,
+        valueColor: AlwaysStoppedAnimation(color ?? Colors.white),
+      ),
+    );
   }
 
   static String translate(BuildContext context, String labelKey) {
@@ -52,48 +75,7 @@ class UiUtils {
     );
   }
 
-  static Widget progress({
-    double? width,
-    double? height,
-    Color? normalProgressColor,
-    bool play = true, // NEW: control whether animation plays
-  }) {
-    final primaryColor = _context?.color.tertiaryColor;
-    final secondaryColor = _context?.color.buttonColor;
-
-    if (Constant.useLottieProgress) {
-      return LottieBuilder.asset(
-        'assets/lottie/${Constant.progressLottieFile}',
-        width: width ?? 45,
-        height: height ?? 45,
-        animate: play, // 🔥 only play if allowed
-        delegates: LottieDelegates(
-          values: [
-            ValueDelegate.color(
-              ['Layer 5 Outlines', 'Group 1', '**'],
-              value: primaryColor,
-            ),
-            ValueDelegate.color(
-              ['cube 4 Outlines', 'Group 1', '**'],
-              value: primaryColor,
-            ),
-            ValueDelegate.color(
-              ['cube 2 Outlines', 'Group 1', '**'],
-              value: secondaryColor,
-            ),
-            ValueDelegate.color(
-              ['cube 3 Outlines', 'Group 1', '**'],
-              value: secondaryColor,
-            ),
-          ],
-        ),
-      );
-    } else {
-      return CircularProgressIndicator(
-        color: normalProgressColor,
-      );
-    }
-  }
+ 
 
   static SystemUiOverlayStyle getSystemUiOverlayStyle({
     required BuildContext context,
@@ -194,10 +176,7 @@ class UiUtils {
                 prefixWidget,
               ],
               if (isInProgress) ...[
-                UiUtils.progress(
-                  width: progressWidth ?? 16,
-                  height: progressHeight ?? 16,
-                ),
+              
               ],
               if (prefixWidget != null && !isInProgress && !isRTL) ...[
                 prefixWidget,
@@ -322,7 +301,7 @@ class UiUtils {
     return ResponsiveHelper.isLargeTablet(context)
         ? GridView.builder(
             shrinkWrap: true,
-            physics: Constant.scrollPhysics,
+         
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               mainAxisExtent: 130.rh(context),
@@ -339,7 +318,7 @@ class UiUtils {
           )
         : ListView.separated(
             shrinkWrap: true,
-            physics: Constant.scrollPhysics,
+           
             itemCount: 8,
             padding: const EdgeInsets.symmetric(
               vertical: 8,

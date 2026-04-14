@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:homiq/utils/constant.dart';
 import 'package:homiq/utils/helper_utils.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -47,7 +46,7 @@ class PickImage {
       });
     } else {
       final list = await _picker.pickMultiImage(
-        imageQuality: Constant.uploadImageQuality,
+        imageQuality: 100,
       );
       const threeMB = 3000000;
 

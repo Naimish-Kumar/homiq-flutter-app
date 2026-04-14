@@ -13,7 +13,7 @@ class CustomText extends StatelessWidget {
     this.fontSize,
     this.textAlign,
     this.maxLines = 10,
-    // this.height,
+    this.height,
     this.showUnderline = false,
     this.underlineOrLineColor,
     this.letterSpacing,
@@ -28,7 +28,7 @@ class CustomText extends StatelessWidget {
   final FontWeight? fontWeight;
   final FontStyle? fontStyle;
   final double? fontSize;
-  // final double? height;
+  final double? height;
   final TextAlign? textAlign;
   final int maxLines;
   final bool showLineThrough;
@@ -59,6 +59,7 @@ class CustomText extends StatelessWidget {
       fontSize: fontSize?.rf(context),
       decoration: decoration,
       decorationColor: underlineOrLineColor,
+      height: height,
       letterSpacing: letterSpacing,
       textBaseline: textBaseline,
     ) ?? TextStyle(
@@ -68,7 +69,7 @@ class CustomText extends StatelessWidget {
       fontSize: fontSize?.rf(context),
       decoration: decoration,
       decorationColor: underlineOrLineColor,
-      height: 1.3,
+      height: height ?? 1.3,
       letterSpacing: letterSpacing,
       textBaseline: textBaseline,
     );

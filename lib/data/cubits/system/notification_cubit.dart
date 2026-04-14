@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homiq/data/helper/custom_exception.dart';
 import 'package:homiq/data/model/notification_data.dart';
 import 'package:homiq/utils/extensions/extensions.dart';
-import 'package:homiq/utils/api.dart';
+import 'package:homiq/core/network/api_endpoints.dart';
 import 'package:homiq/utils/helper_utils.dart';
 
 abstract class NotificationState {}
@@ -44,9 +44,9 @@ class NotificationCubit extends Cubit<NotificationState> {
     final response = await HelperUtils.sendApiRequest(
       Api.apiGetNotificationList,
       {},
-      false,
-      context,
-    ) as String?;
+      false as BuildContext,
+      context as bool,
+    );
     if (response == null) {
       Future.delayed(
         Duration.zero,

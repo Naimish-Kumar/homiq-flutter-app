@@ -1,24 +1,18 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:homiq/utils/constant.dart';
 
 class InterstitialAdManager {
   static int _adCount = 0;
   static InterstitialAd? _interstitialAd;
 
   void load({VoidCallback? onAdLoad}) {
-    if (Constant.isAdmobAdsEnabled == false) {
-      return;
-    }
+   
 
     InterstitialAd.load(
-      adUnitId: (Platform.isAndroid
-          ? Constant.admobInterstitialAndroid
-          : Constant.admobInterstitialIos),
+      adUnitId:'',
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (InterstitialAd ad) {
@@ -34,9 +28,7 @@ class InterstitialAdManager {
   }
 
   Future<void> show() async {
-    if (Constant.isAdmobAdsEnabled == false) {
-      return;
-    }
+  
     if (_interstitialAd != null) {
       _adCount++;
       if (_adCount == 4) {

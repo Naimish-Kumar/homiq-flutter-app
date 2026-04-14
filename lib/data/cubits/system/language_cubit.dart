@@ -1,6 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
-import 'package:homiq/utils/hive_keys.dart';
 
 class LanguageState {}
 
@@ -21,22 +19,13 @@ class LanguageCubit extends Cubit<LanguageState> {
   LanguageCubit() : super(LanguageInitial());
 
   void emitLanguageLoader({required String code, required bool isRtl}) {
-    emit(LanguageLoader(code, isRTL: isRtl));
+    // Force English even if called
+    emit(LanguageLoader('en', isRTL: false));
   }
 
   void loadCurrentLanguage() {
-    final language = Hive.box<dynamic>(HiveKeys.languageBox)
-        .get(HiveKeys.currentLanguageKey) as Map?;
-    if (language != null) {
-      emit(
-        LanguageLoader(
-          language['code'],
-          isRTL: language['isRTL'] as bool? ?? false,
-        ),
-      );
-    } else {
-      emit(LanguageLoader('en', isRTL: false));
-    }
+    // Always load English
+    emit(LanguageLoader('en', isRTL: false));
   }
 
   bool get isRTL {
@@ -46,3 +35,4 @@ class LanguageCubit extends Cubit<LanguageState> {
     return false;
   }
 }
+

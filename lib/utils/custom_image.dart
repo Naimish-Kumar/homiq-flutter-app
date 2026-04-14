@@ -73,10 +73,15 @@ class CustomImage extends StatelessWidget {
 
     // If image is still empty after fallback, show a placeholder icon
     if (image.isEmpty) {
-      return SizedBox(
+      return Container(
         width: width,
         height: height,
-        child: Icon(Icons.image_outlined, size: width ?? height, color: color),
+        decoration: BoxDecoration(
+          color: Colors.grey.withValues(alpha: 0.1),
+          shape: isCircular ? BoxShape.circle : BoxShape.rectangle,
+          borderRadius: isCircular ? null : BorderRadius.circular(12),
+        ),
+        child: Icon(Icons.image_outlined, size: (width ?? height ?? 24) * 0.5, color: color ?? Colors.grey),
       );
     }
 
@@ -94,20 +99,26 @@ class CustomImage extends StatelessWidget {
         ? ColorFilter.mode(color!, BlendMode.srcIn)
         : null;
 
-    final errorWidget = Image.network(
-      errorImg,
-      width: width,
-      height: height,
-      fit: fit,
-      matchTextDirection: matchTextDirection,
-    );
+    final errorWidget = errorImg.isEmpty 
+        ? Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              color: Colors.grey.withValues(alpha: 0.1),
+              shape: isCircular ? BoxShape.circle : BoxShape.rectangle,
+            ),
+            child: Icon(Icons.broken_image_outlined, size: (width ?? height ?? 24) * 0.5, color: Colors.grey),
+          )
+        : (errorImg.startsWith('http') 
+            ? Image.network(errorImg, width: width, height: height, fit: fit) 
+            : Image.asset(errorImg, width: width, height: height, fit: fit));
 
     return GestureDetector(
-      onTap: showFullScreenImage
+      onTap: showFullScreenImage && isNetworked
           ? () {
               UiUtils.showFullScreenImage(
                 context,
-                provider: NetworkImage(image),
+                provider: CachedNetworkImageProvider(image),
               );
             }
           : null,
@@ -126,8 +137,8 @@ class CustomImage extends StatelessWidget {
               alignment: alignment,
               errorBuilder: (_, o, s) => errorWidget,
               matchTextDirection: matchTextDirection,
-              cacheHeight: 500,
-              cacheWidth: 500,
+              cacheHeight: cacheHeight?.toInt() ?? 500,
+              cacheWidth: cacheWidth?.toInt() ?? 500,
             ),
             // svg image
             (false, true) => SvgPicture.asset(
@@ -146,8 +157,8 @@ class CustomImage extends StatelessWidget {
               imageUrl: image,
               errorWidget: (_, s, o) => errorWidget,
               matchTextDirection: matchTextDirection,
-              memCacheHeight: 500,
-              memCacheWidth: 500,
+              memCacheHeight: cacheHeight?.toInt() ?? 500,
+              memCacheWidth: cacheWidth?.toInt() ?? 500,
             ),
             //
             (true, true) => SvgPicture.network(

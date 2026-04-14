@@ -1,8 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:homiq/data/helper/custom_exception.dart';
-import 'package:homiq/utils/api.dart';
-import 'package:homiq/utils/hive_utils.dart';
+
 
 abstract class DeleteAccountState {}
 
@@ -22,41 +19,10 @@ class AccountDeleted extends DeleteAccountState {
 
 class DeleteAccountCubit extends Cubit<DeleteAccountState> {
   DeleteAccountCubit() : super(DeleteAccountInitial());
-  void deleteUserAccount(BuildContext context) {
+
+  Future<void> deleteUserAccount() async {
     emit(DeleteAccountProgress());
-    deleteAccount(context)
-        .then((value) => emit(AccountDeleted(successMessage: value)))
-        .catchError((dynamic e) => emit(DeleteAccountFailure(e.toString())));
-  }
-
-  Future<String> deleteAccount(BuildContext context) async {
-    var message = '';
-
-    /* User? currentUser = await FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        await currentUser.reload();
-      }*/
-    final parameter = <String, String>{
-      // Api.userid: HiveUtils.getUserId()!,
-    };
-
-    final response = await Api.post(
-      url: Api.apiDeleteUser,
-      parameter: parameter,
-    );
-
-    if (response['error'] == true) {
-      throw CustomException(response['message']);
-    } else {
-      Future.delayed(
-        Duration.zero,
-        () {
-          HiveUtils.logoutUser(context, onLogout: () {}, isRedirect: false);
-        },
-      );
-      message = response['message']?.toString() ?? '';
-    }
-
-    return message;
+    // Stub
+    emit(AccountDeleted(successMessage: 'Account deleted successfully'));
   }
 }

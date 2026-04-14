@@ -4,7 +4,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:homiq/utils/hive_utils.dart';
 
 class AppLocalization {
   AppLocalization(this.locale);
@@ -22,20 +21,12 @@ class AppLocalization {
   Future<dynamic> loadJson() async {
     final jsonStringValues =
         await rootBundle.loadString('assets/languages/template.json');
-    // value from root-bundle will be encoded string
-    var mappedJson = <String, dynamic>{};
-    final getLanguage = HiveUtils.getLanguage() as Map<dynamic, dynamic>?;
-    final languageIsNull = getLanguage == null || getLanguage['data'] == null;
-    if (languageIsNull) {
-      mappedJson = json.decode(jsonStringValues) as Map<String, dynamic>;
-    } else {
-      mappedJson = Map<String, dynamic>.from(
-        getLanguage['data'] as Map<dynamic, dynamic>,
-      );
-    }
+    // Always use template.json as the single source for English strings
+    final mappedJson = json.decode(jsonStringValues) as Map<String, dynamic>;
     _localizedValues =
         mappedJson.map((key, value) => MapEntry(key, value.toString()));
   }
+
 
   //to get translated value of given title/key
   String? getTranslatedValues(String? key) {
