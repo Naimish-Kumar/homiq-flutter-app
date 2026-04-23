@@ -1,0 +1,27 @@
+{
+  "@@locale": "ar",
+  "appTitle": "هوميك AI",
+  "home": "الرئيسية",
+  "history": "السجل",
+  "profile": "الملف الشخصي",
+  "uploadImage": "تحميل صورة",
+  "selectStyle": "اختر النمط",
+  "generate": "إنشاء",
+  "proPlan": "الخطة الاحترافية",
+  "settings": "الإعدادات",
+  "darkMode": "الوضع الداكن",
+  "language": "اللغة",
+  "signOut": "تسجيل الخروج",
+  "welcomeBack": "مرحباً بعودتك",
+  "signInContinue": "سجل الدخول لمواصلة تصميم مساحة أحلامك",
+  "emailOrMobile": "البريد الإلكتروني أو الهاتف",
+  "sendOtp": "إرسال رمز التحقق",
+  "continueWithGoogle": "المتابعة باستخدام جوجل",
+  "dontHaveAccount": "ليس لديك حساب؟",
+  "signUp": "إنشاء حساب",
+  "verifyAccount": "التحقق من الحساب",
+  "otpCodeSent": "أدخل الرمز المكون من 6 أرقام المرسل إلى",
+  "resendCode": "إعادة إرسال الرمز",
+  "verify": "تحقق"
+}
+

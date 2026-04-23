@@ -9,3 +9,4 @@ android/.kotlin/
 *.lock
 *.bin
 
+ios/Pods/

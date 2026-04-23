@@ -1,5 +1,8 @@
 
 analyzer:
+  exclude:
+    - lib_old/**
+    - logic_backup/**
   errors:
     avoid_annotating_with_dynamic: ignore
     avoid_dynamic_calls: ignore
